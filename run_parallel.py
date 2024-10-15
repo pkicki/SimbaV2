@@ -9,6 +9,21 @@ import numpy as np
 
 def run_with_device(server, device_id, config_path, config_name, overrides):
     os.environ["CUDA_VISIBLE_DEVICES"] = str(device_id)
+    if server == "kaist":
+        cuda_id_to_egl_id = {
+            0: 3,
+            1: 2,
+            2: 1,
+            3: 0,
+            4: 7,
+            5: 6,
+            6: 5,
+            7: 4,
+        }
+        os.environ["MUJOCO_EGL_DEVICE_ID"] = str(cuda_id_to_egl_id[int(device_id)])
+    else:
+        os.environ["MUJOCO_EGL_DEVICE_ID"] = str(0)
+
     os.environ["MUJOCO_EGL_DEVICE_ID"] = str(0)
     os.environ["OMP_NUM_THREADS"] = "2"
 
@@ -85,6 +100,46 @@ if __name__ == "__main__":
             + ["myosuite"] * len(MYOSUITE_TASKS)
             + ["hb_locomotion"] * len(HB_LOCOMOTION_NOHAND)
         )
+
+    elif env_type == "mini_benchmark":
+        dmc_em_envs = [
+            "acrobot-swingup",
+            "cheetah-run",
+            "finger-spin",
+            "fish-swim",
+            "quadruped-run",
+            "walker-run",
+        ]
+
+        dmc_hard_envs = [
+            "dog-run",
+            "dog-trot",
+            "humanoid-stand",
+            "humanoid-walk",
+        ]
+
+        myo_envs = [
+            "myo-key-turn-hard",
+            "myo-obj-hold-hard",
+            "myo-pen-twirl-hard",
+        ]
+
+        hb_envs = [
+            "h1-balance_simple-v0",
+            "h1-run-v0",
+            "h1-stair-v0",
+            "h1-stand-v0",
+        ]
+
+        envs = dmc_em_envs + dmc_hard_envs + myo_envs + hb_envs
+
+        env_configs = (
+            ["dmc_em"] * len(dmc_em_envs)
+            + ["dmc_hard"] * len(dmc_hard_envs)
+            + ["myosuite"] * len(myo_envs)
+            + ["hb_locomotion_1m"] * len(hb_envs)
+        )
+
     else:
         raise NotImplementedError
 

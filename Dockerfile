@@ -91,3 +91,16 @@ RUN wget https://github.com/deepmind/mujoco/releases/download/2.1.0/mujoco210-li
      pip install -e /home/user/humanoid-bench && \
      git clone --recursive https://github.com/joonleesky/myosuite /home/user/myosuite && \
      pip install -e /home/user/myosuite
+
+#############################
+# Sony-AI
+# # set authorization
+RUN git clone https://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@github.com/dojeon-ai/SimbaV2.git /home/user/scale_rl
+RUN git config --global --add safe.directory /home/user/scale_rl
+ENV WANDB_API_KEY=96022b49a4e5c639895ba1e229022e087f79c84a
+
+## Install dart dependencies
+RUN --mount=type=secret,id=pip_extra_index_url,uid=1000 \
+    PIP_EXTRA_INDEX_URL=$(cat /run/secrets/pip_extra_index_url); \
+    pip install --disable-pip-version-check --no-cache-dir --extra-index-url ${PIP_EXTRA_INDEX_URL} dart-wrapper==0.1.3 dart-client==0.5.23
+RUN pip install mypy-boto3-s3==1.28.55 boto3==1.28.24 boto3-stubs==1.28.74 awscli==1.29.24 protobuf==3.20.1
