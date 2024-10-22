@@ -170,6 +170,7 @@ def plot_metric_history_per_env(
     y_lim_max: int = 1000,
     x_label: str = "env_step (M)",
     y_label: str = "avg_return",
+    legend_bbox_to_anchor: tuple = (0.5, 1.15),
 ):
     experiments = eval_df["exp_name"].unique()
     environments = eval_df["env_name"].unique()
@@ -230,7 +231,7 @@ def plot_metric_history_per_env(
         experiments,
         loc="upper center",
         ncol=num_plots_per_row,
-        bbox_to_anchor=(0.5, 1.15),
+        bbox_to_anchor=legend_bbox_to_anchor,
     )
 
     # Adjust layout and display

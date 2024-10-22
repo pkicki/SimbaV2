@@ -42,3 +42,17 @@ class ResidualBlock(nn.Module):
         x = nn.relu(x)
         x = nn.Dense(self.hidden_dim, kernel_init=he_normal_init(), dtype=self.dtype)(x)
         return res + x
+
+
+class SimNorm(nn.Module):
+    levels: int
+    dtype: Any
+
+    @nn.compact
+    def __call__(self, x: jnp.ndarray) -> jnp.ndarray:
+        L = self.levels
+        shape = x.shape
+        x = jnp.reshape(x, (*shape[:-1], L, -1))
+        x = nn.softmax(x, -1)
+        x = jnp.reshape(x, (shape))
+        return x
