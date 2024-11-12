@@ -3,7 +3,7 @@
 ##################################################################################
 
 env_type: 'dmc'
-env_name: 'walker-walk'
+env_name: 'walker-run'
 num_env_steps: 500_000
 episodic: false
 

@@ -8,7 +8,7 @@ import jax.numpy as jnp
 import optax
 from flax.training import dynamic_scale as dynamic_scale_lib
 
-from scale_rl.networks.utils import tree_norm
+from scale_rl.networks.utils import tree_map_until_match, tree_norm
 
 PRNGKey = jnp.ndarray
 

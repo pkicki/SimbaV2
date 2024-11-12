@@ -4,8 +4,9 @@ from typing import Dict, List, Optional
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
-import wandb
 from tqdm.auto import tqdm
+
+import wandb
 
 
 def collect_runs(entity: str, project_name: str):

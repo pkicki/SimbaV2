@@ -46,18 +46,14 @@ class SACDevEncoder(nn.Module):
                 x = nn.LayerNorm(dtype=self.dtype)(x)
 
             if self.use_post_linear:
-                x = nn.Dense(
-                    self.post_hidden_dim, dtype=self.dtype
-                )(x)
+                x = nn.Dense(self.post_hidden_dim, dtype=self.dtype)(x)
 
             if self.use_simnorm:
                 x = SimNorm(self.simnorm_levels, dtype=self.dtype)(x)
 
             if self.use_project_linear:
-                x = nn.Dense(
-                    self.project_hidden_dim, dtype=self.dtype
-                )(x)
-            
+                x = nn.Dense(self.project_hidden_dim, dtype=self.dtype)(x)
+
             if self.use_project_activ:
                 x = nn.relu(x)
 

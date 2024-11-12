@@ -2,8 +2,9 @@ from typing import Dict
 
 import gymnasium as gym
 import numpy as np
-import wandb
 from gymnasium.vector import VectorEnv
+
+import wandb
 
 
 def evaluate(
