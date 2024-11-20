@@ -1,1 +1,1 @@
-from scale_rl.agents.wrappers.normalization import ObservationNormalizer
+from scale_rl.agents.wrappers.normalization import ObservationNormalizer, StreamRewardScaler
