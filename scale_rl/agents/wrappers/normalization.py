@@ -24,7 +24,7 @@ class ObservationNormalizer(AgentWrapper):
 
         self.obs_rms = RunningMeanStd(
             shape=self.agent._observation_space.shape,
-            dtype=self.agent._observation_space.dtype,
+            dtype=np.float32,
         )
         self.epsilon = epsilon
 
@@ -82,7 +82,7 @@ class StreamRewardScaler(AgentWrapper):
         self.G = 0.0 # running estimate of the discounted return
         self.G_rms = RunningMeanStd(
             shape=1,
-            dtype=float,
+            dtype=np.float32,
         )
         self.gamma = gamma
         self.epsilon = epsilon
