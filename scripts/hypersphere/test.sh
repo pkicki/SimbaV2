@@ -7,3 +7,8 @@ python run_parallel.py \
     --num_seeds 1 \
     --num_exp_per_device 1 \
     --overrides updates_per_interaction_step=2 \
+    --overrides agent.stream_scale_reward=true \
+    --overrides agent.actor_learning_rate_decay_rate=1.0 \
+    --overrides agent.actor_learning_rate_end=0.00003 \
+    --overrides agent.critic_learning_rate_decay_rate=1.0 \
+    --overrides agent.critic_learning_rate_end=0.00003 \

@@ -66,7 +66,7 @@ class ObservationNormalizer(AgentWrapper):
 class StreamRewardScaler(AgentWrapper):
     """
     This wrapper will scale rewards using the variance of a running estimate of the discounted returns. In policy gradient methods, the update rule often involves the term ∇log ⁡π(a|s)⋅G_t, where G_t is the return from time t. Scaling G_t to have unit variance can be an effective variance reduction technique.
-    
+
     Return statistics is updated only on sample_actions with training == True
     """
 
@@ -79,7 +79,7 @@ class StreamRewardScaler(AgentWrapper):
             epsilon: A stability parameter that is used when scaling the rewards.
         """
         AgentWrapper.__init__(self, agent)
-        self.G = 0.0 # running estimate of the discounted return
+        self.G = 0.0  # running estimate of the discounted return
         self.G_rms = RunningMeanStd(
             shape=1,
             dtype=np.float32,
@@ -91,9 +91,7 @@ class StreamRewardScaler(AgentWrapper):
         """
         Stream-ScaleReward: https://arxiv.org/abs/2410.14606
         """
-        return rewards / np.sqrt(
-            self.G_rms.var + self.epsilon
-        )
+        return rewards / np.sqrt(self.G_rms.var + self.epsilon)
 
     def sample_actions(
         self,
@@ -105,7 +103,10 @@ class StreamRewardScaler(AgentWrapper):
         Defines the sample action function with updating statistics.
         """
         if training:
-            self.G = self.gamma * (1 - prev_timestep["terminated"]) * self.G + prev_timestep["reward"]
+            self.G = (
+                self.gamma * (1 - prev_timestep["terminated"]) * self.G
+                + prev_timestep["reward"]
+            )
             self.G_rms.update(self.G)
 
         return self.agent.sample_actions(

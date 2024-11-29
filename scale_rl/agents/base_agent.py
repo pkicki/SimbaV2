@@ -34,6 +34,10 @@ class BaseAgent(ABC):
     def update(self, update_step: int, batch: Dict[str, np.ndarray]) -> Dict:
         pass
 
+    # @abstractmethod
+    def get_metrics(self, batch: Dict[str, np.ndarray]) -> Dict:
+        pass
+
 
 class AgentWrapper(BaseAgent):
     """Wraps the agent to allow a modular transformation.
@@ -65,6 +69,11 @@ class AgentWrapper(BaseAgent):
     def update(self, update_step: int, batch: Dict[str, np.ndarray]) -> Dict:
         return self.agent.update(
             update_step=update_step,
+            batch=batch,
+        )
+
+    def get_metrics(self, batch: Dict[str, np.ndarray]) -> Dict:
+        return self.agent.get_metrics(
             batch=batch,
         )
 

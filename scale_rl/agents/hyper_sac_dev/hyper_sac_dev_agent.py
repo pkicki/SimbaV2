@@ -24,6 +24,14 @@ from scale_rl.agents.hyper_sac_dev.hyper_sac_dev_update import (
     update_temperature,
 )
 from scale_rl.buffers.base_buffer import Batch
+from scale_rl.networks.metrics import (
+    get_critic_featdot,
+    get_dormant_ratio,
+    get_feature_norm,
+    get_rank,
+    get_scaler_stat,
+    get_weight_norm,
+)
 from scale_rl.networks.trainer import PRNGKey, Trainer
 
 """
@@ -238,7 +246,7 @@ def _sample_hyper_sac_dev_actions(
     temperature: float = 1.0,
 ) -> Tuple[PRNGKey, jnp.ndarray]:
     rng, key = jax.random.split(rng)
-    dist = actor(observations=observations, temperature=temperature)
+    dist, _ = actor(observations=observations, temperature=temperature)
     actions = dist.sample(seed=key)
     actions = jnp.clip(actions, -1.0, 1.0)
 
@@ -283,7 +291,7 @@ def _update_hyper_sac_dev_networks(
 
     new_temperature, temperature_info = update_temperature(
         temperature=temperature,
-        entropy=actor_info["entropy"],
+        entropy=actor_info["actor/entropy"],
         target_entropy=temp_target_entropy,
     )
 
@@ -316,6 +324,75 @@ def _update_hyper_sac_dev_networks(
     return (rng, new_actor, new_critic, new_target_critic, new_temperature, info)
 
 
+############
+# Metrics
+
+
+def _get_metrics_hyper_sac_dev_networks(
+    rng: PRNGKey,
+    actor: Trainer,
+    critic: Trainer,
+    target_critic: Trainer,
+    batch: Batch,
+) -> Tuple[PRNGKey, Trainer, Trainer, Trainer, Trainer, Trainer, Dict[str, float]]:
+    """
+    get_metrics currently measures
+        1) Dormant Ratio
+        2) Zero activation ratio
+        3) Feature norm
+        4) Weight norm
+        5) Srank
+        6) Smooth rank
+        7) Feature coadaptation (DR3 Kumar et al.)
+    """
+
+    _, actor_info = actor(observations=batch["observation"])
+    actor_metrics_info = {
+        **get_dormant_ratio(actor_info, prefix="actor", tau=0.1),
+        **get_dormant_ratio(actor_info, prefix="actor", tau=0.0),
+        **get_feature_norm(actor_info, prefix="actor"),
+        **get_rank(actor_info, prefix="actor"),
+        **get_weight_norm(actor.params, prefix="actor"),
+        **get_scaler_stat(actor.params, prefix="actor"),
+    }
+
+    _, critic_info = critic(observations=batch["observation"], actions=batch["action"])
+    critic_metrics_info = {
+        **get_dormant_ratio(critic_info, prefix="critic", tau=0.1),
+        **get_dormant_ratio(critic_info, prefix="critic", tau=0.0),
+        **get_feature_norm(critic_info, prefix="critic"),
+        **get_rank(critic_info, prefix="critic"),
+        **get_weight_norm(critic.params, prefix="critic"),
+        **get_scaler_stat(critic.params, prefix="critic"),
+    }
+
+    _, target_critic_info = target_critic(
+        observations=batch["observation"], actions=batch["action"]
+    )
+    target_critic_metrics_info = {
+        **get_dormant_ratio(target_critic_info, prefix="target_critic", tau=0.1),
+        **get_dormant_ratio(target_critic_info, prefix="target_critic", tau=0.0),
+        **get_feature_norm(target_critic_info, prefix="target_critic"),
+        **get_rank(target_critic_info, prefix="target_critic"),
+        **get_weight_norm(target_critic.params, prefix="target_critic"),
+        **get_scaler_stat(target_critic.params, prefix="target_critic"),
+    }
+
+    new_rng, dr3_info = get_critic_featdot(
+        rng=rng, actor=actor, critic=critic, batch=batch
+    )
+
+    metrics_info = {
+        **actor_metrics_info,
+        **critic_metrics_info,
+        **target_critic_metrics_info,
+        **dr3_info,
+    }
+
+    return new_rng, metrics_info
+
+
+############
 class HyperSACDevAgent(BaseAgent):
     def __init__(
         self,
@@ -406,3 +483,22 @@ class HyperSACDevAgent(BaseAgent):
             update_info[key] = float(value)
 
         return update_info
+
+    def get_metrics(self, batch: Dict[str, np.ndarray]) -> Dict:
+        for key, value in batch.items():
+            batch[key] = jnp.asarray(value)
+        (
+            self._rng,
+            metrics_info,
+        ) = _get_metrics_hyper_sac_dev_networks(
+            rng=self._rng,
+            actor=self._actor,
+            critic=self._critic,
+            target_critic=self._target_critic,
+            batch=batch,
+        )
+
+        for key, value in metrics_info.items():
+            metrics_info[key] = float(value)
+
+        return metrics_info

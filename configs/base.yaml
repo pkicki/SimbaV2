@@ -2,7 +2,8 @@
 # Common
 ##################################################################################
 
-project_name: 'simba'
+project_name: 'HyperSimba'
+entity_name: 'draftrec'
 group_name: 'test'
 exp_name: 'test'
 seed: 0
@@ -24,6 +25,7 @@ action_repeat: ${env.action_repeat}
 num_interaction_steps: ${eval:'${num_env_steps} / (${num_train_envs} * ${action_repeat})'}
 updates_per_interaction_step: 2           # number of updates per interaction step.
 evaluation_per_interaction_step: 25_000   # evaluation frequency per interaction step.
+metrics_per_environment_step: 25_000      # log metrics per interaction step.
 recording_per_interaction_step: ${num_interaction_steps}   # video recording frequency per interaction step.
 logging_per_interaction_step: 5_000       # logging frequency per interaction step.
 num_eval_episodes: 10

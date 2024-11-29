@@ -1,5 +1,5 @@
 import re
-from typing import Any, Callable, Dict, List, Sequence, Union
+from typing import Any, Callable, Dict, List, Sequence, Tuple, Union
 
 import flax
 import jax
@@ -8,6 +8,7 @@ import numpy as np
 from flax.core.frozen_dict import FrozenDict
 
 from scale_rl.networks.trainer import PRNGKey, Trainer
+from scale_rl.networks.utils import tree_filter, tree_map_until_match
 
 # Additional typings
 Params = flax.core.FrozenDict[str, Any]
@@ -48,7 +49,7 @@ def add_prefix_to_dict(d: dict, prefix: str = None, sep="/") -> dict:
 def get_weight_norm(
     param_dict: Params,
     prefix: str,
-) -> dict:
+) -> Dict[str, jnp.ndarray]:
     """
     param_dict is a frozen dictionary which contains the gradients/values of each individual parameter
 
@@ -71,6 +72,30 @@ def get_weight_norm(
     )
 
 
+def get_scaler_stat(
+    param_dict: Params,
+    prefix: str,
+) -> Dict[str, jnp.ndarray]:
+    """
+    param_dict is a frozen dictionary which contains the gradients/values of each individual parameter
+
+    Return:
+        param gradient/value norm dictionary
+        (Caution : norm values for vmapped functions (multi-head Q-networks) are summed to a single value)
+    """
+    regex = "scaler"
+    mean = tree_filter(f=lambda x: jnp.mean(x), tree=param_dict, target_re=regex)
+    var = tree_filter(f=lambda x: jnp.var(x), tree=param_dict, target_re=regex)
+    mean_dict = add_prefix_to_dict(flatten_dict(mean), prefix + "/mean", sep="_")
+    var_dict = add_prefix_to_dict(flatten_dict(var), prefix + "/var", sep="_")
+
+    info = {}
+    info.update(mean_dict)
+    info.update(var_dict)
+
+    return info
+
+
 def add_all_key(d):
     new_dict = {}
     for key, value in d.items():
@@ -87,7 +112,7 @@ def add_all_key(d):
 
 def get_dormant_ratio(
     activations: Dict[str, List[jnp.ndarray]], prefix: str, tau: float = 0.1
-) -> jnp.ndarray:
+) -> Dict[str, jnp.ndarray]:
     """
     Compute the dormant mask for a given set of activations.
 
@@ -139,9 +164,98 @@ def get_dormant_ratio(
     return ratios
 
 
+# source: https://github.com/CLAIRE-Labo/no-representation-no-trust/blob/52a785da4aee93b569d87a289b1f5865271aedfe/src/po_dynamics/modules/metrics.py#L9
+def get_rank(
+    activations: Dict[str, List[jnp.ndarray]], prefix: str, tau: float = 0.01
+) -> Dict[str, jnp.ndarray]:
+    """
+    Computes different approximations of the rank for a given set of activations.
+
+    Args:
+        activations: A dictionary of activations.
+        prefix: A string prefix for naming.
+        tau: cutoff parameter. not used in (1), 1 - 99% in (2), delta in (3), epsilon in (4).
+
+    Returns:
+        (1) Effective rank.
+        A continuous approximation of the rank of a matrix.
+        Definition 2.1. in Roy & Vetterli, (2007) https://ieeexplore.ieee.org/stamp/stamp.jsp?tp=&arnumber=7098875
+        Also used in Huh et al. (2023) https://arxiv.org/pdf/2103.10427.pdf
+
+        (2) Approximate rank.
+        Threshold at the dimensions explaining 99% of the variance in a PCA analysis.
+        Section 2 in Yang et al. (2020) https://arxiv.org/pdf/1909.12255.pdf
+
+        (3) srank.
+        Another version of (2).
+        Section 3 in Kumar et al. https://arxiv.org/pdf/2010.14498.pdf
+
+        (4) Feature rank.
+        A threshold rank: normalize by dim size and discard dimensions with singular values below 0.01.
+        Equations (4) and (5). Lyle et al. (2022) https://arxiv.org/pdf/2204.09560.pdf
+
+        (5) Jnp rank.
+        Rank defined in jnp. A reasonable value for cutoff parameter is chosen based the floating point precision of the input.
+    """
+    threshold = 1 - tau
+    ranks = {}
+
+    for sub_layer_name, feature in list(activations.items()):
+        layer_name = f"{prefix}_{sub_layer_name}"
+
+        # For double critics, lets just stack them into one batch
+        if len(feature.shape) > 2:
+            feature = feature.reshape(-1, feature.shape[-1])
+
+        # Compute the L2 norm for all examples in the batch at once
+        svals = jnp.linalg.svdvals(feature)
+
+        # (1) Effective rank.
+        sval_sum = jnp.sum(svals)
+        sval_dist = svals / sval_sum
+        # Replace 0 with 1. This is a safe trick to avoid log(0) = -inf
+        # as Roy & Vetterli assume 0*log(0) = 0 = 1*log(1).
+        sval_dist_fixed = jnp.where(sval_dist == 0, jnp.ones_like(sval_dist), sval_dist)
+        effective_ranks = jnp.exp(-jnp.sum(sval_dist_fixed * jnp.log(sval_dist_fixed)))
+
+        # (2) Approximate rank. PCA variance. Yang et al. (2020)
+        sval_squares = svals**2
+        sval_squares_sum = jnp.sum(sval_squares)
+        cumsum_squares = jnp.cumsum(sval_squares)
+        threshold_crossed = cumsum_squares >= (threshold * sval_squares_sum)
+        approximate_ranks = (~threshold_crossed).sum() + 1
+
+        # (3) srank. Weird. Kumar et al. (2020)
+        cumsum = jnp.cumsum(svals)
+        threshold_crossed = cumsum >= threshold * sval_sum
+        sranks = (~threshold_crossed).sum() + 1
+
+        # (4) Feature rank. Most basic. Lyle et al. (2022)
+        n_obs = feature.shape[0]
+        svals_of_normalized = svals / jnp.sqrt(n_obs)
+        over_cutoff = svals_of_normalized > tau
+        feature_ranks = over_cutoff.sum()
+
+        # (5) jnp rank.
+        # Note that this determines the matrix rank same with (4), but some reasonable tau is chosen automatically based on the floating point precision of the input.
+        jnp_ranks = jnp.linalg.matrix_rank(feature)
+
+        ranks.update(
+            {
+                f"{prefix}/effective_rank_vetterli_{layer_name}": effective_ranks,
+                f"{prefix}/approximate_rank_pca_{layer_name}": approximate_ranks,
+                f"{prefix}/srank_kumar_{layer_name}": sranks,
+                f"{prefix}/feature_rank_lyle_{layer_name}": feature_ranks,
+                f"{prefix}/matrix_rank_{layer_name}": jnp_ranks,
+            }
+        )
+
+    return ranks
+
+
 def get_feature_norm(
     activations: Dict[str, List[jnp.ndarray]], prefix: str
-) -> jnp.ndarray:
+) -> Dict[str, jnp.ndarray]:
     """
     Computes the feature norm for a given set of activations.
     """
@@ -171,7 +285,7 @@ def get_feature_norm(
 # source : https://arxiv.org/pdf/2112.04716
 def get_critic_featdot(
     rng: PRNGKey, actor: Trainer, critic: Trainer, batch: Batch, sample: bool = True
-):
+) -> Tuple[PRNGKey, Dict[str, jnp.ndarray]]:
     new_rng, cur_sample_key, next_sample_key = jax.random.split(rng, 3)
 
     if sample:

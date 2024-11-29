@@ -46,7 +46,7 @@ def update_actor(
     def actor_loss_fn(
         actor_params: flax.core.FrozenDict[str, Any],
     ) -> Tuple[jnp.ndarray, Dict[str, float]]:
-        dist = actor.apply(
+        dist, _ = actor.apply(
             variables={"params": actor_params},
             observations=batch["observation"],
         )
@@ -54,24 +54,24 @@ def update_actor(
         log_probs = dist.log_prob(actions)
 
         if critic_use_cdq:
-            q1, q2 = critic(observations=batch["observation"], actions=actions)
+            (q1, q2), _ = critic(observations=batch["observation"], actions=actions)
             q = jnp.minimum(q1, q2).reshape(-1)  # (n, 1) -> (n, )
         else:
-            q = critic(observations=batch["observation"], actions=actions)
+            q, _ = critic(observations=batch["observation"], actions=actions)
             q = q.reshape(-1)  # (n, 1) -> (n, )
 
         actor_loss = (log_probs * temperature() - q).mean()
         actor_info = {
-            "actor_loss": actor_loss,
-            "entropy": -log_probs.mean(),  # not exactly entropy, just calculating randomness
-            "actor_action": jnp.mean(jnp.abs(actions)),
-            "actor_pnorm": tree_norm(actor_params),
+            "actor/loss": actor_loss,
+            "actor/entropy": -log_probs.mean(),  # not exactly entropy, just calculating randomness
+            "actor/mean_action": jnp.mean(jnp.abs(actions)),
+            "actor/total_pnorm": tree_norm(actor_params),
         }
 
         return actor_loss, actor_info
 
     actor, info = actor.apply_gradient(actor_loss_fn)
-    info["actor_gnorm"] = info.pop("grad_norm")
+    info["actor/total_gnorm"] = info.pop("grad_norm")
     actor = l2normalize_network(actor)
 
     return actor, info
@@ -89,19 +89,20 @@ def update_critic(
     critic_use_cdq: bool,
 ) -> Tuple[Trainer, Dict[str, float]]:
     # compute the target q-value
-    next_dist = actor(observations=batch["next_observation"])
+    next_dist, _ = actor(observations=batch["next_observation"])
     next_actions = next_dist.sample(seed=key)
     next_log_probs = next_dist.log_prob(next_actions)
     if critic_use_cdq:
-        next_q1, next_q2 = target_critic(
+        (next_q1, next_q2), _ = target_critic(
             observations=batch["next_observation"], actions=next_actions
         )
         next_q = jnp.minimum(next_q1, next_q2).reshape(-1)
     else:
-        next_q = target_critic(
+        next_q, _ = target_critic(
             observations=batch["next_observation"],
             actions=next_actions,
-        ).reshape(-1)
+        )
+        next_q = next_q.reshape(-1)
 
     # compute the td-target, incorporating the n-step accumulated reward
     # https://gymnasium.farama.org/tutorials/gymnasium_basics/handling_time_limits/
@@ -118,7 +119,7 @@ def update_critic(
     ) -> Tuple[jnp.ndarray, Dict[str, float]]:
         # compute predicted q-value
         if critic_use_cdq:
-            pred_q1, pred_q2 = critic.apply(
+            (pred_q1, pred_q2), _ = critic.apply(
                 variables={"params": critic_params},
                 observations=batch["observation"],
                 actions=batch["action"],
@@ -129,38 +130,39 @@ def update_critic(
             # compute mse loss
             critic_loss = ((pred_q1 - target_q) ** 2 + (pred_q2 - target_q) ** 2).mean()
         else:
-            pred_q = critic.apply(
+            pred_q, _ = critic.apply(
                 variables={"params": critic_params},
                 observations=batch["observation"],
                 actions=batch["action"],
-            ).reshape(-1)
+            )
+            pred_q = pred_q.reshape(-1)
             pred_q1 = pred_q2 = pred_q
 
             # compute mse loss
             critic_loss = ((pred_q - target_q) ** 2).mean()
 
         critic_info = {
-            "critic_loss": critic_loss,
-            "q1_min": pred_q1.min(),
-            "q1_mean": pred_q1.mean(),
-            "q1_max": pred_q1.max(),
-            "q2_mean": pred_q2.mean(),
-            "rew_min": batch["reward"].min(),
-            "rew_mean": batch["reward"].mean(),
-            "rew_max": batch["reward"].max(),
-            "critic_pnorm": tree_norm(critic_params),
+            "critic/loss": critic_loss,
+            "critic/pred_q1_min": pred_q1.min(),
+            "critic/pred_q1_mean": pred_q1.mean(),
+            "critic/pred_q1_max": pred_q1.max(),
+            "critic/pred_q2_mean": pred_q2.mean(),
+            "critic/batch_rew_min": batch["reward"].min(),
+            "critic/batch_rew_mean": batch["reward"].mean(),
+            "critic/batch_rew_max": batch["reward"].max(),
+            "critic/total_pnorm": tree_norm(critic_params),
         }
 
         return critic_loss, critic_info
 
     critic, info = critic.apply_gradient(critic_loss_fn)
-    info["critic_gnorm"] = info.pop("grad_norm")
-    info["critic_target_reward_q_min"] = target_reward_q.min()
-    info["critic_target_reward_q_mean"] = target_reward_q.mean()
-    info["critic_target_reward_q_max"] = target_reward_q.max()
-    info["critic_target_entropy_q_min"] = target_entropy_q.min()
-    info["critic_target_entropy_q_mean"] = target_entropy_q.mean()
-    info["critic_target_entropy_q_max"] = target_entropy_q.max()
+    info["critic/total_gnorm"] = info.pop("grad_norm")
+    info["target_critic/reward_q_min"] = target_reward_q.min()
+    info["target_critic/reward_q_mean"] = target_reward_q.mean()
+    info["target_critic/reward_q_max"] = target_reward_q.max()
+    info["target_critic/entropy_q_min"] = target_entropy_q.min()
+    info["target_critic/entropy_q_mean"] = target_entropy_q.mean()
+    info["target_critic/entropy_q_max"] = target_entropy_q.max()
     critic = l2normalize_network(critic)
 
     return critic, info
@@ -195,13 +197,13 @@ def update_temperature(
         temperature_value = temperature.apply({"params": temperature_params})
         temperature_loss = temperature_value * (entropy - target_entropy).mean()
         temperature_info = {
-            "temperature": temperature_value,
-            "temperature_loss": temperature_loss,
+            "temperature/value": temperature_value,
+            "temperature/loss": temperature_loss,
         }
 
         return temperature_loss, temperature_info
 
     temperature, info = temperature.apply_gradient(temperature_loss_fn)
-    info["temperature_gnorm"] = info.pop("grad_norm")
+    info["temperature/total_gnorm"] = info.pop("grad_norm")
 
     return temperature, info

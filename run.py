@@ -137,6 +137,13 @@ def run(args):
                 eval_info = evaluate(agent, eval_env, cfg.num_eval_episodes)
                 logger.update_metric(**eval_info)
 
+            # metrics
+            if interaction_step % cfg.metrics_per_environment_step == 0:
+                batch = buffer.sample()
+                metrics_info = agent.get_metrics(batch)
+                if metrics_info:
+                    logger.update_metric(**metrics_info)
+
             # video recording
             if interaction_step % cfg.recording_per_interaction_step == 0:
                 video_info = record_video(agent, eval_env, cfg.num_record_episodes)

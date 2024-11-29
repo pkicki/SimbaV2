@@ -12,6 +12,7 @@ class WandbTrainerLogger(object):
 
         wandb.init(
             project=cfg.project_name,
+            entity=cfg.entity_name,
             group=cfg.group_name,
             config=dict_cfg,
         )

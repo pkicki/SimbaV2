@@ -18,7 +18,7 @@ def tree_norm(tree):
 ###########################
 
 
-def orthogonal_init(scale: float = jnp.sqrt(2), axis: int=-1):
+def orthogonal_init(scale: float = jnp.sqrt(2), axis: int = -1):
     return nn.initializers.orthogonal(scale, column_axis=axis)
 
 
@@ -91,3 +91,20 @@ def tree_map_until_match(
                 ret_tree[k] = subtree
 
     return ret_tree
+
+
+def tree_filter(f, tree, target_re="scaler"):
+    if isinstance(tree, dict):
+        # Keep only "target_re" keys in the dictionary
+        filtered_tree = {}
+        for k, v in tree.items():
+            if re.fullmatch(target_re, k):
+                filtered_tree[k] = tree_filter(f, v, target_re="scaler")
+            elif isinstance(v, dict):  # Recursively check nested dictionaries
+                filtered_value = tree_filter(f, v, target_re="scaler")
+                if filtered_value:  # Only keep non-empty dictionaries
+                    filtered_tree[k] = filtered_value
+        return filtered_tree
+    else:
+        # If not a dictionary, return the tree as is (typically a leaf node)
+        return f(tree)

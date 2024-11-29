@@ -137,7 +137,7 @@ if __name__ == "__main__":
             ["dmc_em"] * len(dmc_em_envs)
             + ["dmc_hard"] * len(dmc_hard_envs)
             + ["myosuite"] * len(myo_envs)
-            + ["hb_locomotion_1m"] * len(hb_envs)
+            + ["hb_locomotion"] * len(hb_envs)
         )
 
     else:

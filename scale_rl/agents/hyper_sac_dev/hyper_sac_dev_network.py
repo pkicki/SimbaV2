@@ -118,18 +118,29 @@ class HyperEncoder(nn.Module):
 
     @nn.compact
     def __call__(self, x: jnp.ndarray) -> jnp.ndarray:
+        info = {}
+        layer_idx = 0
+
         if self.input_process_type == "concat_norm_linear_norm":
             x = project_to_hypersphere(
                 x=x,
                 projection_type=self.input_projection_type,
                 constant=self.input_projection_constant,
             )
+            info[f"cnln_proj_{layer_idx}"] = x
+            layer_idx += 1
+
             x = HyperDense(
                 hidden_dim=self.hidden_dim,
                 dtype=self.dtype,
                 use_scaler=self.scale_input_dense,
             )(x)
+            info[f"cnln_hdense_{layer_idx}"] = x
+            layer_idx += 1
+
             x = l2normalize(x, axis=-1)
+            info[f"cnln_l2norm_{layer_idx}"] = x
+            layer_idx += 1
 
         elif self.input_process_type == "linear_concat_norm":
             x = HyperDense(
@@ -137,11 +148,16 @@ class HyperEncoder(nn.Module):
                 dtype=self.dtype,
                 use_scaler=self.scale_input_dense,
             )(x)
+            info[f"lcn_hdense_{layer_idx}"] = x
+            layer_idx += 1
+
             x = project_to_hypersphere(
                 x=x,
                 projection_type=self.input_projection_type,
                 constant=self.input_projection_constant,
             )
+            info[f"lcn_proj_{layer_idx}"] = x
+            layer_idx += 1
 
         elif self.input_process_type == "mlp_concat_norm":
             x = HyperDense(
@@ -149,17 +165,28 @@ class HyperEncoder(nn.Module):
                 dtype=self.dtype,
                 use_scaler=self.scale_input_dense,
             )(x)
+            info[f"mcn_hdense_{layer_idx}"] = x
+            layer_idx += 1
+
             x = nn.relu(x) + 1e-5
+            info[f"mcn_relu_{layer_idx}"] = x
+            layer_idx += 1
+
             x = HyperDense(
                 hidden_dim=self.hidden_dim - 1,
                 dtype=self.dtype,
                 use_scaler=False,
             )(x)
+            info[f"mcn_hdense_{layer_idx}"] = x
+            layer_idx += 1
+
             x = project_to_hypersphere(
                 x=x,
                 projection_type=self.input_projection_type,
                 constant=self.input_projection_constant,
             )
+            info[f"mcn_proj_{layer_idx}"] = x
+            layer_idx += 1
 
         else:
             raise ValueError
@@ -171,8 +198,10 @@ class HyperEncoder(nn.Module):
                 alpha_scale=self.alpha_scale,
                 dtype=self.dtype,
             )(x)
+            info[f"mcn_hresbl_{layer_idx}"] = x
+            layer_idx += 1
 
-        return x
+        return x, info
 
 
 class HyperNormalTanhPolicy(nn.Module):
@@ -363,9 +392,9 @@ class HyperSACDevActor(nn.Module):
         temperature: float = 1.0,
     ) -> tfd.Distribution:
         observations = convert_element_type(observations, self.dtype)
-        z = self.encoder(observations)
+        z, info = self.encoder(observations)
         dist = self.predictor(z, temperature)
-        return dist
+        return dist, info
 
 
 class HyperSACDevCritic(nn.Module):
@@ -414,9 +443,9 @@ class HyperSACDevCritic(nn.Module):
     ) -> jnp.ndarray:
         inputs = jnp.concatenate((observations, actions), axis=1)
         inputs = convert_element_type(inputs, self.dtype)
-        z = self.encoder(inputs)
+        z, info = self.encoder(inputs)
         q = self.predictor(z)
-        return q
+        return q, info
 
 
 class HyperSACDevClippedDoubleCritic(nn.Module):
@@ -458,7 +487,7 @@ class HyperSACDevClippedDoubleCritic(nn.Module):
             axis_size=self.num_qs,
         )
 
-        qs = VmapCritic(
+        qs, info = VmapCritic(
             num_blocks=self.num_blocks,
             hidden_dim=self.hidden_dim,
             input_process_type=self.input_process_type,
@@ -475,7 +504,7 @@ class HyperSACDevClippedDoubleCritic(nn.Module):
             output_use_bias=self.output_use_bias,
         )(observations, actions)
 
-        return qs
+        return qs, info
 
 
 class HyperSACDevTemperature(nn.Module):

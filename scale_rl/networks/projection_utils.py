@@ -182,11 +182,13 @@ def hemisphere_projection(
 
 
 if __name__ == "__main__":
-    inputs = jnp.array([
-        [0.0, 0.0],
-        [3.0, 1.0],
-        [1.0, -1.0],    
-    ])
+    inputs = jnp.array(
+        [
+            [0.0, 0.0],
+            [3.0, 1.0],
+            [1.0, -1.0],
+        ]
+    )
     outputs = l2normalize(inputs, -1)
 
     projection_types = ["none", "l2", "shift", "angular", "hypercube", "hemisphere"]
