@@ -50,6 +50,12 @@ critic_output_use_scaler: true
 critic_output_non_linear: false
 critic_output_use_bias: true
 
+# dev
+critic_use_categorical: true
+critic_num_bins: 101
+categorical_min_v: -5
+categorical_max_v: 5
+
 temp_target_entropy: null # entropy_coef * action_dim
 temp_target_entropy_coef: -0.5 
 temp_initial_value: 0.01

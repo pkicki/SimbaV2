@@ -12,7 +12,9 @@ from flax.training import dynamic_scale
 from scale_rl.agents.base_agent import BaseAgent
 from scale_rl.agents.hyper_sac_dev.hyper_sac_dev_network import (
     HyperSACDevActor,
+    HyperSACDevCategoricalCritic,
     HyperSACDevClippedDoubleCritic,
+    HyperSACDevCategoricalDoubleCritic,
     HyperSACDevCritic,
     HyperSACDevTemperature,
 )
@@ -20,6 +22,8 @@ from scale_rl.agents.hyper_sac_dev.hyper_sac_dev_update import (
     l2normalize_network,
     update_actor,
     update_critic,
+    update_actor_with_categorical_critic,
+    update_categorical_critic,
     update_target_network,
     update_temperature,
 )
@@ -88,6 +92,11 @@ class HyperSACDevConfig:
     critic_output_non_linear: bool
     critic_output_use_bias: bool
 
+    critic_use_categorical: bool
+    critic_num_bins: int
+    categorical_min_v: float
+    categorical_max_v: float
+
     temp_target_entropy: float
     temp_target_entropy_coef: float
     temp_initial_value: float
@@ -155,39 +164,77 @@ def _init_hyper_sac_dev_networks(
     )
 
     if cfg.critic_use_cdq:
-        critic_network_def = HyperSACDevClippedDoubleCritic(
-            num_blocks=cfg.critic_num_blocks,
-            hidden_dim=cfg.critic_hidden_dim,
-            input_process_type=cfg.critic_input_process_type,
-            input_projection_type=cfg.critic_input_projection_type,
-            input_projection_constant=cfg.critic_input_projection_constant,
-            scale_input_dense=cfg.critic_scale_input_dense,
-            alpha_init=cfg.critic_alpha_init,
-            alpha_scale=cfg.critic_alpha_scale,
-            dtype=compute_dtype,
-            output_project_in=cfg.critic_output_project_in,
-            output_hidden_dim=cfg.critic_output_hidden_dim,
-            output_use_scaler=cfg.critic_output_use_scaler,
-            output_non_linear=cfg.critic_output_non_linear,
-            output_use_bias=cfg.critic_output_use_bias,
-        )
+        if cfg.critic_use_categorical:
+            critic_network_def = HyperSACDevCategoricalDoubleCritic(
+                num_blocks=cfg.critic_num_blocks,
+                hidden_dim=cfg.critic_hidden_dim,
+                input_process_type=cfg.critic_input_process_type,
+                input_projection_type=cfg.critic_input_projection_type,
+                input_projection_constant=cfg.critic_input_projection_constant,
+                scale_input_dense=cfg.critic_scale_input_dense,
+                alpha_init=cfg.critic_alpha_init,
+                alpha_scale=cfg.critic_alpha_scale,
+                dtype=compute_dtype,
+                output_project_in=cfg.critic_output_project_in,
+                output_hidden_dim=cfg.critic_output_hidden_dim,
+                output_use_scaler=cfg.critic_output_use_scaler,
+                output_non_linear=cfg.critic_output_non_linear,
+                output_use_bias=cfg.critic_output_use_bias,
+                num_bins=cfg.critic_num_bins
+            )
+        else: 
+            critic_network_def = HyperSACDevClippedDoubleCritic(
+                num_blocks=cfg.critic_num_blocks,
+                hidden_dim=cfg.critic_hidden_dim,
+                input_process_type=cfg.critic_input_process_type,
+                input_projection_type=cfg.critic_input_projection_type,
+                input_projection_constant=cfg.critic_input_projection_constant,
+                scale_input_dense=cfg.critic_scale_input_dense,
+                alpha_init=cfg.critic_alpha_init,
+                alpha_scale=cfg.critic_alpha_scale,
+                dtype=compute_dtype,
+                output_project_in=cfg.critic_output_project_in,
+                output_hidden_dim=cfg.critic_output_hidden_dim,
+                output_use_scaler=cfg.critic_output_use_scaler,
+                output_non_linear=cfg.critic_output_non_linear,
+                output_use_bias=cfg.critic_output_use_bias,
+            )
     else:
-        critic_network_def = HyperSACDevCritic(
-            num_blocks=cfg.critic_num_blocks,
-            hidden_dim=cfg.critic_hidden_dim,
-            input_process_type=cfg.critic_input_process_type,
-            input_projection_type=cfg.critic_input_projection_type,
-            input_projection_constant=cfg.critic_input_projection_constant,
-            scale_input_dense=cfg.critic_scale_input_dense,
-            alpha_init=cfg.critic_alpha_init,
-            alpha_scale=cfg.critic_alpha_scale,
-            dtype=compute_dtype,
-            output_project_in=cfg.critic_output_project_in,
-            output_hidden_dim=cfg.critic_output_hidden_dim,
-            output_use_scaler=cfg.critic_output_use_scaler,
-            output_non_linear=cfg.critic_output_non_linear,
-            output_use_bias=cfg.critic_output_use_bias,
-        )
+        if cfg.critic_use_categorical:
+            critic_network_def = HyperSACDevCategoricalCritic(
+                num_blocks=cfg.critic_num_blocks,
+                hidden_dim=cfg.critic_hidden_dim,
+                input_process_type=cfg.critic_input_process_type,
+                input_projection_type=cfg.critic_input_projection_type,
+                input_projection_constant=cfg.critic_input_projection_constant,
+                scale_input_dense=cfg.critic_scale_input_dense,
+                alpha_init=cfg.critic_alpha_init,
+                alpha_scale=cfg.critic_alpha_scale,
+                dtype=compute_dtype,
+                output_project_in=cfg.critic_output_project_in,
+                output_hidden_dim=cfg.critic_output_hidden_dim,
+                output_use_scaler=cfg.critic_output_use_scaler,
+                output_non_linear=cfg.critic_output_non_linear,
+                output_use_bias=cfg.critic_output_use_bias,
+                num_bins=cfg.critic_num_bins
+            )
+        else:
+            critic_network_def = HyperSACDevCritic(
+                num_blocks=cfg.critic_num_blocks,
+                hidden_dim=cfg.critic_hidden_dim,
+                input_process_type=cfg.critic_input_process_type,
+                input_projection_type=cfg.critic_input_projection_type,
+                input_projection_constant=cfg.critic_input_projection_constant,
+                scale_input_dense=cfg.critic_scale_input_dense,
+                alpha_init=cfg.critic_alpha_init,
+                alpha_scale=cfg.critic_alpha_scale,
+                dtype=compute_dtype,
+                output_project_in=cfg.critic_output_project_in,
+                output_hidden_dim=cfg.critic_output_hidden_dim,
+                output_use_scaler=cfg.critic_output_use_scaler,
+                output_non_linear=cfg.critic_output_non_linear,
+                output_use_bias=cfg.critic_output_use_bias,
+            )
 
     critic = Trainer.create(
         network_def=critic_network_def,
@@ -259,6 +306,9 @@ def _sample_hyper_sac_dev_actions(
         "gamma",
         "n_step",
         "critic_use_cdq",
+        "critic_use_categorical",
+        "categorical_min_v",
+        "categorical_max_v",
         "target_tau",
         "target_normalize_weight",
         "temp_target_entropy",
@@ -274,38 +324,68 @@ def _update_hyper_sac_dev_networks(
     gamma: float,
     n_step: int,
     critic_use_cdq: bool,
+    critic_use_categorical: bool,
+    categorical_min_v: float,
+    categorical_max_v: float,
     target_tau: float,
     target_normalize_weight: bool,
     temp_target_entropy: float,
 ) -> Tuple[PRNGKey, Trainer, Trainer, Trainer, Trainer, Dict[str, float]]:
     rng, actor_key, critic_key = jax.random.split(rng, 3)
-
-    new_actor, actor_info = update_actor(
-        key=actor_key,
-        actor=actor,
-        critic=critic,
-        temperature=temperature,
-        batch=batch,
-        critic_use_cdq=critic_use_cdq,
-    )
+    
+    if critic_use_categorical:
+        new_actor, actor_info = update_actor_with_categorical_critic(
+            key=actor_key,
+            actor=actor,
+            critic=critic,
+            temperature=temperature,
+            batch=batch,
+            min_v=categorical_min_v,
+            max_v=categorical_max_v,
+            critic_use_cdq=critic_use_cdq,
+        )
+    else:
+        new_actor, actor_info = update_actor(
+            key=actor_key,
+            actor=actor,
+            critic=critic,
+            temperature=temperature,
+            batch=batch,
+            critic_use_cdq=critic_use_cdq,
+        )
 
     new_temperature, temperature_info = update_temperature(
         temperature=temperature,
         entropy=actor_info["actor/entropy"],
         target_entropy=temp_target_entropy,
     )
-
-    new_critic, critic_info = update_critic(
-        key=critic_key,
-        actor=new_actor,
-        critic=critic,
-        target_critic=target_critic,
-        temperature=new_temperature,
-        batch=batch,
-        gamma=gamma,
-        n_step=n_step,
-        critic_use_cdq=critic_use_cdq,
-    )
+    
+    if critic_use_categorical:
+        new_critic, critic_info = update_categorical_critic(
+            key=critic_key,
+            actor=new_actor,
+            critic=critic,
+            target_critic=target_critic,
+            temperature=new_temperature,
+            batch=batch,
+            gamma=gamma,
+            n_step=n_step,
+            min_v=categorical_min_v,
+            max_v=categorical_max_v,
+            critic_use_cdq=critic_use_cdq,
+        )
+    else:
+        new_critic, critic_info = update_critic(
+            key=critic_key,
+            actor=new_actor,
+            critic=critic,
+            target_critic=target_critic,
+            temperature=new_temperature,
+            batch=batch,
+            gamma=gamma,
+            n_step=n_step,
+            critic_use_cdq=critic_use_cdq,
+        )
 
     new_target_critic, target_critic_info = update_target_network(
         network=new_critic,
@@ -474,6 +554,9 @@ class HyperSACDevAgent(BaseAgent):
             gamma=self._cfg.gamma,
             n_step=self._cfg.n_step,
             critic_use_cdq=self._cfg.critic_use_cdq,
+            critic_use_categorical=self._cfg.critic_use_categorical,
+            categorical_min_v=self._cfg.categorical_min_v,
+            categorical_max_v=self._cfg.categorical_max_v,
             target_tau=self._cfg.target_tau,
             target_normalize_weight=self._cfg.target_normalize_weight,
             temp_target_entropy=self._cfg.temp_target_entropy,

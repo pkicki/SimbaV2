@@ -342,6 +342,91 @@ class HyperCritic(nn.Module):
 
         return value
 
+class HyperCritic(nn.Module):
+    kernel_init_scale: float = 1.0
+    dtype: Any = jnp.float32
+
+    project_in: bool = True
+    hidden_dim: int = 512
+    use_scaler: bool = True
+    non_linear: bool = True
+    use_bias: bool = True
+
+    @nn.compact
+    def __call__(
+        self,
+        inputs: jnp.ndarray,
+    ) -> jnp.ndarray:
+        value = inputs
+        if self.project_in:
+            value = HyperDense(
+                hidden_dim=self.hidden_dim,
+                dtype=self.dtype,
+                use_scaler=False,
+            )(value)
+
+        if self.use_scaler:
+            value = Scale(self.hidden_dim)(value)
+
+        if self.non_linear:
+            value = nn.relu(value)
+
+        value = HyperDense(
+            hidden_dim=1,
+            dtype=self.dtype,
+            use_scaler=False,
+        )(value)
+
+        if self.use_bias:
+            bias = self.param("value_bias", nn.initializers.zeros, (1,))
+            value = value + bias
+
+        return value
+    
+    
+class HyperCategoricalCritic(nn.Module):
+    kernel_init_scale: float = 1.0
+    dtype: Any = jnp.float32
+
+    project_in: bool = True
+    hidden_dim: int = 512
+    use_scaler: bool = True
+    non_linear: bool = True
+    use_bias: bool = True
+    
+    num_bins: int = 51
+
+    @nn.compact
+    def __call__(
+        self,
+        inputs: jnp.ndarray,
+    ) -> jnp.ndarray:
+        value = inputs
+        if self.project_in:
+            value = HyperDense(
+                hidden_dim=self.hidden_dim,
+                dtype=self.dtype,
+                use_scaler=False,
+            )(value)
+
+        if self.use_scaler:
+            value = Scale(self.hidden_dim)(value)
+
+        if self.non_linear:
+            value = nn.relu(value)
+
+        value = HyperDense(
+            hidden_dim=self.num_bins,
+            dtype=self.dtype,
+            use_scaler=False,
+        )(value)
+
+        if self.use_bias:
+            bias = self.param("value_bias", nn.initializers.zeros, (self.num_bins,))
+            value = value + bias
+        
+        # return log probability of bins
+        return nn.log_softmax(value, axis=1)
 
 class HyperSACDevActor(nn.Module):
     num_blocks: int
@@ -506,6 +591,122 @@ class HyperSACDevClippedDoubleCritic(nn.Module):
 
         return qs, info
 
+
+class HyperSACDevCategoricalCritic(nn.Module):
+    num_blocks: int
+    hidden_dim: int
+    input_process_type: str
+    input_projection_type: str
+    input_projection_constant: float
+    scale_input_dense: bool
+    alpha_init: float
+    alpha_scale: float
+    dtype: Any
+
+    output_project_in: bool
+    output_hidden_dim: int
+    output_use_scaler: bool
+    output_non_linear: bool
+    output_use_bias: bool
+
+    num_bins: int
+    
+    def setup(self):
+        self.encoder = HyperEncoder(
+            num_blocks=self.num_blocks,
+            hidden_dim=self.hidden_dim,
+            input_process_type=self.input_process_type,
+            input_projection_type=self.input_projection_type,
+            input_projection_constant=self.input_projection_constant,
+            scale_input_dense=self.scale_input_dense,
+            alpha_init=self.alpha_init,
+            alpha_scale=self.alpha_scale,
+            dtype=self.dtype,
+        )
+
+        self.predictor = HyperCategoricalCritic(
+            dtype=self.dtype,
+            project_in=self.output_project_in,
+            hidden_dim=self.output_hidden_dim,
+            use_scaler=self.output_use_scaler,
+            non_linear=self.output_non_linear,
+            use_bias=self.output_use_bias,
+            num_bins=self.num_bins,
+        )
+
+    def __call__(
+        self,
+        observations: jnp.ndarray,
+        actions: jnp.ndarray,
+    ) -> jnp.ndarray:
+        inputs = jnp.concatenate((observations, actions), axis=1)
+        inputs = convert_element_type(inputs, self.dtype)
+        z, info = self.encoder(inputs)
+        q_log_probs = self.predictor(z)
+        return q_log_probs, info
+
+
+class HyperSACDevCategoricalDoubleCritic(nn.Module):
+    """
+    Vectorized Double-C51 for Clipped Double Q-learning.
+    https://arxiv.org/pdf/1802.09477v3
+    """
+
+    num_blocks: int
+    hidden_dim: int
+    input_process_type: str
+    input_projection_type: str
+    input_projection_constant: float
+    scale_input_dense: bool
+    alpha_init: float
+    alpha_scale: float
+    dtype: Any
+
+    output_project_in: bool
+    output_hidden_dim: int
+    output_use_scaler: bool
+    output_non_linear: bool
+    output_use_bias: bool
+
+    num_bins: int
+
+    num_qs: int = 2
+
+    @nn.compact
+    def __call__(
+        self,
+        observations: jnp.ndarray,
+        actions: jnp.ndarray,
+    ) -> jnp.ndarray:
+        VmapCritic = nn.vmap(
+            HyperSACDevCategoricalCritic,
+            variable_axes={"params": 0},
+            split_rngs={"params": True},
+            in_axes=None,
+            out_axes=0,
+            axis_size=self.num_qs,
+        )
+
+        qs = VmapCritic(
+            num_blocks=self.num_blocks,
+            hidden_dim=self.hidden_dim,
+            input_process_type=self.input_process_type,
+            input_projection_type=self.input_projection_type,
+            input_projection_constant=self.input_projection_constant,
+            scale_input_dense=self.scale_input_dense,
+            alpha_init=self.alpha_init,
+            alpha_scale=self.alpha_scale,
+            dtype=self.dtype,
+            output_project_in=self.output_project_in,
+            output_hidden_dim=self.output_hidden_dim,
+            output_use_scaler=self.output_use_scaler,
+            output_non_linear=self.output_non_linear,
+            output_use_bias=self.output_use_bias,
+            num_bins=self.num_bins,
+        )(observations, actions)
+
+        return qs
+    
 
 class HyperSACDevTemperature(nn.Module):
     initial_value: float = 1.0

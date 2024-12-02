@@ -96,12 +96,13 @@ def compute_categorical_loss(
     u_mask = jax.nn.one_hot(u.reshape(-1), num_bins).reshape((-1, num_bins, num_bins))
 
     # target label
-    m_l = (target_log_probs * (1 - (b - l))).reshape((-1, num_bins, 1))
-    m_u = (target_log_probs * (b - l)).reshape((-1, num_bins, 1))
+    target_probs = jnp.exp(target_log_probs)
+    m_l = (target_probs * (u + (l == u).astype(jnp.float32) - b)).reshape((-1, num_bins, 1))
+    m_u = (target_probs * (b - l)).reshape((-1, num_bins, 1))
     m = jax.lax.stop_gradient(jnp.sum(m_l * l_mask + m_u * u_mask, axis=1))
 
-    # regression loss
-    loss = -jnp.mean(jnp.sum(jnp.exp(m) * log_probs, axis=1))
+    # cross entropy loss
+    loss = -jnp.mean(jnp.sum(m * log_probs, axis=1))
 
     return loss
 

@@ -6,6 +6,10 @@ import jax.numpy as jnp
 
 from scale_rl.buffers import Batch
 from scale_rl.networks.projection_utils import l2normalize
+from scale_rl.networks.critics import (
+    compute_categorical_bin_values,
+    compute_categorical_loss
+)
 from scale_rl.networks.trainer import PRNGKey, Trainer
 from scale_rl.networks.utils import tree_map_until_match, tree_norm
 
@@ -72,6 +76,66 @@ def update_actor(
 
     actor, info = actor.apply_gradient(actor_loss_fn)
     info["actor/total_gnorm"] = info.pop("grad_norm")
+    actor = l2normalize_network(actor)
+
+    return actor, info
+
+
+def _compute_categorical_value(
+    log_probs: jnp.ndarray, num_bins: int, min_v: float, max_v: float
+) -> jnp.ndarray:
+    bin_values = compute_categorical_bin_values(num_bins, min_v, max_v)
+    return jnp.sum(jnp.exp(log_probs) * bin_values, axis=1, keepdims=True)
+
+
+def update_actor_with_categorical_critic(
+    key: PRNGKey,
+    actor: Trainer,
+    critic: Trainer,  # SACDoubleCritic
+    temperature: Trainer,
+    batch: Batch,
+    min_v: float,
+    max_v: float,
+    critic_use_cdq: bool,
+) -> Tuple[Trainer, Dict[str, float]]:
+    def actor_loss_fn(
+        actor_params: flax.core.FrozenDict[str, Any],
+    ) -> Tuple[jnp.ndarray, Dict[str, float]]:
+        dist, _ = actor.apply(
+            variables={"params": actor_params},
+            observations=batch["observation"],
+        )
+        actions = dist.sample(seed=key)
+        log_probs = dist.log_prob(actions)
+        
+        if critic_use_cdq:
+            (q_log_probs_1, q_log_probs_2), _ = critic(
+                observations = batch['observation'], 
+                actions = actions
+            )
+            _, num_bins = q_log_probs_1.shape
+            q1 = _compute_categorical_value(q_log_probs_1, num_bins, min_v, max_v)
+            q2 = _compute_categorical_value(q_log_probs_2, num_bins, min_v, max_v)
+            q = jnp.minimum(q1, q2).reshape(-1) # (n, 1) -> (n, )
+        else:
+            q_log_probs, _ = critic(
+                observations=batch["observation"],
+                actions=actions,
+            )
+            _, num_bins = q_log_probs.shape
+            q = _compute_categorical_value(q_log_probs, num_bins, min_v, max_v)
+        
+        actor_loss = (log_probs * temperature() - q).mean()
+        actor_info = {
+            "actor/loss": actor_loss,
+            "actor/entropy": -log_probs.mean(),  # not exactly entropy, just calculating randomness
+            "actor/mean_action": jnp.mean(jnp.abs(actions)),
+            "actor/total_pnorm": tree_norm(actor_params),
+        }
+        return actor_loss, actor_info
+
+    actor, info = actor.apply_gradient(actor_loss_fn)
+    info["actor_gnorm"] = info.pop("grad_norm")
     actor = l2normalize_network(actor)
 
     return actor, info
@@ -163,6 +227,115 @@ def update_critic(
     info["target_critic/entropy_q_min"] = target_entropy_q.min()
     info["target_critic/entropy_q_mean"] = target_entropy_q.mean()
     info["target_critic/entropy_q_max"] = target_entropy_q.max()
+    critic = l2normalize_network(critic)
+
+    return critic, info
+
+
+def update_categorical_critic(
+    key: PRNGKey,
+    actor: Trainer,
+    critic: Trainer,
+    target_critic: Trainer,
+    temperature: Trainer,
+    batch: Batch,
+    gamma: float,
+    n_step: int,
+    min_v: float,
+    max_v: float,
+    critic_use_cdq: bool,
+) -> Tuple[Trainer, Dict[str, float]]:
+    # compute the target q-value
+    next_dist, _ = actor(observations=batch["next_observation"])
+    next_actions = next_dist.sample(seed=key)
+    next_log_probs = next_dist.log_prob(next_actions)
+    
+    if critic_use_cdq:
+        (next_q_log_probs_1, next_q_log_probs_2), _ = target_critic(
+            observations=batch['next_observation'], 
+            actions=next_actions
+        )
+        _, num_bins = next_q_log_probs_1.shape
+        next_q1 = _compute_categorical_value(next_q_log_probs_1, num_bins, min_v, max_v)
+        next_q2 = _compute_categorical_value(next_q_log_probs_2, num_bins, min_v, max_v)
+        min_indices = jnp.concat([next_q1, next_q2], axis=1).argmin(axis=1)
+        stacked_log_probs = jnp.stack([next_q_log_probs_1, next_q_log_probs_2], axis=1)
+        next_q_log_probs = jax.vmap(lambda a, b: a[b])(stacked_log_probs, min_indices)
+    else:
+        next_q_log_probs, _ = target_critic(
+            observations=batch["next_observation"],
+            actions=next_actions,
+        )
+
+    def critic_loss_fn(
+        critic_params: flax.core.FrozenDict[str, Any],
+    ) -> Tuple[jnp.ndarray, Dict[str, float]]:
+        # compute predicted q-value
+        if critic_use_cdq:
+            (pred_log_probs_1, pred_log_probs_2), _ = critic.apply(
+                variables= {'params': critic_params},
+                observations=batch['observation'],
+                actions=batch['action'],
+            )
+            loss_1 = compute_categorical_loss(
+                log_probs=pred_log_probs_1,
+                gamma=gamma ** n_step,
+                reward=batch['reward'].reshape((-1, 1)),
+                done=batch["terminated"].reshape((-1, 1)),
+                target_log_probs=next_q_log_probs,
+                entropy=(temperature() * next_log_probs).reshape((-1, 1)),
+                min_v=min_v,
+                max_v=max_v,
+            )
+            loss_2 = compute_categorical_loss(
+                log_probs=pred_log_probs_2,
+                gamma=gamma ** n_step,
+                reward=batch['reward'].reshape((-1, 1)),
+                done=batch["terminated"].reshape((-1, 1)),
+                target_log_probs=next_q_log_probs,
+                entropy=(temperature() * next_log_probs).reshape((-1, 1)),
+                min_v=min_v,
+                max_v=max_v,
+            )
+            # compute mse loss
+            critic_loss = (loss_1 + loss_2).mean()
+            
+        else:
+            pred_log_probs, _ = critic.apply(
+                variables={"params": critic_params},
+                observations=batch["observation"],
+                actions=batch["action"],
+            )
+            loss = compute_categorical_loss(
+                log_probs=pred_log_probs,
+                gamma=gamma**n_step,
+                reward=batch["reward"].reshape((-1, 1)),
+                done=batch["terminated"].reshape((-1, 1)),
+                target_log_probs=next_q_log_probs,
+                entropy=(temperature() * next_log_probs).reshape((-1, 1)),
+                min_v=min_v,
+                max_v=max_v,
+            )
+
+            # compute mse loss
+            critic_loss = loss.mean()
+
+        critic_info = {
+            "critic/loss": critic_loss,
+            "critic/pred_q1_mean": critic_loss,
+            "critic/batch_rew_min": batch["reward"].min(),
+            "critic/batch_rew_mean": batch["reward"].mean(),
+            "critic/batch_rew_max": batch["reward"].max(),
+            "critic/total_pnorm": tree_norm(critic_params),
+        }
+
+        return critic_loss, critic_info
+
+    critic, info = critic.apply_gradient(critic_loss_fn)
+    info["critic_gnorm"] = info.pop("grad_norm")
+    info["target_critic/reward_q_min"] = next_q_log_probs.min()
+    info["target_critic/reward_q_mean"] = next_q_log_probs.mean()
+    info["target_critic/reward_q_max"] = next_q_log_probs.max()
     critic = l2normalize_network(critic)
 
     return critic, info
