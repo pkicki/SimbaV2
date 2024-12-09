@@ -5,11 +5,11 @@ import jax
 import jax.numpy as jnp
 
 from scale_rl.buffers import Batch
-from scale_rl.networks.projection_utils import l2normalize
 from scale_rl.networks.critics import (
     compute_categorical_bin_values,
-    compute_categorical_loss
+    compute_categorical_loss,
 )
+from scale_rl.networks.projection_utils import l2normalize
 from scale_rl.networks.trainer import PRNGKey, Trainer
 from scale_rl.networks.utils import tree_map_until_match, tree_norm
 
@@ -107,16 +107,15 @@ def update_actor_with_categorical_critic(
         )
         actions = dist.sample(seed=key)
         log_probs = dist.log_prob(actions)
-        
+
         if critic_use_cdq:
             (q_log_probs_1, q_log_probs_2), _ = critic(
-                observations = batch['observation'], 
-                actions = actions
+                observations=batch["observation"], actions=actions
             )
             _, num_bins = q_log_probs_1.shape
             q1 = _compute_categorical_value(q_log_probs_1, num_bins, min_v, max_v)
             q2 = _compute_categorical_value(q_log_probs_2, num_bins, min_v, max_v)
-            q = jnp.minimum(q1, q2).reshape(-1) # (n, 1) -> (n, )
+            q = jnp.minimum(q1, q2).reshape(-1)  # (n, 1) -> (n, )
         else:
             q_log_probs, _ = critic(
                 observations=batch["observation"],
@@ -124,7 +123,7 @@ def update_actor_with_categorical_critic(
             )
             _, num_bins = q_log_probs.shape
             q = _compute_categorical_value(q_log_probs, num_bins, min_v, max_v)
-        
+
         actor_loss = (log_probs * temperature() - q).mean()
         actor_info = {
             "actor/loss": actor_loss,
@@ -135,7 +134,7 @@ def update_actor_with_categorical_critic(
         return actor_loss, actor_info
 
     actor, info = actor.apply_gradient(actor_loss_fn)
-    info["actor_gnorm"] = info.pop("grad_norm")
+    info["actor/total_gnorm"] = info.pop("grad_norm")
     actor = l2normalize_network(actor)
 
     return actor, info
@@ -220,7 +219,7 @@ def update_critic(
         return critic_loss, critic_info
 
     critic, info = critic.apply_gradient(critic_loss_fn)
-    info["critic/total_gnorm"] = info.pop("grad_norm")
+    info["target_critic/total_gnorm"] = info.pop("grad_norm")
     info["target_critic/reward_q_min"] = target_reward_q.min()
     info["target_critic/reward_q_mean"] = target_reward_q.mean()
     info["target_critic/reward_q_max"] = target_reward_q.max()
@@ -249,11 +248,10 @@ def update_categorical_critic(
     next_dist, _ = actor(observations=batch["next_observation"])
     next_actions = next_dist.sample(seed=key)
     next_log_probs = next_dist.log_prob(next_actions)
-    
+
     if critic_use_cdq:
         (next_q_log_probs_1, next_q_log_probs_2), _ = target_critic(
-            observations=batch['next_observation'], 
-            actions=next_actions
+            observations=batch["next_observation"], actions=next_actions
         )
         _, num_bins = next_q_log_probs_1.shape
         next_q1 = _compute_categorical_value(next_q_log_probs_1, num_bins, min_v, max_v)
@@ -266,6 +264,7 @@ def update_categorical_critic(
             observations=batch["next_observation"],
             actions=next_actions,
         )
+        _, num_bins = next_q_log_probs.shape
 
     def critic_loss_fn(
         critic_params: flax.core.FrozenDict[str, Any],
@@ -273,14 +272,15 @@ def update_categorical_critic(
         # compute predicted q-value
         if critic_use_cdq:
             (pred_log_probs_1, pred_log_probs_2), _ = critic.apply(
-                variables= {'params': critic_params},
-                observations=batch['observation'],
-                actions=batch['action'],
+                variables={"params": critic_params},
+                observations=batch["observation"],
+                actions=batch["action"],
             )
+            pred_log_probs = pred_log_probs_1
             loss_1 = compute_categorical_loss(
                 log_probs=pred_log_probs_1,
-                gamma=gamma ** n_step,
-                reward=batch['reward'].reshape((-1, 1)),
+                gamma=gamma**n_step,
+                reward=batch["reward"].reshape((-1, 1)),
                 done=batch["terminated"].reshape((-1, 1)),
                 target_log_probs=next_q_log_probs,
                 entropy=(temperature() * next_log_probs).reshape((-1, 1)),
@@ -289,8 +289,8 @@ def update_categorical_critic(
             )
             loss_2 = compute_categorical_loss(
                 log_probs=pred_log_probs_2,
-                gamma=gamma ** n_step,
-                reward=batch['reward'].reshape((-1, 1)),
+                gamma=gamma**n_step,
+                reward=batch["reward"].reshape((-1, 1)),
                 done=batch["terminated"].reshape((-1, 1)),
                 target_log_probs=next_q_log_probs,
                 entropy=(temperature() * next_log_probs).reshape((-1, 1)),
@@ -299,7 +299,7 @@ def update_categorical_critic(
             )
             # compute mse loss
             critic_loss = (loss_1 + loss_2).mean()
-            
+
         else:
             pred_log_probs, _ = critic.apply(
                 variables={"params": critic_params},
@@ -320,22 +320,27 @@ def update_categorical_critic(
             # compute mse loss
             critic_loss = loss.mean()
 
+        pred_q = _compute_categorical_value(pred_log_probs, num_bins, min_v, max_v)
+        target_q = _compute_categorical_value(next_q_log_probs, num_bins, min_v, max_v)
+
         critic_info = {
             "critic/loss": critic_loss,
-            "critic/pred_q1_mean": critic_loss,
+            "critic/q_min": pred_q.min(),
+            "critic/q_mean": pred_q.mean(),
+            "critic/q_max": pred_q.max(),
             "critic/batch_rew_min": batch["reward"].min(),
             "critic/batch_rew_mean": batch["reward"].mean(),
             "critic/batch_rew_max": batch["reward"].max(),
             "critic/total_pnorm": tree_norm(critic_params),
+            "target_critic/q_min": target_q.min(),
+            "target_critic/q_mean": target_q.mean(),
+            "target_critic/q_max": target_q.max(),
         }
 
         return critic_loss, critic_info
 
     critic, info = critic.apply_gradient(critic_loss_fn)
-    info["critic_gnorm"] = info.pop("grad_norm")
-    info["target_critic/reward_q_min"] = next_q_log_probs.min()
-    info["target_critic/reward_q_mean"] = next_q_log_probs.mean()
-    info["target_critic/reward_q_max"] = next_q_log_probs.max()
+    info["critic/total_gnorm"] = info.pop("grad_norm")
     critic = l2normalize_network(critic)
 
     return critic, info
@@ -372,6 +377,7 @@ def update_temperature(
         temperature_info = {
             "temperature/value": temperature_value,
             "temperature/loss": temperature_loss,
+            "temperature/target_entropy": target_entropy,
         }
 
         return temperature_loss, temperature_info

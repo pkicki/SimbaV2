@@ -138,7 +138,7 @@ def run(args):
                 logger.update_metric(**eval_info)
 
             # metrics
-            if interaction_step % cfg.metrics_per_environment_step == 0:
+            if interaction_step % cfg.metrics_per_interaction_step == 0:
                 batch = buffer.sample()
                 metrics_info = agent.get_metrics(batch)
                 if metrics_info:

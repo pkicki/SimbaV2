@@ -97,7 +97,9 @@ def compute_categorical_loss(
 
     # target label
     target_probs = jnp.exp(target_log_probs)
-    m_l = (target_probs * (u + (l == u).astype(jnp.float32) - b)).reshape((-1, num_bins, 1))
+    m_l = (target_probs * (u + (l == u).astype(jnp.float32) - b)).reshape(
+        (-1, num_bins, 1)
+    )
     m_u = (target_probs * (b - l)).reshape((-1, num_bins, 1))
     m = jax.lax.stop_gradient(jnp.sum(m_l * l_mask + m_u * u_mask, axis=1))
 

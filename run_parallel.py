@@ -73,10 +73,15 @@ if __name__ == "__main__":
     # import library after CUDA_VISIBLE_DEVICES operation
     from scale_rl.envs.dmc import DMC_EASY_MEDIUM, DMC_HARD
     from scale_rl.envs.humanoid_bench import HB_LOCOMOTION_NOHAND
+    from scale_rl.envs.mujoco import MUJOCO_ALL
     from scale_rl.envs.myosuite import MYOSUITE_TASKS
 
     env_type = args.pop("env_type")
-    if env_type == "dmc_em":
+    if env_type == "mujoco":
+        envs = MUJOCO_ALL
+        env_configs = [env_type] * len(envs)
+
+    elif env_type == "dmc_em":
         envs = DMC_EASY_MEDIUM
         env_configs = [env_type] * len(envs)
 
@@ -93,17 +98,39 @@ if __name__ == "__main__":
         env_configs = [env_type] * len(envs)
 
     elif env_type == "all":
-        envs = DMC_EASY_MEDIUM + DMC_HARD + MYOSUITE_TASKS + HB_LOCOMOTION_NOHAND
+        envs = (
+            MUJOCO_ALL
+            + DMC_EASY_MEDIUM
+            + DMC_HARD
+            + MYOSUITE_TASKS
+            + HB_LOCOMOTION_NOHAND
+        )
         env_configs = (
-            ["dmc_em"] * len(DMC_EASY_MEDIUM)
+            ["mujoco"] * len(MUJOCO_ALL)
+            + ["dmc_em"] * len(DMC_EASY_MEDIUM)
             + ["dmc_hard"] * len(DMC_HARD)
             + ["myosuite"] * len(MYOSUITE_TASKS)
             + ["hb_locomotion"] * len(HB_LOCOMOTION_NOHAND)
         )
 
+    elif env_type == "mujoco_myo_dmc_hard":
+        envs = MUJOCO_ALL + DMC_HARD + MYOSUITE_TASKS
+        env_configs = (
+            ["mujoco"] * len(MUJOCO_ALL)
+            + ["dmc_hard"] * len(DMC_HARD)
+            + ["myosuite"] * len(MYOSUITE_TASKS)
+        )
+
     elif env_type == "mini_benchmark":
+        mujoco_envs = [
+            "HalfCheetah-v4",
+            "Humanoid-v4",
+        ]
+
         dmc_em_envs = [
             "acrobot-swingup",
+            "cartpole-balance",
+            "cartpole-swingup_sparse",
             "cheetah-run",
             "finger-spin",
             "fish-swim",
@@ -131,10 +158,10 @@ if __name__ == "__main__":
             "h1-stand-v0",
         ]
 
-        envs = dmc_em_envs + dmc_hard_envs + myo_envs + hb_envs
-
+        envs = mujoco_envs + dmc_em_envs + dmc_hard_envs + myo_envs + hb_envs
         env_configs = (
-            ["dmc_em"] * len(dmc_em_envs)
+            ["mujoco"] * len(mujoco_envs)
+            + ["dmc_em"] * len(dmc_em_envs)
             + ["dmc_hard"] * len(dmc_hard_envs)
             + ["myosuite"] * len(myo_envs)
             + ["hb_locomotion"] * len(hb_envs)

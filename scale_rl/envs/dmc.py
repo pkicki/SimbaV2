@@ -7,6 +7,7 @@ from shimmy import DmControlCompatibilityV0 as DmControltoGymnasium
 # 20 tasks
 DMC_EASY_MEDIUM = [
     "acrobot-swingup",
+    "ball_in_cup-catch",
     "cartpole-balance",
     "cartpole-balance_sparse",
     "cartpole-swingup",

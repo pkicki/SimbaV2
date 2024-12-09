@@ -127,19 +127,16 @@ class HyperEncoder(nn.Module):
                 projection_type=self.input_projection_type,
                 constant=self.input_projection_constant,
             )
-            info[f"cnln_proj_{layer_idx}"] = x
-            layer_idx += 1
+            info[f"proj_in_{layer_idx}"] = x
 
             x = HyperDense(
                 hidden_dim=self.hidden_dim,
                 dtype=self.dtype,
                 use_scaler=self.scale_input_dense,
             )(x)
-            info[f"cnln_hdense_{layer_idx}"] = x
-            layer_idx += 1
 
             x = l2normalize(x, axis=-1)
-            info[f"cnln_l2norm_{layer_idx}"] = x
+            info[f"proj_out_{layer_idx}"] = x
             layer_idx += 1
 
         elif self.input_process_type == "linear_concat_norm":
@@ -148,15 +145,14 @@ class HyperEncoder(nn.Module):
                 dtype=self.dtype,
                 use_scaler=self.scale_input_dense,
             )(x)
-            info[f"lcn_hdense_{layer_idx}"] = x
-            layer_idx += 1
+            info[f"proj_in_{layer_idx}"] = x
 
             x = project_to_hypersphere(
                 x=x,
                 projection_type=self.input_projection_type,
                 constant=self.input_projection_constant,
             )
-            info[f"lcn_proj_{layer_idx}"] = x
+            info[f"proj_out_{layer_idx}"] = x
             layer_idx += 1
 
         elif self.input_process_type == "mlp_concat_norm":
@@ -165,27 +161,21 @@ class HyperEncoder(nn.Module):
                 dtype=self.dtype,
                 use_scaler=self.scale_input_dense,
             )(x)
-            info[f"mcn_hdense_{layer_idx}"] = x
-            layer_idx += 1
+            info[f"proj_in_{layer_idx}"] = x
 
             x = nn.relu(x) + 1e-5
-            info[f"mcn_relu_{layer_idx}"] = x
-            layer_idx += 1
-
             x = HyperDense(
                 hidden_dim=self.hidden_dim - 1,
                 dtype=self.dtype,
                 use_scaler=False,
             )(x)
-            info[f"mcn_hdense_{layer_idx}"] = x
-            layer_idx += 1
 
             x = project_to_hypersphere(
                 x=x,
                 projection_type=self.input_projection_type,
                 constant=self.input_projection_constant,
             )
-            info[f"mcn_proj_{layer_idx}"] = x
+            info[f"proj_out_{layer_idx}"] = x
             layer_idx += 1
 
         else:
@@ -198,7 +188,7 @@ class HyperEncoder(nn.Module):
                 alpha_scale=self.alpha_scale,
                 dtype=self.dtype,
             )(x)
-            info[f"mcn_hresbl_{layer_idx}"] = x
+            info[f"res_block_{layer_idx}"] = x
             layer_idx += 1
 
         return x, info
@@ -342,6 +332,7 @@ class HyperCritic(nn.Module):
 
         return value
 
+
 class HyperCritic(nn.Module):
     kernel_init_scale: float = 1.0
     dtype: Any = jnp.float32
@@ -382,8 +373,8 @@ class HyperCritic(nn.Module):
             value = value + bias
 
         return value
-    
-    
+
+
 class HyperCategoricalCritic(nn.Module):
     kernel_init_scale: float = 1.0
     dtype: Any = jnp.float32
@@ -393,7 +384,7 @@ class HyperCategoricalCritic(nn.Module):
     use_scaler: bool = True
     non_linear: bool = True
     use_bias: bool = True
-    
+
     num_bins: int = 51
 
     @nn.compact
@@ -424,9 +415,10 @@ class HyperCategoricalCritic(nn.Module):
         if self.use_bias:
             bias = self.param("value_bias", nn.initializers.zeros, (self.num_bins,))
             value = value + bias
-        
+
         # return log probability of bins
         return nn.log_softmax(value, axis=1)
+
 
 class HyperSACDevActor(nn.Module):
     num_blocks: int
@@ -610,7 +602,7 @@ class HyperSACDevCategoricalCritic(nn.Module):
     output_use_bias: bool
 
     num_bins: int
-    
+
     def setup(self):
         self.encoder = HyperEncoder(
             num_blocks=self.num_blocks,
@@ -706,7 +698,7 @@ class HyperSACDevCategoricalDoubleCritic(nn.Module):
         )(observations, actions)
 
         return qs
-    
+
 
 class HyperSACDevTemperature(nn.Module):
     initial_value: float = 1.0

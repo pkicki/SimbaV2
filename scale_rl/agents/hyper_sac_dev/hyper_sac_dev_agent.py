@@ -13,17 +13,17 @@ from scale_rl.agents.base_agent import BaseAgent
 from scale_rl.agents.hyper_sac_dev.hyper_sac_dev_network import (
     HyperSACDevActor,
     HyperSACDevCategoricalCritic,
-    HyperSACDevClippedDoubleCritic,
     HyperSACDevCategoricalDoubleCritic,
+    HyperSACDevClippedDoubleCritic,
     HyperSACDevCritic,
     HyperSACDevTemperature,
 )
 from scale_rl.agents.hyper_sac_dev.hyper_sac_dev_update import (
     l2normalize_network,
     update_actor,
-    update_critic,
     update_actor_with_categorical_critic,
     update_categorical_critic,
+    update_critic,
     update_target_network,
     update_temperature,
 )
@@ -180,9 +180,9 @@ def _init_hyper_sac_dev_networks(
                 output_use_scaler=cfg.critic_output_use_scaler,
                 output_non_linear=cfg.critic_output_non_linear,
                 output_use_bias=cfg.critic_output_use_bias,
-                num_bins=cfg.critic_num_bins
+                num_bins=cfg.critic_num_bins,
             )
-        else: 
+        else:
             critic_network_def = HyperSACDevClippedDoubleCritic(
                 num_blocks=cfg.critic_num_blocks,
                 hidden_dim=cfg.critic_hidden_dim,
@@ -216,7 +216,7 @@ def _init_hyper_sac_dev_networks(
                 output_use_scaler=cfg.critic_output_use_scaler,
                 output_non_linear=cfg.critic_output_non_linear,
                 output_use_bias=cfg.critic_output_use_bias,
-                num_bins=cfg.critic_num_bins
+                num_bins=cfg.critic_num_bins,
             )
         else:
             critic_network_def = HyperSACDevCritic(
@@ -332,7 +332,7 @@ def _update_hyper_sac_dev_networks(
     temp_target_entropy: float,
 ) -> Tuple[PRNGKey, Trainer, Trainer, Trainer, Trainer, Dict[str, float]]:
     rng, actor_key, critic_key = jax.random.split(rng, 3)
-    
+
     if critic_use_categorical:
         new_actor, actor_info = update_actor_with_categorical_critic(
             key=actor_key,
@@ -359,7 +359,7 @@ def _update_hyper_sac_dev_networks(
         entropy=actor_info["actor/entropy"],
         target_entropy=temp_target_entropy,
     )
-    
+
     if critic_use_categorical:
         new_critic, critic_info = update_categorical_critic(
             key=critic_key,

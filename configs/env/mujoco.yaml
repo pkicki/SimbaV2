@@ -1,9 +1,9 @@
 ##################################################################################
-# Deepmind Control Suite with easy & medium tasks
+# Mujoco
 ##################################################################################
 
-env_type: 'dmc'
-env_name: 'walker-run'
+env_type: 'mujoco'
+env_name: 'Humanoid-v4'
 num_env_steps: 1_000_000
 episodic: false
 
@@ -11,7 +11,7 @@ seed: ${seed}
 num_train_envs: 1
 num_eval_envs: 1
 no_termination: false
-action_repeat: 2
+action_repeat: 1
 rescale_action: true
 reward_scale: 1
 max_episode_steps: 1000
