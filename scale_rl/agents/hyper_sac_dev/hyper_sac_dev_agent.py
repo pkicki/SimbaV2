@@ -50,7 +50,8 @@ class HyperSACDevConfig:
     num_train_envs: int
     max_episode_steps: int
     normalize_observation: bool
-    stream_scale_reward: bool
+    normalize_reward: bool
+    normalized_g_max: float
 
     actor_num_blocks: int
     actor_hidden_dim: int

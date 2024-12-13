@@ -8,7 +8,7 @@ from scale_rl.agents.sac_dev.sac_dev_agent import SACDevAgent
 from scale_rl.agents.hyper_sac.hyper_sac_agent import HyperSACAgent
 from scale_rl.agents.hyper_sac_dev.hyper_sac_dev_agent import HyperSACDevAgent
 from scale_rl.agents.ddpg.ddpg_agent import DDPGAgent
-from scale_rl.agents.wrappers import ObservationNormalizer, StreamRewardScaler
+from scale_rl.agents.wrappers import ObservationNormalizer, RewardNormalizer
 
 Config = TypeVar('Config')
 
@@ -47,7 +47,7 @@ def create_agent(
     if cfg['normalize_observation']:
         agent = ObservationNormalizer(agent)
     # dev
-    if cfg['stream_scale_reward']:
-        agent = StreamRewardScaler(agent, gamma = cfg['gamma'])
+    if cfg['normalize_reward']:
+        agent = RewardNormalizer(agent, gamma = cfg['gamma'], v_max=cfg['normalized_g_max'])
 
     return agent

@@ -14,10 +14,7 @@ MUJOCO_ALL = [
 def make_mujoco_env(
     env_name: str,
     seed: int,
-    no_termination: bool = True,
 ) -> gym.Env:
     env = gym.make(env_name, render_mode="rgb_array")
-    if no_termination:
-        env = DoNotTerminate(env)
 
     return env

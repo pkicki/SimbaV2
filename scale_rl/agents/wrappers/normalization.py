@@ -42,7 +42,6 @@ class ObservationNormalizer(AgentWrapper):
         """
         Defines the sample action function with normalized observation.
         """
-
         observations = prev_timestep["next_observation"]
         if training:
             self.obs_rms.update(observations)
@@ -63,14 +62,14 @@ class ObservationNormalizer(AgentWrapper):
         )
 
 
-class StreamRewardScaler(AgentWrapper):
+class RewardNormalizer(AgentWrapper):
     """
     This wrapper will scale rewards using the variance of a running estimate of the discounted returns. In policy gradient methods, the update rule often involves the term ∇log ⁡π(a|s)⋅G_t, where G_t is the return from time t. Scaling G_t to have unit variance can be an effective variance reduction technique.
 
     Return statistics is updated only on sample_actions with training == True
     """
 
-    def __init__(self, agent: BaseAgent, gamma: float, epsilon: float = 1e-8):
+    def __init__(self, agent: BaseAgent, gamma: float, v_max: float = 10.0, epsilon: float = 1e-8):
         """This wrapper will scale rewards using the variance of a running estimate of the discounted returns.
 
         Args:
@@ -84,14 +83,20 @@ class StreamRewardScaler(AgentWrapper):
             shape=1,
             dtype=np.float32,
         )
+        self.r_abs_max = 0.0
         self.gamma = gamma
+        self.v_max = v_max
         self.epsilon = epsilon
 
     def _scale_reward(self, rewards):
         """
-        Stream-ScaleReward: https://arxiv.org/abs/2410.14606
+        https://gymnasium.farama.org/api/wrappers/reward_wrappers/#gymnasium.wrappers.NormalizeReward
         """
-        return rewards / np.sqrt(self.G_rms.var + self.epsilon)
+        var_denominator = np.sqrt(self.G_rms.var + self.epsilon)
+        min_required_denominator = self.r_abs_max / ((1-self.gamma) * self.v_max)
+        denominator = max(var_denominator, min_required_denominator)
+        
+        return rewards / denominator
 
     def sample_actions(
         self,
@@ -103,10 +108,9 @@ class StreamRewardScaler(AgentWrapper):
         Defines the sample action function with updating statistics.
         """
         if training:
-            self.G = (
-                self.gamma * (1 - prev_timestep["terminated"]) * self.G
-                + prev_timestep["reward"]
-            )
+            reward = prev_timestep['reward']
+            self.r_abs_max = max(self.r_abs_max, abs(reward))
+            self.G = self.gamma * self.G + reward
             self.G_rms.update(self.G)
 
         return self.agent.sample_actions(

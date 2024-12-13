@@ -5,7 +5,7 @@
 env_type: 'mujoco'
 env_name: 'Humanoid-v4'
 num_env_steps: 1_000_000
-episodic: false
+episodic: true
 
 seed: ${seed}
 num_train_envs: 1

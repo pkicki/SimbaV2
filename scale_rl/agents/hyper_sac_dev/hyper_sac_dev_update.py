@@ -319,6 +319,9 @@ def update_categorical_critic(
 
             # compute mse loss
             critic_loss = loss.mean()
+        
+        pred_q = _compute_categorical_value(pred_log_probs, num_bins, min_v, max_v)
+        target_q = _compute_categorical_value(next_q_log_probs, num_bins, min_v, max_v)
 
         pred_q = _compute_categorical_value(pred_log_probs, num_bins, min_v, max_v)
         target_q = _compute_categorical_value(next_q_log_probs, num_bins, min_v, max_v)
