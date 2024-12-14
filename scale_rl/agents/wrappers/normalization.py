@@ -69,7 +69,7 @@ class RewardNormalizer(AgentWrapper):
     Return statistics is updated only on sample_actions with training == True
     """
 
-    def __init__(self, agent: BaseAgent, gamma: float, v_max: float = 10.0, epsilon: float = 1e-8):
+    def __init__(self, agent: BaseAgent, gamma: float, g_max: float = 10.0, epsilon: float = 1e-8):
         """This wrapper will scale rewards using the variance of a running estimate of the discounted returns.
 
         Args:
@@ -83,9 +83,9 @@ class RewardNormalizer(AgentWrapper):
             shape=1,
             dtype=np.float32,
         )
-        self.r_abs_max = 0.0
+        self.G_r_max = 0.0 # running-max
         self.gamma = gamma
-        self.v_max = v_max
+        self.g_max = g_max
         self.epsilon = epsilon
 
     def _scale_reward(self, rewards):
@@ -93,7 +93,7 @@ class RewardNormalizer(AgentWrapper):
         https://gymnasium.farama.org/api/wrappers/reward_wrappers/#gymnasium.wrappers.NormalizeReward
         """
         var_denominator = np.sqrt(self.G_rms.var + self.epsilon)
-        min_required_denominator = self.r_abs_max / ((1-self.gamma) * self.v_max)
+        min_required_denominator = self.G_r_max / self.g_max
         denominator = max(var_denominator, min_required_denominator)
         
         return rewards / denominator
@@ -109,9 +109,10 @@ class RewardNormalizer(AgentWrapper):
         """
         if training:
             reward = prev_timestep['reward']
-            self.r_abs_max = max(self.r_abs_max, abs(reward))
-            self.G = self.gamma * self.G + reward
+            terminated = prev_timestep['terminated']
+            self.G = self.gamma * (1 - terminated) * self.G + reward
             self.G_rms.update(self.G)
+            self.G_r_max = max(self.G_r_max, abs(self.G))
 
         return self.agent.sample_actions(
             interaction_step=interaction_step,

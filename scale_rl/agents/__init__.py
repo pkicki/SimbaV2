@@ -48,6 +48,6 @@ def create_agent(
         agent = ObservationNormalizer(agent)
     # dev
     if cfg['normalize_reward']:
-        agent = RewardNormalizer(agent, gamma = cfg['gamma'], v_max=cfg['normalized_g_max'])
+        agent = RewardNormalizer(agent, gamma = cfg['gamma'], g_max=cfg['normalized_g_max'])
 
     return agent
