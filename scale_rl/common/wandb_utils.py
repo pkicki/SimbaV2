@@ -286,15 +286,22 @@ def generate_metric_matrix_dict(eval_df, env_step: int, metric_type: str):
     return metric_matrix_dict
 
 
-def normalize_values(df, TASK_SUCCESS_SCORE):
+def normalize_score_with_random_and_base_score(
+    df: pd.DataFrame,
+    random_score_dict: dict,
+    base_score_dict: dict
+) -> pd.DataFrame:
     """
-    Normalize the 'value' column in the DataFrame based on the TASK_SUCCESS_SCORE.
+    Normalize the 'value' column based on random and base scores.
+        normalized_value = (value - random_score) / (base_score - random_score)
 
     Args:
-    - df (pandas.DataFrame): Input DataFrame with columns 'env_name' and 'value'
+    - df (pd.DataFrame): DataFrame with 'env_name' and 'value' columns.
+    - random_score_dict (dict): Mapping of 'env_name' to random scores.
+    - base_score_dict (dict): Mapping of 'env_name' to base scores.
 
     Returns:
-    - pandas.DataFrame: DataFrame with normalized 'value' column
+    - pd.DataFrame: DataFrame with an added 'normalized_value' column.
     """
     # Create a copy of the DataFrame to avoid modifying the original
     df_normalized = df.copy()
@@ -303,13 +310,10 @@ def normalize_values(df, TASK_SUCCESS_SCORE):
     def normalize_value(row):
         env_name = row["env_name"]
         value = row["value"]
-        if env_name in TASK_SUCCESS_SCORE:
-            return value / TASK_SUCCESS_SCORE[env_name] * 1000
-        else:
-            print(
-                f"Warning: No normalization score found for environment '{env_name}'. Returning original value."
-            )
-            raise NotImplementedError
+        base_score = base_score_dict[env_name]
+        random_score = random_score_dict[env_name]
+
+        return (value - random_score) / (base_score - random_score)
 
     # Apply the normalization function to each row
     df_normalized["value"] = df_normalized.apply(normalize_value, axis=1)

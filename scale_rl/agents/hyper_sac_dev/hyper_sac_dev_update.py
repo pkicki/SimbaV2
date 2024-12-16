@@ -320,24 +320,21 @@ def update_categorical_critic(
             # compute mse loss
             critic_loss = loss.mean()
         
-        pred_q = _compute_categorical_value(pred_log_probs, num_bins, min_v, max_v)
-        target_q = _compute_categorical_value(next_q_log_probs, num_bins, min_v, max_v)
-
-        pred_q = _compute_categorical_value(pred_log_probs, num_bins, min_v, max_v)
-        target_q = _compute_categorical_value(next_q_log_probs, num_bins, min_v, max_v)
+        #pred_q = _compute_categorical_value(pred_log_probs, num_bins, min_v, max_v)
+        #target_q = _compute_categorical_value(next_q_log_probs, num_bins, min_v, max_v)
 
         critic_info = {
             "critic/loss": critic_loss,
-            "critic/q_min": pred_q.min(),
-            "critic/q_mean": pred_q.mean(),
-            "critic/q_max": pred_q.max(),
+            #"critic/q_min": pred_q.min(),
+            #"critic/q_mean": pred_q.mean(),
+            #"critic/q_max": pred_q.max(),
             "critic/batch_rew_min": batch["reward"].min(),
             "critic/batch_rew_mean": batch["reward"].mean(),
             "critic/batch_rew_max": batch["reward"].max(),
             "critic/total_pnorm": tree_norm(critic_params),
-            "target_critic/q_min": target_q.min(),
-            "target_critic/q_mean": target_q.mean(),
-            "target_critic/q_max": target_q.max(),
+            #"target_critic/q_min": target_q.min(),
+            #"target_critic/q_mean": target_q.mean(),
+            #"target_critic/q_max": target_q.max(),
         }
 
         return critic_loss, critic_info
@@ -352,16 +349,25 @@ def update_categorical_critic(
 def update_target_network(
     network: Trainer,  # SACDoubleCritic
     target_network: Trainer,
+    target_copy_type: str,
+    target_copy: bool,
     target_tau: float,
     normalize_weight: bool = False,
 ) -> Tuple[Trainer, Dict[str, float]]:
-    new_target_params = jax.tree_map(
-        lambda p, tp: p * target_tau + tp * (1 - target_tau),
-        network.params,
-        target_network.params,
-    )
+    
+    if target_copy_type == 'hard':
+        if target_copy:
+            target_network = target_network.replace(params=network.params)
 
-    target_network = target_network.replace(params=new_target_params)
+    else:
+        new_target_params = jax.tree_map(
+            lambda p, tp: p * target_tau + tp * (1 - target_tau),
+            network.params,
+            target_network.params,
+        )
+
+        target_network = target_network.replace(params=new_target_params)
+
     info = {}
     if normalize_weight:
         target_network = l2normalize_network(target_network)

@@ -14,7 +14,7 @@ normalized_g_max: 5.0
 actor_num_blocks: 1
 actor_hidden_dim: 128
 actor_learning_rate_init: 1e-4
-actor_learning_rate_end: 1e-4
+actor_learning_rate_end: 5e-5
 actor_learning_rate_decay_rate: 1.0 
 actor_learning_rate_decay_step: ${eval:'int(${agent.actor_learning_rate_decay_rate} * ${num_interaction_steps} * ${updates_per_interaction_step})'}
 actor_weight_decay: 0.0
@@ -34,7 +34,7 @@ actor_output_use_bias: true
 critic_num_blocks: 2
 critic_hidden_dim: 512
 critic_learning_rate_init: 1e-4
-critic_learning_rate_end: 1e-4
+critic_learning_rate_end: 5e-5
 critic_learning_rate_decay_rate: 1.0 
 critic_learning_rate_decay_step: ${eval:'int(${agent.critic_learning_rate_decay_rate} * ${num_interaction_steps} * ${updates_per_interaction_step})'}
 critic_weight_decay: 0.0
@@ -63,7 +63,9 @@ temp_initial_value: 0.01
 temp_learning_rate: 1e-4
 temp_weight_decay: 0.0
 
-target_tau: 0.005
+target_copy_type: 'hard' # [hard, soft]
+target_copy_every: 250
+target_tau: 0.005 # soft
 target_normalize_weight: false
 gamma: ${gamma}
 n_step: ${n_step}

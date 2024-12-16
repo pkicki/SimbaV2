@@ -91,7 +91,41 @@ HB_LOCOMOTION_NOHAND = [
 #
 #################################
 
-TASK_SUCCESS_SCORE = {
+HB_RANDOM_SCORE = {
+    "h1_walk_v0": 0.0,
+    "h1_stand_v0": 0.0,
+    "h1_run_v0": 0.0,
+    "h1_reach_v0": 0.0,
+    "h1_hurdle_v0": 0.0,
+    "h1_crawl_v0": 0.0,
+    "h1_maze_v0": 0.0,
+    "h1_sit_simple_v0": 0.0,
+    "h1_sit_hard_v0": 0.0,
+    "h1_balance_simple_v0": 0.0,
+    "h1_balance_hard_v0": 0.0,
+    "h1_stair_v0": 0.0,
+    "h1_slide_v0": 0.0,
+    "h1_pole_v0": 0.0,
+    "h1_push_v0": 0.0,
+    "h1_cabinet_v0": 0.0,
+    "h1_highbar_v0": 0.0,
+    "h1_door_v0": 0.0,
+    "h1_truck_v0": 0.0,
+    "h1_cube_v0": 0.0,
+    "h1_bookshelf_simple_v0": 0.0,
+    "h1_bookshelf_hard_v0": 0.0,
+    "h1_basketball_v0": 0.0,
+    "h1_window_v0": 0.0,
+    "h1_spoon_v0": 0.0,
+    "h1_kitchen_v0": 0.0,
+    "h1_package_v0": 0.0,
+    "h1_powerlift_v0": 0.0,
+    "h1_room_v0": 0.0,
+    "h1_insert_small_v0": 0.0,
+    "h1_insert_normal_v0": 0.0,
+}
+
+HB_SUCCESS_SCORE = {
     "h1_walk_v0": 700.0,
     "h1_stand_v0": 800.0,
     "h1_run_v0": 700.0,

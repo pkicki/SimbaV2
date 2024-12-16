@@ -104,6 +104,8 @@ class HyperSACDevConfig:
     temp_learning_rate: float
     temp_weight_decay: float
 
+    target_copy_type: str
+    target_copy_every: int
     target_tau: float
     target_normalize_weight: bool
     gamma: float
@@ -310,6 +312,8 @@ def _sample_hyper_sac_dev_actions(
         "critic_use_categorical",
         "categorical_min_v",
         "categorical_max_v",
+        "target_copy_type",
+        "target_copy",
         "target_tau",
         "target_normalize_weight",
         "temp_target_entropy",
@@ -328,6 +332,8 @@ def _update_hyper_sac_dev_networks(
     critic_use_categorical: bool,
     categorical_min_v: float,
     categorical_max_v: float,
+    target_copy_type: str,
+    target_copy: bool,
     target_tau: float,
     target_normalize_weight: bool,
     temp_target_entropy: float,
@@ -391,6 +397,8 @@ def _update_hyper_sac_dev_networks(
     new_target_critic, target_critic_info = update_target_network(
         network=new_critic,
         target_network=target_critic,
+        target_copy_type=target_copy_type,
+        target_copy=target_copy,
         target_tau=target_tau,
         normalize_weight=target_normalize_weight,
     )
@@ -407,8 +415,6 @@ def _update_hyper_sac_dev_networks(
 
 ############
 # Metrics
-
-
 def _get_metrics_hyper_sac_dev_networks(
     rng: PRNGKey,
     actor: Trainer,
@@ -558,6 +564,8 @@ class HyperSACDevAgent(BaseAgent):
             critic_use_categorical=self._cfg.critic_use_categorical,
             categorical_min_v=self._cfg.categorical_min_v,
             categorical_max_v=self._cfg.categorical_max_v,
+            target_copy_type=self._cfg.target_copy_type,
+            target_copy=(update_step % self._cfg.target_copy_every == 0),
             target_tau=self._cfg.target_tau,
             target_normalize_weight=self._cfg.target_normalize_weight,
             temp_target_entropy=self._cfg.temp_target_entropy,

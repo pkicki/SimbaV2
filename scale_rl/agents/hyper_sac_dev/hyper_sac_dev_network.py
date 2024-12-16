@@ -1,5 +1,6 @@
 from typing import Any
 
+import math
 import flax.linen as nn
 import jax.numpy as jnp
 from jax.lax import convert_element_type
@@ -70,8 +71,17 @@ class HyperFeedForward(nn.Module):
     eps: float = 1e-8
 
     def setup(self):
-        self.w1 = HyperDense(self.hidden_dim, use_scaler=True, dtype=self.dtype)
-        self.w2 = HyperDense(self.out_dim, use_scaler=False, dtype=self.dtype)
+        self.w1 = HyperDense(
+            self.hidden_dim, 
+            use_scaler=True, 
+            scaler_init=1/math.sqrt(self.hidden_dim),
+            dtype=self.dtype
+        )
+        self.w2 = HyperDense(
+            self.out_dim, 
+            use_scaler=False, 
+            dtype=self.dtype
+        )
 
     def __call__(self, x: jnp.ndarray) -> jnp.ndarray:
         x = self.w1(x)
