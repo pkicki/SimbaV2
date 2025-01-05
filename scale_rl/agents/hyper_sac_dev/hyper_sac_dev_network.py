@@ -144,7 +144,7 @@ class HyperEncoder(nn.Module):
         info = {}
         layer_idx = 0
 
-        if self.input_process_type == "concat_norm_linear_norm":
+        if self.input_process_type == "project_linear_norm":
             x = project_to_hypersphere(
                 x=x,
                 projection_type=self.input_projection_type,
@@ -162,9 +162,9 @@ class HyperEncoder(nn.Module):
             info[f"proj_out_{layer_idx}"] = x
             layer_idx += 1
 
-        elif self.input_process_type == "linear_concat_norm":
+        elif self.input_process_type == "linear_project":
             x = HyperDense(
-                hidden_dim=self.hidden_dim - 1,
+                hidden_dim=self.hidden_dim,
                 dtype=self.dtype,
                 use_scaler=self.scale_input_dense,
             )(x)
@@ -178,9 +178,9 @@ class HyperEncoder(nn.Module):
             info[f"proj_out_{layer_idx}"] = x
             layer_idx += 1
 
-        elif self.input_process_type == "mlp_concat_norm":
+        elif self.input_process_type == "mlp_project":
             x = HyperDense(
-                hidden_dim=self.hidden_dim - 1,
+                hidden_dim=self.hidden_dim,
                 dtype=self.dtype,
                 use_scaler=self.scale_input_dense,
             )(x)
@@ -188,7 +188,7 @@ class HyperEncoder(nn.Module):
 
             x = nn.relu(x) + 1e-5
             x = HyperDense(
-                hidden_dim=self.hidden_dim - 1,
+                hidden_dim=self.hidden_dim,
                 dtype=self.dtype,
                 use_scaler=False,
             )(x)
@@ -489,6 +489,8 @@ class HyperSACDevCritic(nn.Module):
             input_projection_type=self.input_projection_type,
             input_projection_constant=self.input_projection_constant,
             scale_input_dense=self.scale_input_dense,
+            scaler_init=self.scaler_init,
+            scaler_scale=self.scaler_scale,
             alpha_init=self.alpha_init,
             alpha_scale=self.alpha_scale,
             dtype=self.dtype,
@@ -498,8 +500,6 @@ class HyperSACDevCritic(nn.Module):
             dtype=self.dtype,
             project_in=self.output_project_in,
             hidden_dim=self.output_hidden_dim,
-            scaler_init=self.scaler_init,
-            scaler_scale=self.scaler_scale,
             use_scaler=self.output_use_scaler,
             non_linear=self.output_non_linear,
             use_bias=self.output_use_bias,

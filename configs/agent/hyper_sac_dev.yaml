@@ -18,7 +18,7 @@ actor_learning_rate_end: 5e-5
 actor_learning_rate_decay_rate: 1.0 
 actor_learning_rate_decay_step: ${eval:'int(${agent.actor_learning_rate_decay_rate} * ${num_interaction_steps} * ${updates_per_interaction_step})'}
 actor_weight_decay: 0.0
-actor_input_process_type: 'concat_norm_linear_norm'
+actor_input_process_type: 'project_linear_norm'
 actor_input_projection_type: 'shift'
 actor_input_projection_constant: 3.0
 actor_scale_input_dense: true
@@ -41,7 +41,7 @@ critic_learning_rate_decay_rate: 1.0
 critic_learning_rate_decay_step: ${eval:'int(${agent.critic_learning_rate_decay_rate} * ${num_interaction_steps} * ${updates_per_interaction_step})'}
 critic_weight_decay: 0.0
 critic_use_cdq: ${env.episodic}
-critic_input_process_type: 'concat_norm_linear_norm'
+critic_input_process_type: 'project_linear_norm'
 critic_input_projection_type: 'shift'
 critic_input_projection_constant: 3.0
 critic_scale_input_dense: true
