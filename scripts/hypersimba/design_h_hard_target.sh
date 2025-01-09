@@ -1,9 +1,0 @@
-python run_parallel.py \
-    --group_name design_study \
-    --exp_name h_hard_target_copy \
-    --agent_config hyper_sac_dev \
-    --env_type all \
-    --device_ids 0 \
-    --num_seeds 10 \
-    --num_exp_per_device 1 \
-    --overrides agent.target_copy_type='hard' \

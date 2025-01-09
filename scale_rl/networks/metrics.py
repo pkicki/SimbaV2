@@ -88,7 +88,7 @@ def get_grad_norm(
     squared_param_norm_dict = jax.tree_util.tree_map(
         lambda x: jnp.square(x), grad_norm_dict
     )
-    
+
     updated_params["total"] = jnp.sqrt(
         sum_all_values_in_pytree(squared_param_norm_dict)
     )
@@ -96,7 +96,7 @@ def get_grad_norm(
     return add_prefix_to_dict(
         flatten_dict(updated_params), prefix + "/gradnorm", sep="_"
     )
-    
+
 
 def get_effective_lr(
     grad_dict: Params,
@@ -113,11 +113,11 @@ def get_effective_lr(
     effective_lr_dict = {}
     for _k, _g in grad_dict.items():
         # remove prefix
-        _layer = _k.replace(prefix + '/gradnorm_', "") 
-        _p = param_dict[prefix + '/weightnorm_' + _layer]
-        effective_lr_dict[prefix + "/effective_lr_" + _layer] = _g / _p 
+        _layer = _k.replace(prefix + "/gradnorm_", "")
+        _p = param_dict[prefix + "/weightnorm_" + _layer]
+        effective_lr_dict[prefix + "/effective_lr_" + _layer] = _g / _p
     return effective_lr_dict
-    
+
 
 def get_scaler_stat(
     param_dict: Params,
@@ -154,8 +154,8 @@ def add_all_key(d):
                 # Integrated Norm
                 new_dict[key + "_kernel+bias"] = jnp.sqrt(kernel_norm + bias_norm)
                 # Separated Norm
-                new_dict[key + "_kernel"] = jnp.sqrt(kernel_norm) 
-                new_dict[key + "_bias"] = jnp.sqrt(bias_norm) 
+                new_dict[key + "_kernel"] = jnp.sqrt(kernel_norm)
+                new_dict[key + "_bias"] = jnp.sqrt(bias_norm)
         else:
             new_dict[key] = jnp.linalg.norm(value)
     return new_dict

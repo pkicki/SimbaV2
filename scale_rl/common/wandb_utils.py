@@ -287,9 +287,7 @@ def generate_metric_matrix_dict(eval_df, env_step: int, metric_type: str):
 
 
 def normalize_score_with_random_and_base_score(
-    df: pd.DataFrame,
-    random_score_dict: dict,
-    base_score_dict: dict
+    df: pd.DataFrame, random_score_dict: dict, base_score_dict: dict
 ) -> pd.DataFrame:
     """
     Normalize the 'value' column based on random and base scores.
