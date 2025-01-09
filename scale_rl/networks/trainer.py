@@ -7,7 +7,6 @@ import jax
 import jax.numpy as jnp
 import optax
 from flax.training import dynamic_scale as dynamic_scale_lib
-
 from scale_rl.networks.utils import tree_map_until_match, tree_norm
 
 PRNGKey = jnp.ndarray
@@ -76,10 +75,10 @@ class Trainer:
             grads, info = grad_fn(self.params)
             dynamic_scale = None
             is_fin = True
-
-        if get_info:
-            grad_norm = tree_norm(grads)
-            info["grad_norm"] = grad_norm
+            
+        # grad_norm = tree_norm(grads)
+        # info["grad_norm"] = grad_norm
+        info["_grads"] = grads
 
         updates, new_opt_state = self.tx.update(grads, self.opt_state, self.params)
         new_params = optax.apply_updates(self.params, updates)

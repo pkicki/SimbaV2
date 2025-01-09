@@ -1,0 +1,11 @@
+python run_parallel.py \
+    --group_name simba_plus_lr_schedule \
+    --exp_name simba_plus_lr_schedule \
+    --agent_config sac_simba_plus_lr_schedule \
+    --env_type all \
+    --device_ids 4 5 7 \
+    --num_seeds 10 \
+    --num_exp_per_device 8 \
+    --server kaist \
+    --overrides project_name='Simba_2412' \
+    --overrides updates_per_interaction_step=2 \

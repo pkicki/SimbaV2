@@ -1,5 +1,5 @@
 from abc import ABC, abstractmethod
-from typing import Dict, TypeVar
+from typing import Dict, TypeVar, Any
 
 import gymnasium as gym
 import numpy as np
@@ -35,7 +35,7 @@ class BaseAgent(ABC):
         pass
 
     # @abstractmethod
-    def get_metrics(self, batch: Dict[str, np.ndarray]) -> Dict:
+    def get_metrics(self, batch: Dict[str, np.ndarray], update_info: Dict[str, Any]) -> Dict:
         pass
 
 
@@ -72,9 +72,10 @@ class AgentWrapper(BaseAgent):
             batch=batch,
         )
 
-    def get_metrics(self, batch: Dict[str, np.ndarray]) -> Dict:
+    def get_metrics(self, batch: Dict[str, np.ndarray], update_info: Dict[str, Any]) -> Dict:
         return self.agent.get_metrics(
             batch=batch,
+            update_info=update_info,
         )
 
     def set_attr(self, name, values):

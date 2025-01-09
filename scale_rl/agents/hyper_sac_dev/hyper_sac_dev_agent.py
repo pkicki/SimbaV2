@@ -1,6 +1,6 @@
 import functools
 from dataclasses import dataclass
-from typing import Dict, List, Optional, Tuple
+from typing import Dict, List, Optional, Tuple, Any
 
 import gymnasium as gym
 import jax
@@ -35,6 +35,8 @@ from scale_rl.networks.metrics import (
     get_rank,
     get_scaler_stat,
     get_weight_norm,
+    get_grad_norm,
+    get_effective_lr,
 )
 from scale_rl.networks.trainer import PRNGKey, Trainer
 
@@ -438,6 +440,7 @@ def _get_metrics_hyper_sac_dev_networks(
     critic: Trainer,
     target_critic: Trainer,
     batch: Batch,
+    update_info: Dict[str, Any],
 ) -> Tuple[PRNGKey, Trainer, Trainer, Trainer, Trainer, Trainer, Dict[str, float]]:
     """
     get_metrics currently measures
@@ -451,23 +454,33 @@ def _get_metrics_hyper_sac_dev_networks(
     """
 
     _, actor_info = actor(observations=batch["observation"])
+    actor_param_norm_dict = get_weight_norm(actor.params, prefix="actor")
+    actor_grad_norm_dict = get_grad_norm(update_info.pop("actor/_grads"), prefix="actor")
+    actor_effective_lr_dict = get_effective_lr(actor_grad_norm_dict, actor_param_norm_dict, prefix="actor")
     actor_metrics_info = {
         **get_dormant_ratio(actor_info, prefix="actor", tau=0.1),
         **get_dormant_ratio(actor_info, prefix="actor", tau=0.0),
         **get_feature_norm(actor_info, prefix="actor"),
         **get_rank(actor_info, prefix="actor"),
-        **get_weight_norm(actor.params, prefix="actor"),
         **get_scaler_stat(actor.params, prefix="actor"),
+        **actor_param_norm_dict,
+        **actor_grad_norm_dict,
+        **actor_effective_lr_dict,
     }
 
     _, critic_info = critic(observations=batch["observation"], actions=batch["action"])
+    critic_param_norm_dict = get_weight_norm(critic.params, prefix="critic")
+    critic_grad_norm_dict = get_grad_norm(update_info.pop("critic/_grads"), prefix="critic")
+    critic_effective_lr_dict = get_effective_lr(critic_grad_norm_dict, critic_param_norm_dict, prefix="critic")
     critic_metrics_info = {
         **get_dormant_ratio(critic_info, prefix="critic", tau=0.1),
         **get_dormant_ratio(critic_info, prefix="critic", tau=0.0),
         **get_feature_norm(critic_info, prefix="critic"),
         **get_rank(critic_info, prefix="critic"),
-        **get_weight_norm(critic.params, prefix="critic"),
         **get_scaler_stat(critic.params, prefix="critic"),
+        **critic_param_norm_dict,
+        **critic_grad_norm_dict,
+        **critic_effective_lr_dict,
     }
 
     _, target_critic_info = target_critic(
@@ -590,11 +603,18 @@ class HyperSACDevAgent(BaseAgent):
         )
 
         for key, value in update_info.items():
-            update_info[key] = float(value)
+            try: 
+                update_info[key] = float(value)
+            except:
+                pass
 
         return update_info
 
-    def get_metrics(self, batch: Dict[str, np.ndarray]) -> Dict:
+    def get_metrics(
+        self, 
+        batch: Dict[str, np.ndarray],
+        update_info: Dict[str, Any],
+    ) -> Dict:
         for key, value in batch.items():
             batch[key] = jnp.asarray(value)
         (
@@ -606,6 +626,7 @@ class HyperSACDevAgent(BaseAgent):
             critic=self._critic,
             target_critic=self._target_critic,
             batch=batch,
+            update_info=update_info,
         )
 
         for key, value in metrics_info.items():

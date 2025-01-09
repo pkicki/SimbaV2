@@ -1,6 +1,6 @@
 import functools
 from dataclasses import dataclass
-from typing import Dict, List, Optional, Tuple
+from typing import Dict, List, Optional, Tuple, Any
 
 import gymnasium as gym
 import jax
@@ -13,16 +13,30 @@ from scale_rl.agents.base_agent import BaseAgent
 from scale_rl.agents.sac.sac_network import (
     SACActor,
     SACClippedDoubleCritic,
+    SACCategoricalDoubleCritic,
     SACCritic,
+    SACCategoricalCritic,
     SACTemperature,
 )
 from scale_rl.agents.sac.sac_update import (
     update_actor,
+    update_actor_with_categorical_critic,
+    update_categorical_critic,
     update_critic,
     update_target_network,
     update_temperature,
 )
 from scale_rl.buffers.base_buffer import Batch
+from scale_rl.networks.metrics import (
+    get_critic_featdot,
+    get_dormant_ratio,
+    get_feature_norm,
+    get_rank,
+    get_scaler_stat,
+    get_weight_norm,
+    get_grad_norm,
+    get_effective_lr,
+)
 from scale_rl.networks.trainer import PRNGKey, Trainer
 
 """
@@ -38,19 +52,31 @@ class SACConfig:
     max_episode_steps: int
     normalize_observation: bool
     normalize_reward: bool
+    normalized_g_max: float
 
     actor_block_type: str
     actor_num_blocks: int
     actor_hidden_dim: int
-    actor_learning_rate: float
+    actor_learning_rate_init: float
+    actor_learning_rate_end: float
+    actor_learning_rate_decay_rate: float
+    actor_learning_rate_decay_step: int
     actor_weight_decay: float
 
     critic_block_type: str
     critic_num_blocks: int
     critic_hidden_dim: int
-    critic_learning_rate: float
+    critic_learning_rate_init: float
+    critic_learning_rate_end: float
+    critic_learning_rate_decay_rate: float
+    critic_learning_rate_decay_step: int
     critic_weight_decay: float
     critic_use_cdq: bool
+    
+    critic_use_categorical: bool
+    critic_num_bins: int
+    categorical_min_v: float
+    categorical_max_v: float
 
     temp_target_entropy: float
     temp_target_entropy_coef: float
@@ -96,26 +122,48 @@ def _init_sac_networks(
         ),
         network_inputs={"rngs": actor_key, "observations": fake_observations},
         tx=optax.adamw(
-            learning_rate=cfg.actor_learning_rate,
+            learning_rate=optax.linear_schedule(
+                init_value=cfg.actor_learning_rate_init,
+                end_value=cfg.actor_learning_rate_end,
+                transition_steps=cfg.actor_learning_rate_decay_step,
+            ),
             weight_decay=cfg.actor_weight_decay,
         ),
         dynamic_scale=dynamic_scale.DynamicScale() if cfg.mixed_precision else None,
     )
 
     if cfg.critic_use_cdq:
-        critic_network_def = SACClippedDoubleCritic(
-            block_type=cfg.critic_block_type,
-            num_blocks=cfg.critic_num_blocks,
-            hidden_dim=cfg.critic_hidden_dim,
-            dtype=compute_dtype,
-        )
+        if cfg.critic_use_categorical:
+            critic_network_def = SACCategoricalDoubleCritic(
+                block_type=cfg.critic_block_type,
+                num_blocks=cfg.critic_num_blocks,
+                hidden_dim=cfg.critic_hidden_dim,
+                num_bins=cfg.critic_num_bins,
+                dtype=compute_dtype,
+            )
+        else:
+            critic_network_def = SACClippedDoubleCritic(
+                block_type=cfg.critic_block_type,
+                num_blocks=cfg.critic_num_blocks,
+                hidden_dim=cfg.critic_hidden_dim,
+                dtype=compute_dtype,
+            )
     else:
-        critic_network_def = SACCritic(
-            block_type=cfg.critic_block_type,
-            num_blocks=cfg.critic_num_blocks,
-            hidden_dim=cfg.critic_hidden_dim,
-            dtype=compute_dtype,
-        )
+        if cfg.critic_use_categorical:
+            critic_network_def = SACCategoricalCritic(
+                block_type=cfg.critic_block_type,
+                num_blocks=cfg.critic_num_blocks,
+                hidden_dim=cfg.critic_hidden_dim,
+                num_bins=cfg.critic_num_bins,
+                dtype=compute_dtype,
+            )
+        else:
+            critic_network_def = SACCritic(
+                block_type=cfg.critic_block_type,
+                num_blocks=cfg.critic_num_blocks,
+                hidden_dim=cfg.critic_hidden_dim,
+                dtype=compute_dtype,
+            )
 
     critic = Trainer.create(
         network_def=critic_network_def,
@@ -125,7 +173,11 @@ def _init_sac_networks(
             "actions": fake_actions,
         },
         tx=optax.adamw(
-            learning_rate=cfg.critic_learning_rate,
+            learning_rate=optax.linear_schedule(
+                init_value=cfg.critic_learning_rate_init,
+                end_value=cfg.critic_learning_rate_end,
+                transition_steps=cfg.critic_learning_rate_decay_step,
+            ),
             weight_decay=cfg.critic_weight_decay,
         ),
         dynamic_scale=dynamic_scale.DynamicScale() if cfg.mixed_precision else None,
@@ -165,7 +217,7 @@ def _sample_sac_actions(
     temperature: float = 1.0,
 ) -> Tuple[PRNGKey, jnp.ndarray]:
     rng, key = jax.random.split(rng)
-    dist = actor(observations=observations, temperature=temperature)
+    dist, _ = actor(observations=observations, temperature=temperature)
     actions = dist.sample(seed=key)
 
     return rng, actions
@@ -177,6 +229,10 @@ def _sample_sac_actions(
         "gamma",
         "n_step",
         "critic_use_cdq",
+        "critic_use_categorical",
+        "categorical_min_v",
+        "categorical_max_v",
+        "categorical_num_bins",
         "target_tau",
         "temp_target_entropy",
     ),
@@ -191,37 +247,71 @@ def _update_sac_networks(
     gamma: float,
     n_step: int,
     critic_use_cdq: bool,
+    critic_use_categorical: bool,
+    categorical_min_v: float,
+    categorical_max_v: float,
+    categorical_num_bins: int,
     target_tau: float,
     temp_target_entropy: float,
 ) -> Tuple[PRNGKey, Trainer, Trainer, Trainer, Trainer, Dict[str, float]]:
     rng, actor_key, critic_key = jax.random.split(rng, 3)
 
-    new_actor, actor_info = update_actor(
-        key=actor_key,
-        actor=actor,
-        critic=critic,
-        temperature=temperature,
-        batch=batch,
-        critic_use_cdq=critic_use_cdq,
-    )
+    if critic_use_categorical:
+        new_actor, actor_info = update_actor_with_categorical_critic(
+            key=actor_key,
+            actor=actor,
+            critic=critic,
+            temperature=temperature,
+            batch=batch,
+            min_v=categorical_min_v,
+            max_v=categorical_max_v,
+            num_bins=categorical_num_bins,
+            critic_use_cdq=critic_use_cdq,
+        )
+    else:
+        new_actor, actor_info = update_actor(
+            key=actor_key,
+            actor=actor,
+            critic=critic,
+            temperature=temperature,
+            batch=batch,
+            critic_use_cdq=critic_use_cdq,
+        )
 
     new_temperature, temperature_info = update_temperature(
         temperature=temperature,
-        entropy=actor_info["entropy"],
+        entropy=actor_info["actor/entropy"],
         target_entropy=temp_target_entropy,
     )
 
-    new_critic, critic_info = update_critic(
-        key=critic_key,
-        actor=new_actor,
-        critic=critic,
-        target_critic=target_critic,
-        temperature=new_temperature,
-        batch=batch,
-        gamma=gamma,
-        n_step=n_step,
-        critic_use_cdq=critic_use_cdq,
-    )
+    if critic_use_categorical:
+        new_critic, critic_info = update_categorical_critic(
+            key=critic_key,
+            actor=new_actor,
+            critic=critic,
+            target_critic=target_critic,
+            temperature=new_temperature,
+            batch=batch,
+            gamma=gamma,
+            n_step=n_step,
+            min_v=categorical_min_v,
+            max_v=categorical_max_v,
+            num_bins=categorical_num_bins,
+            critic_use_cdq=critic_use_cdq,
+        )
+    else:
+        new_critic, critic_info = update_critic(
+            key=critic_key,
+            actor=new_actor,
+            critic=critic,
+            target_critic=target_critic,
+            temperature=new_temperature,
+            batch=batch,
+            gamma=gamma,
+            n_step=n_step,
+            critic_use_cdq=critic_use_cdq,
+        )
+    
 
     new_target_critic, target_critic_info = update_target_network(
         network=new_critic,
@@ -238,7 +328,83 @@ def _update_sac_networks(
 
     return (rng, new_actor, new_critic, new_target_critic, new_temperature, info)
 
+############
+# Metrics
 
+
+def _get_metrics_sac_networks(
+    rng: PRNGKey,
+    actor: Trainer,
+    critic: Trainer,
+    target_critic: Trainer,
+    batch: Batch,
+    update_info: Dict[str, Any],
+) -> Tuple[PRNGKey, Trainer, Trainer, Trainer, Trainer, Trainer, Dict[str, float]]:
+    """
+    get_metrics currently measures
+        1) Dormant Ratio
+        2) Zero activation ratio
+        3) Feature norm
+        4) Weight norm
+        5) Srank
+        6) Smooth rank
+        7) Feature coadaptation (DR3 Kumar et al.)
+    """
+
+    _, actor_info = actor(observations=batch["observation"])
+    actor_param_norm_dict = get_weight_norm(actor.params, prefix="actor")
+    actor_grad_norm_dict = get_grad_norm(update_info.pop("actor/_grads"), prefix="actor")
+    actor_effective_lr_dict = get_effective_lr(actor_grad_norm_dict, actor_param_norm_dict, prefix="actor")
+    actor_metrics_info = {
+        **get_dormant_ratio(actor_info, prefix="actor", tau=0.1),
+        **get_dormant_ratio(actor_info, prefix="actor", tau=0.0),
+        **get_feature_norm(actor_info, prefix="actor"),
+        **get_rank(actor_info, prefix="actor"),
+        **actor_param_norm_dict,
+        **actor_grad_norm_dict,
+        **actor_effective_lr_dict,
+    }
+
+    _, critic_info = critic(observations=batch["observation"], actions=batch["action"])
+    critic_param_norm_dict = get_weight_norm(critic.params, prefix="critic")
+    critic_grad_norm_dict = get_grad_norm(update_info.pop("critic/_grads"), prefix="critic")
+    critic_effective_lr_dict = get_effective_lr(critic_grad_norm_dict, critic_param_norm_dict, prefix="critic")
+    critic_metrics_info = {
+        **get_dormant_ratio(critic_info, prefix="critic", tau=0.1),
+        **get_dormant_ratio(critic_info, prefix="critic", tau=0.0),
+        **get_feature_norm(critic_info, prefix="critic"),
+        **get_rank(critic_info, prefix="critic"),
+        **critic_param_norm_dict,
+        **critic_grad_norm_dict,
+        **critic_effective_lr_dict,
+    }
+
+    _, target_critic_info = target_critic(
+        observations=batch["observation"], actions=batch["action"]
+    )
+    target_critic_metrics_info = {
+        **get_dormant_ratio(target_critic_info, prefix="target_critic", tau=0.1),
+        **get_dormant_ratio(target_critic_info, prefix="target_critic", tau=0.0),
+        **get_feature_norm(target_critic_info, prefix="target_critic"),
+        **get_rank(target_critic_info, prefix="target_critic"),
+        **get_weight_norm(target_critic.params, prefix="target_critic"),
+    }
+
+    new_rng, dr3_info = get_critic_featdot(
+        rng=rng, actor=actor, critic=critic, batch=batch
+    )
+
+    metrics_info = {
+        **actor_metrics_info,
+        **critic_metrics_info,
+        **target_critic_metrics_info,
+        **dr3_info,
+    }
+
+    return new_rng, metrics_info
+
+
+############
 class SACAgent(BaseAgent):
     def __init__(
         self,
@@ -318,11 +484,42 @@ class SACAgent(BaseAgent):
             gamma=self._cfg.gamma,
             n_step=self._cfg.n_step,
             critic_use_cdq=self._cfg.critic_use_cdq,
+            critic_use_categorical=self._cfg.critic_use_categorical,
+            categorical_min_v=self._cfg.categorical_min_v,
+            categorical_max_v=self._cfg.categorical_max_v,
+            categorical_num_bins=self._cfg.critic_num_bins,
             target_tau=self._cfg.target_tau,
             temp_target_entropy=self._cfg.temp_target_entropy,
         )
 
         for key, value in update_info.items():
-            update_info[key] = float(value)
+            try: 
+                update_info[key] = float(value)
+            except:
+                pass
 
         return update_info
+
+    def get_metrics(
+        self, 
+        batch: Dict[str, np.ndarray],
+        update_info: Dict[str, Any],
+    ) -> Dict:
+        for key, value in batch.items():
+            batch[key] = jnp.asarray(value)
+        (
+            self._rng,
+            metrics_info,
+        ) = _get_metrics_sac_networks(
+            rng=self._rng,
+            actor=self._actor,
+            critic=self._critic,
+            target_critic=self._target_critic,
+            batch=batch,
+            update_info=update_info,
+        )
+
+        for key, value in metrics_info.items():
+            metrics_info[key] = float(value)
+
+        return metrics_info

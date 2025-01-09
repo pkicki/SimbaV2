@@ -140,7 +140,7 @@ def run(args):
             # metrics
             if interaction_step % cfg.metrics_per_interaction_step == 0:
                 batch = buffer.sample()
-                metrics_info = agent.get_metrics(batch)
+                metrics_info = agent.get_metrics(batch, update_info)
                 if metrics_info:
                     logger.update_metric(**metrics_info)
 

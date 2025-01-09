@@ -75,7 +75,8 @@ def update_actor(
         return actor_loss, actor_info
 
     actor, info = actor.apply_gradient(actor_loss_fn)
-    info["actor/total_gnorm"] = info.pop("grad_norm")
+    info["actor/_grads"] = info.pop("_grads")
+    # info["actor/total_gnorm"] = info.pop("grad_norm")
     actor = l2normalize_network(actor)
 
     return actor, info
@@ -128,7 +129,8 @@ def update_actor_with_categorical_critic(
         return actor_loss, actor_info
 
     actor, info = actor.apply_gradient(actor_loss_fn)
-    info["actor/total_gnorm"] = info.pop("grad_norm")
+    info["actor/_grads"] = info.pop("_grads")
+    # info["actor/total_gnorm"] = info.pop("grad_norm")
     actor = l2normalize_network(actor)
 
     return actor, info
@@ -213,7 +215,7 @@ def update_critic(
         return critic_loss, critic_info
 
     critic, info = critic.apply_gradient(critic_loss_fn)
-    info["target_critic/total_gnorm"] = info.pop("grad_norm")
+    # info["target_critic/total_gnorm"] = info.pop("grad_norm")
     info["target_critic/reward_q_min"] = target_reward_q.min()
     info["target_critic/reward_q_mean"] = target_reward_q.mean()
     info["target_critic/reward_q_max"] = target_reward_q.max()
@@ -349,7 +351,8 @@ def update_categorical_critic(
         return critic_loss, critic_info
 
     critic, info = critic.apply_gradient(critic_loss_fn)
-    info["critic/total_gnorm"] = info.pop("grad_norm")
+    info["critic/_grads"] = info.pop("_grads")
+    # info["critic/total_gnorm"] = info.pop("grad_norm")
     critic = l2normalize_network(critic)
 
     return critic, info
@@ -401,6 +404,6 @@ def update_temperature(
         return temperature_loss, temperature_info
 
     temperature, info = temperature.apply_gradient(temperature_loss_fn)
-    info["temperature/total_gnorm"] = info.pop("grad_norm")
+    # info["temperature/total_gnorm"] = info.pop("grad_norm")
 
     return temperature, info
