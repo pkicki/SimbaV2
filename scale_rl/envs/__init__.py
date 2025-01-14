@@ -7,9 +7,11 @@ from scale_rl.envs.dmc import make_dmc_env
 from scale_rl.envs.mujoco import make_mujoco_env
 from scale_rl.envs.humanoid_bench import make_humanoid_env
 from scale_rl.envs.myosuite import make_myosuite_env
+from scale_rl.envs.kitchen import make_kitchen_env
 
 from scale_rl.envs.wrappers import RepeatAction, ScaleReward, DoNotTerminate
-from scale_rl.envs.wrappers.vector import AsyncVectorEnv, SyncVectorEnv, VectorEnv
+from scale_rl.envs.wrappers.vector import AsyncVectorEnv, SyncVectorEnv, VectorEnv, FlattenObservation
+
 
 
 def create_envs(
@@ -84,6 +86,8 @@ def create_vec_env(
             env = make_humanoid_env(env_name, seed, **kwargs)
         elif env_type == 'myosuite':
             env = make_myosuite_env(env_name, seed, **kwargs)
+        elif env_type == 'kitchen':
+            env = make_kitchen_env(env_name, seed, **kwargs)
         else:
             raise NotImplementedError
 
@@ -125,5 +129,9 @@ def create_vec_env(
         envs = AsyncVectorEnv(env_fns)
     else:
         envs = SyncVectorEnv(env_fns)
+
+    # Handle goal-conditioned environments
+    if isinstance(envs.observation_space, gym.spaces.Dict):
+        envs = FlattenObservation(envs)
 
     return envs
