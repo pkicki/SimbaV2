@@ -1,5 +1,5 @@
 import gymnasium as gym
-from typing import Tuple
+from typing import Tuple, Any
 from gymnasium.vector import VectorEnv
 from gymnasium.wrappers import RescaleAction, TimeLimit
 
@@ -8,6 +8,7 @@ from scale_rl.envs.mujoco import make_mujoco_env
 from scale_rl.envs.humanoid_bench import make_humanoid_env
 from scale_rl.envs.myosuite import make_myosuite_env
 from scale_rl.envs.kitchen import make_kitchen_env
+from scale_rl.envs.d4rl import make_d4rl_env, make_d4rl_dataset, get_d4rl_normalized_score
 
 from scale_rl.envs.wrappers import RepeatAction, ScaleReward, DoNotTerminate
 from scale_rl.envs.wrappers.vector import AsyncVectorEnv, SyncVectorEnv, VectorEnv, FlattenObservation
@@ -88,6 +89,8 @@ def create_vec_env(
             env = make_myosuite_env(env_name, seed, **kwargs)
         elif env_type == 'kitchen':
             env = make_kitchen_env(env_name, seed, **kwargs)
+        elif env_type == "d4rl":
+            env = make_d4rl_env(env_name, seed, **kwargs)
         else:
             raise NotImplementedError
 
@@ -135,3 +138,19 @@ def create_vec_env(
         envs = FlattenObservation(envs)
 
     return envs
+
+
+def create_dataset(env_type: str, env_name: str) -> list[dict[str, Any]]:
+    if env_type == 'd4rl':
+        dataset = make_d4rl_dataset(env_name)
+    else:
+        raise NotImplementedError
+    return dataset
+
+
+def get_normalized_score(env_type: str, env_name: str, unnormalized_score: float) -> float: 
+    if env_type == "d4rl":
+        score = get_d4rl_normalized_score(env_name, unnormalized_score)
+    else:
+        raise NotImplementedError
+    return score

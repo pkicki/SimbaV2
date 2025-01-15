@@ -1,0 +1,17 @@
+python run_parallel.py \
+    --group_name test \
+    --exp_name test \
+    --config_name offline_rl \
+    --agent_config hyper_sac \
+    --env_type d4rl_mujoco \
+    --device_ids 0 \
+    --num_seeds 1 \
+    --num_exp_per_device 1 \
+    --overrides num_interaction_steps=1 \
+    --overrides env.env_name='hopper-medium-expert-v2' \
+    --overrides agent.actor_bc_alpha=0.1 \
+    --overrides agent.critic_use_entropy_bonus=true \
+    --overrides agent.temp_target_entropy_coef=-0.5 \
+    --overrides agent.learning_rate_init=0.0001 \
+    --overrides agent.learning_rate_end=0.0 \
+    --overrides num_interaction_steps=2000000 \
