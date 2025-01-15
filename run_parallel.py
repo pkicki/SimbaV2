@@ -28,9 +28,9 @@ def run_with_device(server, device_id, config_path, config_name, overrides):
     os.environ["OMP_NUM_THREADS"] = "2"
 
     # Now import the main script
-    if config_name == 'online_rl':
+    if config_name == "online_rl":
         from run_online import run
-    elif config_name == 'offline_rl':
+    elif config_name == "offline_rl":
         from run_offline import run
     else:
         raise NotImplementedError
@@ -47,7 +47,7 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(allow_abbrev=False)
     parser.add_argument("--config_path", type=str, default="./configs")
     parser.add_argument("--config_name", type=str, default="online_rl")
-    parser.add_argument("--agent_config", type=str, default="hyper_sac")
+    parser.add_argument("--agent_config", type=str, default="hyper_simba")
     parser.add_argument("--env_type", type=str, default="dmc_hard")
     parser.add_argument("--device_ids", default=[0], nargs="+")
     parser.add_argument("--num_seeds", type=int, default=1)
@@ -86,9 +86,9 @@ if __name__ == "__main__":
 
     ###################
     # offline
-    if env_type == 'd4rl_mujoco':
+    if env_type == "d4rl_mujoco":
         envs = D4RL_MUJOCO
-        env_configs = ['d4rl'] * len(envs)
+        env_configs = ["d4rl"] * len(envs)
 
     ###################
     # online

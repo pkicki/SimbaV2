@@ -1,9 +1,10 @@
 from __future__ import annotations
 
+from typing import Any, Tuple
+
 from gymnasium.core import ObsType
 from gymnasium.spaces.utils import flatten, flatten_space
 from gymnasium.vector.utils.space_utils import batch_space
-from typing import Any, Tuple
 from numpy.typing import NDArray
 
 from scale_rl.envs.wrappers.vector.vector_env import (
@@ -16,8 +17,9 @@ __all__ = ["FlattenObservation"]
 
 class FlattenObservation(VectorObservationWrapper):
     """
-    This wrapper will flatten observations. 
+    This wrapper will flatten observations.
     """
+
     def __init__(self, env: VectorEnv):
         VectorObservationWrapper.__init__(self, env)
         _single_observation_space = flatten_space(self.observation_space)
@@ -40,13 +42,13 @@ class FlattenObservation(VectorObservationWrapper):
     ) -> Tuple[Any, NDArray[Any], NDArray[Any], NDArray[Any], dict]:
         """Steps through the environment, normalizing the reward returned."""
         obs, reward, terminated, truncated, info = super().step(actions)
-        if 'final_observation' in info:
-            final_observations = info['final_observation']
+        if "final_observation" in info:
+            final_observations = info["final_observation"]
             final_observation_list = []
             for final_observation in final_observations:
-                final_observation_list.append(flatten(
-                    self.env.observation_space, final_observation
-                ))
-            info['final_observation'] = final_observation_list
+                final_observation_list.append(
+                    flatten(self.env.observation_space, final_observation)
+                )
+            info["final_observation"] = final_observation_list
 
         return obs, reward, terminated, truncated, info

@@ -33,9 +33,9 @@ from scale_rl.networks.metrics import (
     get_effective_lr,
     get_feature_norm,
     get_gnorm,
-    get_rank,
-    get_pnorm,
     get_num_parameters_dict,
+    get_pnorm,
+    get_rank,
 )
 from scale_rl.networks.trainer import PRNGKey, Trainer
 
@@ -361,7 +361,9 @@ def _get_metrics_simba_networks(
     # Actor
     _, actor_info = actor(observations=batch["observation"])
     actor_pnorm_dict = get_pnorm(actor.params, actor_pcount_dict, prefix="actor")
-    actor_gnorm_dict = get_gnorm(update_info.pop("actor/_grads"), actor_pcount_dict, prefix="actor")
+    actor_gnorm_dict = get_gnorm(
+        update_info.pop("actor/_grads"), actor_pcount_dict, prefix="actor"
+    )
     actor_effective_lr_dict = get_effective_lr(
         actor_gnorm_dict, actor_pnorm_dict, actor_pcount_dict, prefix="actor"
     )
@@ -382,8 +384,8 @@ def _get_metrics_simba_networks(
     # Remove Vmap module
     if critic_use_cdq:
         # Elements (e.g. pnorm, gnorm) of vmapped functions (multi-head Q-networks) are summed to a single value
-        (_, critic_params), = critic_params.items()
-        (_, critic_grads), = critic_grads.items()
+        _, critic_params = critic_params.items()
+        _, critic_grads = critic_grads.items()
     critic_pnorm_dict = get_pnorm(critic_params, critic_pcount_dict, prefix="critic")
     critic_gnorm_dict = get_gnorm(critic_grads, critic_pcount_dict, prefix="critic")
     critic_effective_lr_dict = get_effective_lr(
@@ -451,16 +453,19 @@ class SimbaAgent(BaseAgent):
         self._cfg = SimbaConfig(**cfg)
 
         self._init_network()
-        
+
         # to measure effective learning rate
-        self._actor_pcount_dict = get_num_parameters_dict(self._actor.params, prefix="actor")
-        
+        self._actor_pcount_dict = get_num_parameters_dict(
+            self._actor.params, prefix="actor"
+        )
+
         critic_param = self._critic.params
         # taking off Vmap module
         if self._cfg.critic_use_cdq:
-            (_, critic_param),  = self._critic.params.items()
-        self._critic_pcount_dict = get_num_parameters_dict(critic_param, prefix="critic")
-        
+            _, critic_param = self._critic.params.items()
+        self._critic_pcount_dict = get_num_parameters_dict(
+            critic_param, prefix="critic"
+        )
 
     def _init_network(self):
         (

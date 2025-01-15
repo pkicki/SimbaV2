@@ -421,9 +421,7 @@ class VectorObservationWrapper(VectorEnvWrapper):
         observations, infos = self.env.reset_wait(seed=seed, options=options)
         return self.observations(observations), infos
 
-    def step_wait(
-        self
-    ):
+    def step_wait(self):
         """Modifies the observation returned from the environment ``step`` using the :meth:`observation`."""
         observations, rewards, terminations, truncations, infos = self.env.step_wait()
         return (

@@ -15,7 +15,6 @@ KITCHEN_ALL = [
 
 
 class KitchenGymnasiumVersionWrapper(gym.Wrapper):
-
     def __init__(self, env: gym.Env):
         super().__init__(env)
         self.unwrapped_env = env.unwrapped
@@ -30,15 +29,15 @@ class KitchenGymnasiumVersionWrapper(gym.Wrapper):
 def make_kitchen_env(
     env_name: str,
     seed: int,
-    render_mode='rgb_array',
+    render_mode="rgb_array",
     render_width=256,
     render_height=256,
 ) -> gym.Env:
     gym.register_envs(gymnasium_robotics)
     env = gym.make(
-        'FrankaKitchen-v1', 
-        tasks_to_complete=[env_name], 
-        render_mode=render_mode, 
+        "FrankaKitchen-v1",
+        tasks_to_complete=[env_name],
+        render_mode=render_mode,
         width=render_width,
         height=render_height,
     )

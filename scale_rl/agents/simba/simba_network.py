@@ -33,7 +33,7 @@ class SimbaEncoder(nn.Module):
                 self.hidden_dim, kernel_init=orthogonal_init(1), dtype=self.dtype
             )(x)
             info[f"encoder/Dense_0"] = x
-            
+
             for _ in range(self.num_blocks):
                 x = ResidualBlock(self.hidden_dim, dtype=self.dtype)(x)
                 info[f"encoder/ResidualBlock_{layer_idx}"] = x

@@ -61,12 +61,12 @@ def get_pnorm(
     _pnorm_dict = jax.tree_util.tree_map(lambda x: jnp.linalg.norm(x), param_dict)
     # Add 'kernel', 'bias', and 'kernel+bias' norm for each layer
     _updated_pnorm = add_all_key(_pnorm_dict)
-    
+
     # Construct a pnorm dict
     pnorm_dict = {}
-    eff_pnorm_numer, eff_pnorm_denom = 0.0, 0.0 
+    eff_pnorm_numer, eff_pnorm_denom = 0.0, 0.0
     eff_pnorm_total_numer, eff_pnorm_total_denom = 0.0, 0.0
-    eff_pnorm_encoder_numer, eff_pnorm_encoder_denom = 0.0, 0.0 
+    eff_pnorm_encoder_numer, eff_pnorm_encoder_denom = 0.0, 0.0
     eff_pnorm_predictor_numer, eff_pnorm_predictor_denom = 0.0, 0.0
     pnorm_total = 0.0
     pnorm_encoder_total = 0.0
@@ -75,44 +75,60 @@ def get_pnorm(
         # e.g. module = "encoder" or "predictor"
         pnorm_dict.update(
             add_prefix_to_dict(
-                flatten_dict(layer_dict), prefix + "_" + module + "/pnorm", sep="_", 
-            )  
+                flatten_dict(layer_dict),
+                prefix + "_" + module + "/pnorm",
+                sep="_",
+            )
         )
-        
+
     # Aggregation
     for _pnorm_layer, _pnorm in pnorm_dict.items():
         # e.g. _module = actor_encoder, _layer_name = pnorm_Dense_0_bias
-        _module, _layer_name = _pnorm_layer.split("/", 1) 
+        _module, _layer_name = _pnorm_layer.split("/", 1)
         _layer = _layer_name.replace("pnorm_", "")
-        if ('kernel+bias' in _layer) or ('total' in _layer):
-            continue 
+        if ("kernel+bias" in _layer) or ("total" in _layer):
+            continue
         pnorm_total += jnp.square(_pnorm)
 
-        # Compute effective paramter norms
-        eff_pnorm_total_numer += pcount_dict[_module + "/pcount_" + _layer] * jnp.square(_pnorm)
+        # Compute effective parameter norms
+        eff_pnorm_total_numer += pcount_dict[
+            _module + "/pcount_" + _layer
+        ] * jnp.square(_pnorm)
         eff_pnorm_total_denom += pcount_dict[_module + "/pcount_" + _layer]
-        
-        eff_pnorm_numer += pcount_dict[_module + "/pcount_" + _layer] * jnp.square(_pnorm)
+
+        eff_pnorm_numer += pcount_dict[_module + "/pcount_" + _layer] * jnp.square(
+            _pnorm
+        )
         eff_pnorm_denom += pcount_dict[_module + "/pcount_" + _layer]
         if "encoder" in _module:
             pnorm_encoder_total += jnp.square(_pnorm)
-            eff_pnorm_encoder_numer += pcount_dict[_module + "/pcount_" + _layer] * jnp.square(_pnorm)
+            eff_pnorm_encoder_numer += pcount_dict[
+                _module + "/pcount_" + _layer
+            ] * jnp.square(_pnorm)
             eff_pnorm_encoder_denom += pcount_dict[_module + "/pcount_" + _layer]
         elif "predictor" in _module:
             pnorm_predictor_total += jnp.square(_pnorm)
-            eff_pnorm_predictor_numer += pcount_dict[_module + "/pcount_" + _layer] * jnp.square(_pnorm)
+            eff_pnorm_predictor_numer += pcount_dict[
+                _module + "/pcount_" + _layer
+            ] * jnp.square(_pnorm)
             eff_pnorm_predictor_denom += pcount_dict[_module + "/pcount_" + _layer]
         else:
             raise NotImplementedError
-    
+
     pnorm_dict[prefix + "/pnorm_total"] = jnp.sqrt(pnorm_total)
     pnorm_dict[prefix + "_encoder/pnorm_total"] = jnp.sqrt(pnorm_encoder_total)
     pnorm_dict[prefix + "_predictor/pnorm_total"] = jnp.sqrt(pnorm_predictor_total)
-    
-    pnorm_dict[prefix + "/effective_pnorm_total"] = jnp.sqrt(eff_pnorm_numer / eff_pnorm_denom)
-    pnorm_dict[prefix + "_encoder/effective_pnorm_total"] = jnp.sqrt(eff_pnorm_encoder_numer / eff_pnorm_encoder_denom)
-    pnorm_dict[prefix + "_predictor/effective_pnorm_total"] = jnp.sqrt(eff_pnorm_predictor_numer / eff_pnorm_predictor_denom)
-    
+
+    pnorm_dict[prefix + "/effective_pnorm_total"] = jnp.sqrt(
+        eff_pnorm_numer / eff_pnorm_denom
+    )
+    pnorm_dict[prefix + "_encoder/effective_pnorm_total"] = jnp.sqrt(
+        eff_pnorm_encoder_numer / eff_pnorm_encoder_denom
+    )
+    pnorm_dict[prefix + "_predictor/effective_pnorm_total"] = jnp.sqrt(
+        eff_pnorm_predictor_numer / eff_pnorm_predictor_denom
+    )
+
     return pnorm_dict
 
 
@@ -131,12 +147,12 @@ def get_gnorm(
     _gnorm_dict = jax.tree_util.tree_map(lambda x: jnp.linalg.norm(x), grad_dict)
     # Add 'kernel', 'bias', and 'kernel+bias' norm for each layer
     _updated_gnorm = add_all_key(_gnorm_dict)
-    
+
     # Construct a gnorm dict
     gnorm_dict = {}
-    eff_gnorm_numer, eff_gnorm_denom = 0.0, 0.0 
+    eff_gnorm_numer, eff_gnorm_denom = 0.0, 0.0
     eff_gnorm_total_numer, eff_gnorm_total_denom = 0.0, 0.0
-    eff_gnorm_encoder_numer, eff_gnorm_encoder_denom = 0.0, 0.0 
+    eff_gnorm_encoder_numer, eff_gnorm_encoder_denom = 0.0, 0.0
     eff_gnorm_predictor_numer, eff_gnorm_predictor_denom = 0.0, 0.0
     gnorm_total = 0.0
     gnorm_encoder_total = 0.0
@@ -145,45 +161,62 @@ def get_gnorm(
         # e.g. module = "encoder" or "predictor"
         gnorm_dict.update(
             add_prefix_to_dict(
-                flatten_dict(layer_dict), prefix + "_" + module + "/gnorm", sep="_", 
-            )  
+                flatten_dict(layer_dict),
+                prefix + "_" + module + "/gnorm",
+                sep="_",
+            )
         )
-        
+
     # Aggregation
     for _gnorm_layer, _gnorm in gnorm_dict.items():
         # e.g. _module = actor_encoder, _layer_name = gnorm_Dense_0_bias
-        _module, _layer_name = _gnorm_layer.split("/", 1) 
+        _module, _layer_name = _gnorm_layer.split("/", 1)
         _layer = _layer_name.replace("gnorm_", "")
-        if ('kernel+bias' in _layer) or ('total' in _layer):
-            continue 
+        if ("kernel+bias" in _layer) or ("total" in _layer):
+            continue
         gnorm_total += jnp.square(_gnorm)
 
-        # Compute effective paramter norms
-        eff_gnorm_total_numer += pcount_dict[_module + "/pcount_" + _layer] * jnp.square(_gnorm)
+        # Compute effective parameter norms
+        eff_gnorm_total_numer += pcount_dict[
+            _module + "/pcount_" + _layer
+        ] * jnp.square(_gnorm)
         eff_gnorm_total_denom += pcount_dict[_module + "/pcount_" + _layer]
-        
-        eff_gnorm_numer += pcount_dict[_module + "/pcount_" + _layer] * jnp.square(_gnorm)
+
+        eff_gnorm_numer += pcount_dict[_module + "/pcount_" + _layer] * jnp.square(
+            _gnorm
+        )
         eff_gnorm_denom += pcount_dict[_module + "/pcount_" + _layer]
         if "encoder" in _module:
             gnorm_encoder_total += jnp.square(_gnorm)
-            eff_gnorm_encoder_numer += pcount_dict[_module + "/pcount_" + _layer] * jnp.square(_gnorm)
+            eff_gnorm_encoder_numer += pcount_dict[
+                _module + "/pcount_" + _layer
+            ] * jnp.square(_gnorm)
             eff_gnorm_encoder_denom += pcount_dict[_module + "/pcount_" + _layer]
         elif "predictor" in _module:
             gnorm_predictor_total += jnp.square(_gnorm)
-            eff_gnorm_predictor_numer += pcount_dict[_module + "/pcount_" + _layer] * jnp.square(_gnorm)
+            eff_gnorm_predictor_numer += pcount_dict[
+                _module + "/pcount_" + _layer
+            ] * jnp.square(_gnorm)
             eff_gnorm_predictor_denom += pcount_dict[_module + "/pcount_" + _layer]
         else:
             raise NotImplementedError
-    
+
     gnorm_dict[prefix + "/gnorm_total"] = jnp.sqrt(gnorm_total)
     gnorm_dict[prefix + "_encoder/gnorm_total"] = jnp.sqrt(gnorm_encoder_total)
     gnorm_dict[prefix + "_predictor/gnorm_total"] = jnp.sqrt(gnorm_predictor_total)
-    
-    gnorm_dict[prefix + "/effective_gnorm_total"] = jnp.sqrt(eff_gnorm_numer / eff_gnorm_denom)
-    gnorm_dict[prefix + "_encoder/effective_gnorm_total"] = jnp.sqrt(eff_gnorm_encoder_numer / eff_gnorm_encoder_denom)
-    gnorm_dict[prefix + "_predictor/effective_gnorm_total"] = jnp.sqrt(eff_gnorm_predictor_numer / eff_gnorm_predictor_denom)
-    
+
+    gnorm_dict[prefix + "/effective_gnorm_total"] = jnp.sqrt(
+        eff_gnorm_numer / eff_gnorm_denom
+    )
+    gnorm_dict[prefix + "_encoder/effective_gnorm_total"] = jnp.sqrt(
+        eff_gnorm_encoder_numer / eff_gnorm_encoder_denom
+    )
+    gnorm_dict[prefix + "_predictor/effective_gnorm_total"] = jnp.sqrt(
+        eff_gnorm_predictor_numer / eff_gnorm_predictor_denom
+    )
+
     return gnorm_dict
+
 
 def get_effective_lr(
     gnorm_dict: Params,
@@ -199,19 +232,19 @@ def get_effective_lr(
         (Caution : norm values for vmapped functions (multi-head Q-networks) are summed to a single value)
     """
     eff_lr_dict = {}
-    eff_lr_encoder_numer, eff_lr_encoder_denom = 0.0, 0.0 
+    eff_lr_encoder_numer, eff_lr_encoder_denom = 0.0, 0.0
     eff_lr_predictor_numer, eff_lr_predictor_denom = 0.0, 0.0
     eff_lr_total_numer, eff_lr_total_denom = 0.0, 0.0
-    
+
     for _gnorm_layer, _gnorm in gnorm_dict.items():
         # e.g. module = actor_encoder, _layer_name = gnorm_Dense_0_bias
-        _module, _layer_name = _gnorm_layer.split("/", 1) 
+        _module, _layer_name = _gnorm_layer.split("/", 1)
         _layer = _layer_name.replace("gnorm_", "")
-        if ('kernel+bias' in _layer) or ('total' in _layer) or ('effective' in _layer):
-            continue 
+        if ("kernel+bias" in _layer) or ("total" in _layer) or ("effective" in _layer):
+            continue
         eff_lr = _gnorm / pnorm_dict[_module + "/pnorm_" + _layer]
         eff_lr_dict[_module + "/effective_lr_" + _layer] = eff_lr
-        
+
         # Aggregation
         eff_lr_total_numer += pcount_dict[_module + "/pcount_" + _layer] * eff_lr
         eff_lr_total_denom += pcount_dict[_module + "/pcount_" + _layer]
@@ -219,15 +252,23 @@ def get_effective_lr(
             eff_lr_encoder_numer += pcount_dict[_module + "/pcount_" + _layer] * eff_lr
             eff_lr_encoder_denom += pcount_dict[_module + "/pcount_" + _layer]
         elif "predictor" in _module:
-            eff_lr_predictor_numer += pcount_dict[_module + "/pcount_" + _layer] * eff_lr
+            eff_lr_predictor_numer += (
+                pcount_dict[_module + "/pcount_" + _layer] * eff_lr
+            )
             eff_lr_predictor_denom += pcount_dict[_module + "/pcount_" + _layer]
         else:
             raise NotImplementedError
-    
-    eff_lr_dict[prefix + "_encoder/effective_lr_total"] = eff_lr_encoder_numer / eff_lr_encoder_denom
-    eff_lr_dict[prefix + "_predictor/effective_lr_total"] = eff_lr_predictor_numer / eff_lr_predictor_denom
-    eff_lr_dict[prefix + "/effective_lr_total"] = eff_lr_total_numer / eff_lr_total_denom
-    
+
+    eff_lr_dict[prefix + "_encoder/effective_lr_total"] = (
+        eff_lr_encoder_numer / eff_lr_encoder_denom
+    )
+    eff_lr_dict[prefix + "_predictor/effective_lr_total"] = (
+        eff_lr_predictor_numer / eff_lr_predictor_denom
+    )
+    eff_lr_dict[prefix + "/effective_lr_total"] = (
+        eff_lr_total_numer / eff_lr_total_denom
+    )
+
     return eff_lr_dict
 
 
@@ -245,25 +286,25 @@ def get_scaler_statistics(
     regex = "scaler"
     mean = tree_filter(f=lambda x: jnp.mean(x), tree=param_dict, target_re=regex)
     var = tree_filter(f=lambda x: jnp.var(x), tree=param_dict, target_re=regex)
-    
-    modules = list(set(mean.keys())) # e.g., modules = ["encoder", "predictor"]
+
+    modules = list(set(mean.keys()))  # e.g., modules = ["encoder", "predictor"]
     scaler_mean_dict, scaler_var_dict = {}, {}
     for module in modules:
         mean_layer_dict = mean[module]
         var_layer_dict = var[module]
-        
+
         _mean_layer_dict = flatten_dict(mean_layer_dict)
         for _k, _v in _mean_layer_dict.items():
             # remove redundant key in `Scale``
             _k = _k.replace("_scaler", "")
             scaler_mean_dict[prefix + "_" + module + "/scaler-mean_" + _k] = _v
-            
+
         _var_layer_dict = flatten_dict(var_layer_dict)
         for _k, _v in _var_layer_dict.items():
             # remove redundant key in `Scale``
             _k = _k.replace("_scaler", "")
             scaler_var_dict[prefix + "_" + module + "/scaler-var_" + _k] = _v
-    
+
     info = {}
     info.update(scaler_mean_dict)
     info.update(scaler_var_dict)
@@ -338,7 +379,9 @@ def get_dormant_ratio(
     # aggregated mask of entire network
     total_mask = jnp.concatenate(total_activs)
 
-    ratios[f"{prefix}_{module}/{key}_total"] = (jnp.sum(total_mask) / total_mask.size) * 100
+    ratios[f"{prefix}_{module}/{key}_total"] = (
+        jnp.sum(total_mask) / total_mask.size
+    ) * 100
 
     return ratios
 
@@ -457,12 +500,16 @@ def get_feature_norm(
 
         norms[f"{prefix}_{module}/featnorm_{layer_name}"] = expected_norm
         total_norm += expected_norm
-        
-        module_to_total_norm[module] = module_to_total_norm.get(module, 0.0) + jnp.sum(jnp.square(activs))
+
+        module_to_total_norm[module] = module_to_total_norm.get(module, 0.0) + jnp.sum(
+            jnp.square(activs)
+        )
 
     norms[f"{prefix}/featnorm_total"] = total_norm
     for module in module_to_total_norm.keys():
-        norms[f"{prefix}_{module}/featnorm_total"] = jnp.sqrt(module_to_total_norm[module])
+        norms[f"{prefix}_{module}/featnorm_total"] = jnp.sqrt(
+            module_to_total_norm[module]
+        )
 
     return norms
 
@@ -542,7 +589,7 @@ def print_num_parameters(
         return print(f"{network_type} total params: {total_params / 1e3:.2f}K")
     else:
         return print(f"{network_type} total params: {total_params}")
-    
+
 
 def get_num_parameters_dict(
     param_dict: Params,
@@ -554,15 +601,17 @@ def get_num_parameters_dict(
     _pcount_dict = jax.tree_util.tree_map(lambda x: np.prod(x.shape), param_dict)
     # Add 'kernel', 'bias', and 'kernel+bias' norm for each layer
     _updated_pcount = add_all_key(_pcount_dict)
-    
+
     # Construct a pcount dict
     pcount_dict = {}
     for module, layer_dict in _updated_pcount.items():
         # e.g. module = "encoder" or "predictor"
         pcount_dict.update(
             add_prefix_to_dict(
-                flatten_dict(layer_dict), prefix + "_" + module + "/pcount", sep="_", 
-            )  
+                flatten_dict(layer_dict),
+                prefix + "_" + module + "/pcount",
+                sep="_",
+            )
         )
-    
+
     return pcount_dict

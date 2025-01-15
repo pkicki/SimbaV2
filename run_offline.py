@@ -72,7 +72,9 @@ def run(args):
     batch_size = cfg.buffer.sample_batch_size
     cfg.num_interaction_steps = int((len(dataset) / batch_size) * cfg.num_epochs)
     cfg.agent.learning_rate_decay_step = int(
-        cfg.agent.learning_rate_decay_rate * cfg.num_interaction_steps * cfg.updates_per_interaction_step
+        cfg.agent.learning_rate_decay_rate
+        * cfg.num_interaction_steps
+        * cfg.updates_per_interaction_step
     )
 
     agent = create_agent(
@@ -83,9 +85,7 @@ def run(args):
 
     # iterate over buffer to update normalizers
     num_batches = int(np.floor(len(dataset) / batch_size))
-    for batch_num in tqdm.tqdm(
-        range(num_batches), desc='updating normalizers'
-    ):
+    for batch_num in tqdm.tqdm(range(num_batches), desc="updating normalizers"):
         start_idx = batch_num * batch_size
         end_idx = start_idx + batch_size
         batch_indices = np.arange(start_idx, end_idx)

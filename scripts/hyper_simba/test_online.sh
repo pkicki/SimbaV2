@@ -2,7 +2,7 @@ python run_parallel.py \
     --group_name test \
     --exp_name test \
     --config_name online_rl \
-    --agent_config hyper_sac \
+    --agent_config hyper_simba \
     --env_type mini_benchmark \
     --device_ids 0 \
     --num_seeds 1 \
