@@ -1,5 +1,4 @@
 import gymnasium as gym
-import gymnasium_robotics
 
 from scale_rl.envs.wrappers import DoNotTerminate
 
@@ -33,6 +32,7 @@ def make_kitchen_env(
     render_width=256,
     render_height=256,
 ) -> gym.Env:
+    import gymnasium_robotics
     gym.register_envs(gymnasium_robotics)
     env = gym.make(
         "FrankaKitchen-v1",
