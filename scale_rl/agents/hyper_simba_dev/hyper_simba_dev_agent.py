@@ -489,9 +489,9 @@ def _get_metrics_hyper_simba_dev_networks(
     # Remove Vmap module
     if critic_use_cdq:
         # Elements (e.g. pnorm, gnorm) of vmapped functions (multi-head Q-networks) are summed to a single value
-        _, critic_params = critic_params.items()
-        _, target_critic_params = target_critic_params.items()
-        _, critic_grads = critic_grads.items()
+        (_, critic_params), = critic_params.items()
+        (_, target_critic_params), = target_critic_params.items()
+        (_, critic_grads), = critic_grads.items()
     critic_pnorm_dict = get_pnorm(critic_params, critic_pcount_dict, prefix="critic")
     critic_gnorm_dict = get_gnorm(critic_grads, critic_pcount_dict, prefix="critic")
     critic_effective_lr_dict = get_effective_lr(

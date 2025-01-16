@@ -384,8 +384,8 @@ def _get_metrics_simba_networks(
     # Remove Vmap module
     if critic_use_cdq:
         # Elements (e.g. pnorm, gnorm) of vmapped functions (multi-head Q-networks) are summed to a single value
-        _, critic_params = critic_params.items()
-        _, critic_grads = critic_grads.items()
+        (_, critic_params), = critic_params.items()
+        (_, critic_grads), = critic_grads.items()
     critic_pnorm_dict = get_pnorm(critic_params, critic_pcount_dict, prefix="critic")
     critic_gnorm_dict = get_gnorm(critic_grads, critic_pcount_dict, prefix="critic")
     critic_effective_lr_dict = get_effective_lr(
@@ -462,7 +462,7 @@ class SimbaAgent(BaseAgent):
         critic_param = self._critic.params
         # taking off Vmap module
         if self._cfg.critic_use_cdq:
-            _, critic_param = self._critic.params.items()
+            (_, critic_param),  = self._critic.params.items()
         self._critic_pcount_dict = get_num_parameters_dict(
             critic_param, prefix="critic"
         )
