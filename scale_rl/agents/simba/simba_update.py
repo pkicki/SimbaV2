@@ -133,7 +133,7 @@ def update_critic(
             actions=next_actions,
         )
         next_q = next_q.reshape(-1)
-
+    
     # compute the td-target, incorporating the n-step accumulated reward
     # https://gymnasium.farama.org/tutorials/gymnasium_basics/handling_time_limits/
     target_q = batch["reward"] + (gamma**n_step) * (1 - batch["terminated"]) * next_q
