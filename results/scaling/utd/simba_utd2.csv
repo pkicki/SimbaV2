@@ -22395,7 +22395,7 @@
 22393,simba_utd2,hopper_hop,9000,avg_return,500000.0,272.7977981325509
 22394,simba_utd2,hopper_hop,9000,avg_return,600000.0,275.0231569922779
 22395,simba_utd2,hopper_hop,9000,avg_return,700000.0,281.14547773869333
-22396,simba_utd2,hopper_hop,9000,avg_return,800000.0,246.25812798079775
+22396,simba_utd2,hopper_hop,9000,avg_return,800000.0,246.25812798079767
 22397,simba_utd2,hopper_hop,9000,avg_return,900000.0,307.0743797194583
 22398,simba_utd2,hopper_hop,9000,avg_return,1000000.0,311.3965908152371
 22399,simba_utd2,hopper_hop,9000,avg_success,0.0,0.0
@@ -23553,7 +23553,7 @@
 23551,simba_utd2,ball_in_cup_catch,7000,avg_success,800000.0,0.0
 23552,simba_utd2,ball_in_cup_catch,7000,avg_success,900000.0,0.0
 23553,simba_utd2,ball_in_cup_catch,7000,avg_success,1000000.0,0.0
-23554,simba_utd2,acrobot_swingup,7000,avg_return,0.0,2.7813941259452517
+23554,simba_utd2,acrobot_swingup,7000,avg_return,0.0,2.781394125945252
 23555,simba_utd2,acrobot_swingup,7000,avg_return,100000.0,67.43671626485163
 23556,simba_utd2,acrobot_swingup,7000,avg_return,200000.0,280.9340485633962
 23557,simba_utd2,acrobot_swingup,7000,avg_return,300000.0,228.01678194884585
@@ -25161,7 +25161,7 @@
 25159,simba_utd2,hopper_stand,3000,avg_success,1000000.0,0.0
 25160,simba_utd2,hopper_hop,3000,avg_return,0.0,0.0012519441032337
 25161,simba_utd2,hopper_hop,3000,avg_return,100000.0,36.11525607625104
-25162,simba_utd2,hopper_hop,3000,avg_return,200000.0,180.42637934939532
+25162,simba_utd2,hopper_hop,3000,avg_return,200000.0,180.4263793493953
 25163,simba_utd2,hopper_hop,3000,avg_return,300000.0,259.4367224256873
 25164,simba_utd2,hopper_hop,3000,avg_return,400000.0,298.2823014172476
 25165,simba_utd2,hopper_hop,3000,avg_return,500000.0,305.6787357433096
@@ -26088,7 +26088,7 @@
 26086,simba_utd2,hopper_hop,1000,avg_return,200000.0,62.17260752938847
 26087,simba_utd2,hopper_hop,1000,avg_return,300000.0,68.04024336023625
 26088,simba_utd2,hopper_hop,1000,avg_return,400000.0,104.58641040107224
-26089,simba_utd2,hopper_hop,1000,avg_return,500000.0,249.95117600797371
+26089,simba_utd2,hopper_hop,1000,avg_return,500000.0,249.9511760079737
 26090,simba_utd2,hopper_hop,1000,avg_return,600000.0,236.67735627839457
 26091,simba_utd2,hopper_hop,1000,avg_return,700000.0,267.6986993888358
 26092,simba_utd2,hopper_hop,1000,avg_return,800000.0,276.21155532126875
@@ -26347,7 +26347,7 @@
 26345,simba_utd2,acrobot_swingup,1000,avg_success,800000.0,0.0
 26346,simba_utd2,acrobot_swingup,1000,avg_success,900000.0,0.0
 26347,simba_utd2,acrobot_swingup,1000,avg_success,1000000.0,0.0
-26348,simba_utd2,walker_run,0,avg_return,0.0,21.510888117180038
+26348,simba_utd2,walker_run,0,avg_return,0.0,21.51088811718004
 26349,simba_utd2,walker_run,0,avg_return,100000.0,587.2023028984346
 26350,simba_utd2,walker_run,0,avg_return,200000.0,677.9660943040474
 26351,simba_utd2,walker_run,0,avg_return,300000.0,708.9753258754167
