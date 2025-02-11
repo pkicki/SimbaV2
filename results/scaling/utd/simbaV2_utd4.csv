@@ -8945,7 +8945,7 @@
 8943,simbaV2_utd4,h1_balance_hard_v0,1000,avg_return,600000.0,76.54126195381129
 8944,simbaV2_utd4,h1_balance_hard_v0,1000,avg_return,700000.0,92.5399366111655
 8945,simbaV2_utd4,h1_balance_hard_v0,1000,avg_return,800000.0,142.70325057377826
-8946,simbaV2_utd4,h1_balance_hard_v0,1000,avg_return,900000.0,126.30329295581643
+8946,simbaV2_utd4,h1_balance_hard_v0,1000,avg_return,900000.0,126.30329295581645
 8947,simbaV2_utd4,h1_balance_hard_v0,1000,avg_return,1000000.0,111.51970360498088
 8948,simbaV2_utd4,h1_balance_hard_v0,1000,avg_success,0.0,0.0
 8949,simbaV2_utd4,h1_balance_hard_v0,1000,avg_success,100000.0,0.0
@@ -8958,8 +8958,8 @@
 8956,simbaV2_utd4,h1_balance_hard_v0,1000,avg_success,800000.0,0.0
 8957,simbaV2_utd4,h1_balance_hard_v0,1000,avg_success,900000.0,0.0
 8958,simbaV2_utd4,h1_balance_hard_v0,1000,avg_success,1000000.0,0.0
-8959,simbaV2_utd4,h1_crawl_v0,1000,avg_return,0.0,245.99128571192492
-8960,simbaV2_utd4,h1_crawl_v0,1000,avg_return,100000.0,444.92271509091796
+8959,simbaV2_utd4,h1_crawl_v0,1000,avg_return,0.0,245.9912857119249
+8960,simbaV2_utd4,h1_crawl_v0,1000,avg_return,100000.0,444.922715090918
 8961,simbaV2_utd4,h1_crawl_v0,1000,avg_return,200000.0,681.0487642930451
 8962,simbaV2_utd4,h1_crawl_v0,1000,avg_return,300000.0,511.6536116993592
 8963,simbaV2_utd4,h1_crawl_v0,1000,avg_return,400000.0,840.3987350924039
@@ -8967,7 +8967,7 @@
 8965,simbaV2_utd4,h1_crawl_v0,1000,avg_return,600000.0,1145.561332155039
 8966,simbaV2_utd4,h1_crawl_v0,1000,avg_return,700000.0,871.9830289276866
 8967,simbaV2_utd4,h1_crawl_v0,1000,avg_return,800000.0,778.8759256203716
-8968,simbaV2_utd4,h1_crawl_v0,1000,avg_return,900000.0,928.2603825074005
+8968,simbaV2_utd4,h1_crawl_v0,1000,avg_return,900000.0,928.2603825074004
 8969,simbaV2_utd4,h1_crawl_v0,1000,avg_return,1000000.0,918.2472275812048
 8970,simbaV2_utd4,h1_crawl_v0,1000,avg_success,0.0,0.0
 8971,simbaV2_utd4,h1_crawl_v0,1000,avg_success,100000.0,0.0
@@ -8984,7 +8984,7 @@
 8982,simbaV2_utd4,h1_maze_v0,1000,avg_return,100000.0,138.6101135357296
 8983,simbaV2_utd4,h1_maze_v0,1000,avg_return,200000.0,287.0738020659967
 8984,simbaV2_utd4,h1_maze_v0,1000,avg_return,300000.0,381.33616298072775
-8985,simbaV2_utd4,h1_maze_v0,1000,avg_return,400000.0,249.90428312380175
+8985,simbaV2_utd4,h1_maze_v0,1000,avg_return,400000.0,249.9042831238017
 8986,simbaV2_utd4,h1_maze_v0,1000,avg_return,500000.0,303.8148439996
 8987,simbaV2_utd4,h1_maze_v0,1000,avg_return,600000.0,300.00806876190745
 8988,simbaV2_utd4,h1_maze_v0,1000,avg_return,700000.0,261.8752297269047
@@ -9009,7 +9009,7 @@
 9007,simbaV2_utd4,h1_pole_v0,1000,avg_return,400000.0,776.5613234683263
 9008,simbaV2_utd4,h1_pole_v0,1000,avg_return,500000.0,848.6810866142698
 9009,simbaV2_utd4,h1_pole_v0,1000,avg_return,600000.0,795.2943386850452
-9010,simbaV2_utd4,h1_pole_v0,1000,avg_return,700000.0,906.4895945498181
+9010,simbaV2_utd4,h1_pole_v0,1000,avg_return,700000.0,906.489594549818
 9011,simbaV2_utd4,h1_pole_v0,1000,avg_return,800000.0,724.7197784143607
 9012,simbaV2_utd4,h1_pole_v0,1000,avg_return,900000.0,809.959233898265
 9013,simbaV2_utd4,h1_pole_v0,1000,avg_return,1000000.0,735.6196571951274
@@ -9053,7 +9053,7 @@
 9051,simbaV2_utd4,h1_slide_v0,1000,avg_return,400000.0,305.1327302038068
 9052,simbaV2_utd4,h1_slide_v0,1000,avg_return,500000.0,474.23627524738527
 9053,simbaV2_utd4,h1_slide_v0,1000,avg_return,600000.0,491.5894936758711
-9054,simbaV2_utd4,h1_slide_v0,1000,avg_return,700000.0,438.07770514992677
+9054,simbaV2_utd4,h1_slide_v0,1000,avg_return,700000.0,438.0777051499268
 9055,simbaV2_utd4,h1_slide_v0,1000,avg_return,800000.0,526.8957957501012
 9056,simbaV2_utd4,h1_slide_v0,1000,avg_return,900000.0,471.7269232455506
 9057,simbaV2_utd4,h1_slide_v0,1000,avg_return,1000000.0,555.1764106164453
