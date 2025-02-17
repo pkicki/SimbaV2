@@ -2,9 +2,8 @@ python run_parallel.py \
     --group_name test \
     --exp_name test \
     --config_name online_rl \
-    --agent_config hyper_simba \
-    --env_type mini_benchmark \
+    --agent_config simbaV2 \
+    --env_type dmc_hard \
     --device_ids 0 \
     --num_seeds 1 \
     --num_exp_per_device 1 \
-    --overrides num_interaction_steps=1 \

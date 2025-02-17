@@ -2,9 +2,8 @@ python run_parallel.py \
     --group_name test \
     --exp_name test \
     --config_name offline_rl \
-    --agent_config hyper_simba_bc \
-    --env_type d4rl_mujoco \
+    --agent_config simbaV2_bc \
+    --env_type d4rl \
     --device_ids 0 \
     --num_seeds 1 \
     --num_exp_per_device 1 \
-    --overrides num_epochs=1 \

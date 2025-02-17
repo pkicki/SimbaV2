@@ -13,5 +13,4 @@ num_eval_envs: 1
 no_termination: false
 action_repeat: 2
 rescale_action: true
-reward_scale: 1
 max_episode_steps: 100

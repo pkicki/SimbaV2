@@ -2,7 +2,7 @@
 # Common
 ##################################################################################
 
-project_name: 'HyperSimba_2412'
+project_name: 'SimbaV2'
 entity_name: 'draftrec'
 group_name: 'test'
 exp_name: 'test'
@@ -36,6 +36,6 @@ num_record_episodes: 1
 
 defaults:
 - _self_
-- agent: hyper_simba
+- agent: simbaV2
 - buffer: numpy_uniform
 - env: dmc

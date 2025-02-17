@@ -47,7 +47,7 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(allow_abbrev=False)
     parser.add_argument("--config_path", type=str, default="./configs")
     parser.add_argument("--config_name", type=str, default="online_rl")
-    parser.add_argument("--agent_config", type=str, default="hyper_simba")
+    parser.add_argument("--agent_config", type=str, default="simbaV2")
     parser.add_argument("--env_type", type=str, default="dmc_hard")
     parser.add_argument("--device_ids", default=[0], nargs="+")
     parser.add_argument("--num_seeds", type=int, default=1)
@@ -111,6 +111,28 @@ if __name__ == "__main__":
     elif env_type == "hb_locomotion":
         envs = HB_LOCOMOTION_NOHAND
         env_configs = [env_type] * len(envs)
+
+    elif env_type == "mujoco_dmc":
+        envs = (
+            MUJOCO_ALL 
+            + DMC_EASY_MEDIUM 
+            + DMC_HARD
+        )
+        env_configs = (
+            ["mujoco"] * len(MUJOCO_ALL)
+            + ["dmc"] * len(DMC_EASY_MEDIUM)
+            + ["dmc"] * len(DMC_HARD)
+        )
+
+    elif env_type == "myo_hb":
+        envs = (
+            MYOSUITE_TASKS
+            + HB_LOCOMOTION_NOHAND
+        )
+        env_configs = (
+            ["myosuite"] * len(MYOSUITE_TASKS)
+            + ["hb_locomotion"] * len(HB_LOCOMOTION_NOHAND)
+        )
 
     elif env_type == "all":
         envs = (

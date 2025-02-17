@@ -2,10 +2,6 @@ import gymnasium as gym
 from typing import TypeVar
 from omegaconf import OmegaConf
 from scale_rl.agents.base_agent import BaseAgent
-from scale_rl.agents.random_agent import RandomAgent
-from scale_rl.agents.simba.simba_agent import SimbaAgent
-from scale_rl.agents.hyper_simba.hyper_simba_agent import HyperSimbaAgent
-from scale_rl.agents.hyper_simba_dev.hyper_simba_dev_agent import HyperSimbaDevAgent
 from scale_rl.agents.wrappers import ObservationNormalizer, RewardNormalizer
 
 Config = TypeVar('Config')
@@ -21,16 +17,16 @@ def create_agent(
     agent_type = cfg.pop('agent_type')
 
     if agent_type == 'random':
+        from scale_rl.agents.random_agent import RandomAgent
         agent = RandomAgent(observation_space, action_space, cfg)
 
     elif agent_type == 'simba':
+        from scale_rl.agents.simba.simba_agent import SimbaAgent
         agent = SimbaAgent(observation_space, action_space, cfg)
 
-    elif agent_type == 'hyper_simba':
-        agent = HyperSimbaAgent(observation_space, action_space, cfg)
-
-    elif agent_type == 'hyper_simba_dev':
-        agent = HyperSimbaDevAgent(observation_space, action_space, cfg)
+    elif agent_type == 'simbaV2':
+        from scale_rl.agents.simbaV2.simbaV2_agent import SimbaV2Agent
+        agent = SimbaV2Agent(observation_space, action_space, cfg)
 
     else:
         raise NotImplementedError

@@ -7,10 +7,9 @@ from scale_rl.envs.dmc import make_dmc_env
 from scale_rl.envs.mujoco import make_mujoco_env
 from scale_rl.envs.humanoid_bench import make_humanoid_env
 from scale_rl.envs.myosuite import make_myosuite_env
-from scale_rl.envs.kitchen import make_kitchen_env
 from scale_rl.envs.d4rl import make_d4rl_env, make_d4rl_dataset, get_d4rl_normalized_score
 
-from scale_rl.envs.wrappers import RepeatAction, ScaleReward, DoNotTerminate
+from scale_rl.envs.wrappers import RepeatAction, DoNotTerminate
 from scale_rl.envs.wrappers.vector import AsyncVectorEnv, SyncVectorEnv, VectorEnv, FlattenObservation
 
 
@@ -24,7 +23,6 @@ def create_envs(
     rescale_action: bool,
     no_termination: bool,
     action_repeat: int,
-    reward_scale: float,
     max_episode_steps: int,
     **kwargs,
 )-> Tuple[VectorEnv, VectorEnv]:
@@ -37,7 +35,6 @@ def create_envs(
         no_termination=no_termination,
         action_repeat=action_repeat,
         rescale_action=rescale_action,
-        reward_scale=reward_scale,
         max_episode_steps=max_episode_steps,
     )
     eval_env = create_vec_env(
@@ -48,7 +45,6 @@ def create_envs(
         no_termination=no_termination,
         action_repeat=action_repeat,
         rescale_action=rescale_action,
-        reward_scale=1.0, # reward scale is not applied on eval.
         max_episode_steps=max_episode_steps,
     )
     
@@ -63,7 +59,6 @@ def create_vec_env(
     rescale_action: bool = True,
     no_termination: bool = False,
     action_repeat: int = 1,
-    reward_scale: float = 1.0,
     max_episode_steps: int = 1000,
 ) -> VectorEnv:
     
@@ -74,7 +69,6 @@ def create_vec_env(
         rescale_action:bool, 
         no_termination:bool,
         action_repeat:int, 
-        reward_scale: float,
         max_episode_steps: int,
         **kwargs
     ) -> gym.Env:
@@ -87,8 +81,6 @@ def create_vec_env(
             env = make_humanoid_env(env_name, seed, **kwargs)
         elif env_type == 'myosuite':
             env = make_myosuite_env(env_name, seed, **kwargs)
-        elif env_type == 'kitchen':
-            env = make_kitchen_env(env_name, seed, **kwargs)
         elif env_type == "d4rl":
             env = make_d4rl_env(env_name, seed, **kwargs)
         else:
@@ -106,8 +98,6 @@ def create_vec_env(
         if action_repeat > 1:
             env = RepeatAction(env, action_repeat)
 
-        env = ScaleReward(env, reward_scale)
-
         env.observation_space.seed(seed)
         env.action_space.seed(seed)
         
@@ -122,7 +112,6 @@ def create_vec_env(
                 no_termination=no_termination,
                 rescale_action=rescale_action,
                 action_repeat=action_repeat,
-                reward_scale=reward_scale,
                 max_episode_steps=max_episode_steps,
             )
         )
