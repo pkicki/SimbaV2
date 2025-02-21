@@ -1,10 +1,23 @@
-# SimbaV2: Hyperspherical Normalization for Scalable
+# SimbaV2
 
-Official implementation of 
+## Introduction
 
-SimbaV2: Hyperspherical Normalization for Scalable Deep Reinforcement Learning.
+We introduce SimbaV2, a reinforcement learning architecture that stabilizes training on non-stationary data through hyperspherical normalization and distributional value estimation with reward scaling. By scaling with larger models and compute, SimbaV2 achieves state-of-the-art performance on 57 continuous control tasks across MuJoCo, DMC, MyoSuite, and Humanoid-bench. The Gymnasium 1.0 API implementation ensures seamless integration with diverse RL environments.
 
-[[Website]](https://www.tdmpc2.com) [[Paper]](https://arxiv.org/abs/2310.16828) [[Dataset]](https://www.tdmpc2.com/dataset)
+
+<a href="https://joonleesky.github.io" class="nobreak">Hojoon Lee</a><sup>\*</sup>&ensp;
+<a href="https://leeyngdo.github.io/" class="nobreak">Youngdo Lee</a><sup>\*</sup>&ensp; 
+<a href="https://takuseno.github.io/" class="nobreak">Takuma Seno</a><sup></sup>&ensp;
+<a href="https://i-am-proto.github.io" class="nobreak">Donghu Kim</a><sup></sup>&ensp;
+<a href="https://www.cs.utexas.edu/~pstone/" class="nobreak">Peter Stone</a><sup></sup>&ensp;
+<a href="https://sites.google.com/site/jaegulchoo" class="nobreak">Jaegul Choo</a><sup></sup>&ensp;
+
+[[Website]](https://dojeon-ai.github.io/SimbaV2/) [[Paper]](https://arxiv.org/abs/2310.16828) [[Dataset]](https://www.tdmpc2.com/dataset)
+
+## Result
+
+
+
 
 ## Getting strated
 
@@ -90,14 +103,8 @@ bash scripts/sac_simba_myosuite.sh
 
 ## Analysis
 
-Please refer to `analysis/benchmark.ipynb` to analyze the experimental results provided in the paper.
+Please refer to `/analysis` to visualize the experimental results provided in the paper.
 
-## Development
-Configure development dependencies:
-```
-pip install -r deps/dev.requirements.txt
-pre-commit install
-```
 
 ## License
 This project is released under the [Apache 2.0 license](/LICENSE).
@@ -107,9 +114,9 @@ This project is released under the [Apache 2.0 license](/LICENSE).
 If you find our work useful, please consider citing our paper as follows:
 
 ```
-@article{lee2024simba,
-  title={Simba: Simplicity Bias for Scaling Up Parameters in Deep Reinforcement Learning}, 
-  author={Hojoon Lee and Dongyoon Hwang and Donghu Kim and Hyunseung Kim and Jun Jet Tai and Kaushik Subramanian and Peter R.Wurman and Jaegul Choo and Peter Stone and Takuma Seno},
-  year={2024}
+@article{lee2024simbav2,
+  title={Hyperspherical Normalization for Scalable Deep Reinforcement Learning}, 
+  author={Hojoon Lee and Youngdo Lee and Takuma Seno and Donghu Kim and Peter Stone and Jaegul Choo},
+  year={2025}
 }
 ```
