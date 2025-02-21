@@ -1,8 +1,4 @@
 import gymnasium as gym
-import numpy as np
-from gymnasium import spaces
-
-from scale_rl.envs.wrappers import EpisodeMonitor
 
 #################################
 #
@@ -79,14 +75,6 @@ HB_LOCOMOTION_NOHAND_MINI = [
     "h1-sit_hard-v0",
     "h1-balance_simple-v0",
     "h1-stair-v0",
-]
-
-HB_LOCOMOTION_NOHAND_SEQUENTIAL = [
-    "h1-stand-v0",
-    "h1-sit_simple-v0",
-    "h1-walk-v0",
-    "h1-crawl-v0",
-    "h1-run-v0",
 ]
 
 #################################
@@ -197,7 +185,6 @@ class HBGymnasiumVersionWrapper(gym.Wrapper):
 def make_humanoid_env(
     env_name: str,
     seed: int,
-    monitor_episode: bool = True,
 ) -> gym.Env:
     import humanoid_bench
 
@@ -206,8 +193,5 @@ def make_humanoid_env(
         additional_kwargs = {"policy_path": None}
     env = gym.make(env_name, **additional_kwargs)
     env = HBGymnasiumVersionWrapper(env)
-
-    if monitor_episode:
-        env = EpisodeMonitor(env)
 
     return env

@@ -1,7 +1,5 @@
 import gymnasium as gym
 
-from scale_rl.envs.wrappers import DoNotTerminate
-
 MUJOCO_ALL = [
     "HalfCheetah-v4",
     "Hopper-v4",

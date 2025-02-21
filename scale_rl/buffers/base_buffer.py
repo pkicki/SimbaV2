@@ -16,7 +16,6 @@ class BaseBuffer(ABC):
         gamma: float,
         max_length: int,
         min_length: int,
-        add_batch_size: int,
         sample_batch_size: int,
     ):
         """
@@ -28,7 +27,6 @@ class BaseBuffer(ABC):
             max_length: maximum length of buffer (max number of experiences stored within the state).
             min_length: minimum number of experiences saved in the buffer state before we can sample.
             add_sequences: indiciator of whether we will be adding data in sequences to the buffer?
-            add_batch_size: batch size of data that is added in a single addition call.
             sample_batch_size: batch size of data that is sampled from a single sampling call.
         """
 
@@ -38,7 +36,6 @@ class BaseBuffer(ABC):
         self._min_length = min_length
         self._n_step = n_step
         self._gamma = gamma
-        self._add_batch_size = add_batch_size
         self._sample_batch_size = sample_batch_size
 
     def __len__(self):
@@ -58,6 +55,10 @@ class BaseBuffer(ABC):
 
     @abstractmethod
     def sample(self) -> Batch:
+        pass
+
+    @abstractmethod
+    def save(self, path: str) -> None:
         pass
 
     @abstractmethod

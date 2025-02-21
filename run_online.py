@@ -109,13 +109,10 @@ def run(args):
         next_observations, rewards, terminateds, truncateds, env_infos = train_env.step(
             actions
         )
-
         next_buffer_observations = next_observations.copy()
         for env_idx in range(cfg.num_train_envs):
             if terminateds[env_idx] or truncateds[env_idx]:
-                next_buffer_observations[env_idx] = env_infos["final_observation"][
-                    env_idx
-                ]
+                next_buffer_observations[env_idx] = env_infos["final_obs"][env_idx]
 
         timestep = {
             "observation": observations,
@@ -125,7 +122,6 @@ def run(args):
             "truncated": truncateds,
             "next_observation": next_buffer_observations,
         }
-
         buffer.add(timestep)
         timestep["next_observation"] = next_observations
         observations = next_observations
@@ -168,6 +164,10 @@ def run(args):
             # checkpointing
             if interaction_step % cfg.save_checkpoint_per_interaction_step == 0:
                 agent.save(save_path)
+
+            # save buffer
+            if interaction_step % cfg.save_buffer_per_interaction_step == 0:
+                buffer.save(save_path)
 
     train_env.close()
     eval_env.close()

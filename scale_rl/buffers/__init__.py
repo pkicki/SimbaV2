@@ -13,7 +13,6 @@ def create_buffer(
     gamma: float,
     max_length: int,
     min_length: int,
-    add_batch_size: int,
     sample_batch_size: int,
     **kwargs,
 ) -> BaseBuffer:
@@ -27,7 +26,6 @@ def create_buffer(
                 gamma=gamma,
                 max_length=max_length,
                 min_length=min_length, 
-                add_batch_size=add_batch_size, 
                 sample_batch_size=sample_batch_size,
             )
 

@@ -1,3 +1,5 @@
+import os
+import pickle
 from collections import deque
 
 import gymnasium as gym
@@ -16,7 +18,6 @@ class NpyUniformBuffer(BaseBuffer):
         gamma: float,
         max_length: int,
         min_length: int,
-        add_batch_size: int,
         sample_batch_size: int,
     ):
         super(NpyUniformBuffer, self).__init__(
@@ -26,7 +27,6 @@ class NpyUniformBuffer(BaseBuffer):
             gamma,
             max_length,
             min_length,
-            add_batch_size,
             sample_batch_size,
         )
 
@@ -112,8 +112,10 @@ class NpyUniformBuffer(BaseBuffer):
         if len(self._n_step_transitions) >= self._n_step:
             n_step_prev_timestep = self._get_n_step_prev_timestep()
 
+            add_batch_size = len(n_step_prev_timestep["observation"])
+
             # add samples to the buffer
-            add_idxs = np.arange(self._add_batch_size) + self._current_idx
+            add_idxs = np.arange(add_batch_size) + self._current_idx
             add_idxs = add_idxs % self._max_length
 
             self._observations[add_idxs] = n_step_prev_timestep["observation"]
@@ -124,11 +126,9 @@ class NpyUniformBuffer(BaseBuffer):
             self._next_observations[add_idxs] = n_step_prev_timestep["next_observation"]
 
             self._num_in_buffer = min(
-                self._num_in_buffer + self._add_batch_size, self._max_length
+                self._num_in_buffer + add_batch_size, self._max_length
             )
-            self._current_idx = (
-                self._current_idx + self._add_batch_size
-            ) % self._max_length
+            self._current_idx = (self._current_idx + add_batch_size) % self._max_length
 
     def can_sample(self) -> bool:
         if self._num_in_buffer < self._min_length:
@@ -152,6 +152,17 @@ class NpyUniformBuffer(BaseBuffer):
         batch["next_observation"] = np.array(self._next_observations[sample_idxs])
 
         return batch
+
+    def save(self, path: str) -> None:
+        dataset = {}
+        dataset["observation"] = self._observations[: self._num_in_buffer]
+        dataset["action"] = self._actions[: self._num_in_buffer]
+        dataset["reward"] = self._rewards[: self._num_in_buffer]
+        dataset["terminated"] = self._terminateds[: self._num_in_buffer]
+        dataset["truncated"] = self._truncateds[: self._num_in_buffer]
+        dataset["next_observation"] = self._next_observations[: self._num_in_buffer]
+        with open(os.path.join(path, "dataset.pickle"), "wb") as f:
+            pickle.dump(dataset, f)
 
     def get_observations(self) -> np.ndarray:
         return self._observations[: self._num_in_buffer]
@@ -227,3 +238,6 @@ class NpyPrioritizedBuffer(NpyUniformBuffer):
         batch["sample_probs"] = sample_probs
 
         return batch
+
+    def save(self, path: str) -> None:
+        pass

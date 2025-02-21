@@ -15,16 +15,10 @@ class ObservationNormalizer(AgentWrapper):
     """
 
     def __init__(self, agent: BaseAgent, load_rms: bool = True, epsilon: float = 1e-8):
-        """This wrapper will normalize observations s.t. each coordinate is centered with unit variance.
-
-        Args:
-            agent (BaseAgent): The agent to apply the wrapper
-            epsilon: A stability parameter that is used when scaling the observations.
-        """
         AgentWrapper.__init__(self, agent)
 
         self.obs_rms = RunningMeanStd(
-            shape=self.agent._observation_space.shape,
+            shape=(1,) + self.agent._observation_space.shape[1:],
             dtype=np.float32,
         )
         self.load_rms = load_rms
@@ -103,7 +97,9 @@ class ObservationNormalizer(AgentWrapper):
 
 class RewardNormalizer(AgentWrapper):
     """
-    This wrapper will scale rewards using the variance of a running estimate of the discounted returns. In policy gradient methods, the update rule often involves the term ∇log ⁡π(a|s)⋅G_t, where G_t is the return from time t. Scaling G_t to have unit variance can be an effective variance reduction technique.
+    This wrapper will scale rewards using the variance of a running estimate of the discounted returns.
+    In policy gradient methods, the update rule often involves the term ∇log ⁡π(a|s)⋅G_t, where G_t is the return from time t.
+    Scaling G_t to have unit variance can be an effective variance reduction technique.
 
     Return statistics is updated only on sample_actions with training == True
     """
@@ -116,13 +112,6 @@ class RewardNormalizer(AgentWrapper):
         load_rms: bool = True,
         epsilon: float = 1e-8,
     ):
-        """This wrapper will scale rewards using the variance of a running estimate of the discounted returns.
-
-        Args:
-            agent (BaseAgent): The agent to apply the wrapper
-            gamma: Discount factor
-            epsilon: A stability parameter that is used when scaling the rewards.
-        """
         AgentWrapper.__init__(self, agent)
         self.G = 0.0  # running estimate of the discounted return
         self.G_rms = RunningMeanStd(
@@ -136,9 +125,6 @@ class RewardNormalizer(AgentWrapper):
         self.epsilon = epsilon
 
     def _scale_reward(self, rewards):
-        """
-        https://gymnasium.farama.org/api/wrappers/reward_wrappers/#gymnasium.wrappers.NormalizeReward
-        """
         var_denominator = np.sqrt(self.G_rms.var + self.epsilon)
         min_required_denominator = self.G_r_max / self.g_max
         denominator = max(var_denominator, min_required_denominator)
@@ -157,7 +143,9 @@ class RewardNormalizer(AgentWrapper):
         if training:
             reward = prev_timestep["reward"]
             terminated = prev_timestep["terminated"]
-            self.G = self.gamma * (1 - terminated) * self.G + reward
+            truncated = prev_timestep["truncated"]
+            done = np.logical_or(terminated, truncated)
+            self.G = self.gamma * (1 - done) * self.G + reward
             self.G_rms.update(self.G)
             self.G_r_max = max(self.G_r_max, max(abs(self.G)))
 

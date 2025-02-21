@@ -71,6 +71,7 @@ def run(args):
 
     batch_size = cfg.buffer.sample_batch_size
     cfg.num_interaction_steps = int((len(dataset) / batch_size) * cfg.num_epochs)
+    cfg.save_checkpoint_per_interaction_step = cfg.num_interaction_steps
     cfg.agent.learning_rate_decay_step = int(
         cfg.agent.learning_rate_decay_rate
         * cfg.num_interaction_steps

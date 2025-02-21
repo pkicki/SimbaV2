@@ -2,7 +2,7 @@
 # Common
 ##################################################################################
 
-project_name: 'HyperSimba_2412'
+project_name: 'SimbaV2'
 entity_name: 'draftrec'
 group_name: 'test'
 exp_name: 'test'
@@ -31,11 +31,12 @@ metrics_per_interaction_step: 50_000      # log metrics per interaction step.
 recording_per_interaction_step: ${num_interaction_steps}   # video recording frequency per interaction step.
 logging_per_interaction_step: 10_000       # logging frequency per interaction step.
 save_checkpoint_per_interaction_step: ${num_interaction_steps}
+save_buffer_per_interaction_step: ${num_interaction_steps}
 num_eval_episodes: 10
 num_record_episodes: 1
 
 defaults:
 - _self_
-- agent: hyper_simba
+- agent: simbaV2
 - buffer: numpy_uniform
 - env: dmc
