@@ -21,10 +21,18 @@ def run_with_device(server, device_id, config_path, config_name, overrides):
             7: 4,
         }
         os.environ["MUJOCO_EGL_DEVICE_ID"] = str(cuda_id_to_egl_id[int(device_id)])
+
+    elif server == "kaist4":
+        cuda_id_to_egl_id = {
+            0: 1,
+            1: 0,
+            2: 3,
+            3: 2,
+        }
+        os.environ["MUJOCO_EGL_DEVICE_ID"] = str(cuda_id_to_egl_id[int(device_id)])
     else:
         os.environ["MUJOCO_EGL_DEVICE_ID"] = str(0)
 
-    os.environ["MUJOCO_EGL_DEVICE_ID"] = str(0)
     os.environ["OMP_NUM_THREADS"] = "2"
 
     # Now import the main script
@@ -113,11 +121,7 @@ if __name__ == "__main__":
         env_configs = [env_type] * len(envs)
 
     elif env_type == "mujoco_dmc":
-        envs = (
-            MUJOCO_ALL 
-            + DMC_EASY_MEDIUM 
-            + DMC_HARD
-        )
+        envs = MUJOCO_ALL + DMC_EASY_MEDIUM + DMC_HARD
         env_configs = (
             ["mujoco"] * len(MUJOCO_ALL)
             + ["dmc"] * len(DMC_EASY_MEDIUM)
@@ -125,13 +129,9 @@ if __name__ == "__main__":
         )
 
     elif env_type == "myo_hb":
-        envs = (
-            MYOSUITE_TASKS
-            + HB_LOCOMOTION_NOHAND
-        )
-        env_configs = (
-            ["myosuite"] * len(MYOSUITE_TASKS)
-            + ["hb_locomotion"] * len(HB_LOCOMOTION_NOHAND)
+        envs = MYOSUITE_TASKS + HB_LOCOMOTION_NOHAND
+        env_configs = ["myosuite"] * len(MYOSUITE_TASKS) + ["hb_locomotion"] * len(
+            HB_LOCOMOTION_NOHAND
         )
 
     elif env_type == "all":
@@ -148,6 +148,15 @@ if __name__ == "__main__":
             + ["dmc"] * len(DMC_HARD)
             + ["myosuite"] * len(MYOSUITE_TASKS)
             + ["hb_locomotion"] * len(HB_LOCOMOTION_NOHAND)
+        )
+
+    elif env_type == "mujoco_dmc_myosuite":
+        envs = MUJOCO_ALL + DMC_EASY_MEDIUM + DMC_HARD + MYOSUITE_TASKS
+        env_configs = (
+            ["mujoco"] * len(MUJOCO_ALL)
+            + ["dmc"] * len(DMC_EASY_MEDIUM)
+            + ["dmc"] * len(DMC_HARD)
+            + ["myosuite"] * len(MYOSUITE_TASKS)
         )
 
     elif env_type == "mini_benchmark":

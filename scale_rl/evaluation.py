@@ -13,6 +13,7 @@ def evaluate(
     num_episodes: int,
 ) -> Dict[str, float]:
     n = env.num_envs
+
     assert num_episodes % n == 0, "num_episodes must be divisible by env.num_envs"
     num_eval_episodes_per_env = num_episodes // n
 
@@ -51,13 +52,16 @@ def evaluate(
             elif "final_info" in infos:
                 final_successes = np.zeros(n)
                 for idx in range(n):
-                    final_info = infos["final_info"][idx]
+                    final_info = infos["final_info"]
+
                     if "success" in final_info:
                         try:
-                            final_successes[idx] = final_info["success"].astype("float")
+                            final_successes[idx] = final_info["success"][idx].astype(
+                                "float"
+                            )
                         except:
                             final_successes[idx] = np.array(
-                                final_info["success"]
+                                final_info["success"][idx]
                             ).astype("float")
                 successes += final_successes * (1 - dones)
 

@@ -29,12 +29,12 @@ evaluation_per_interaction_step: 50_000  # evaluation frequency per interaction 
 metrics_per_interaction_step: 50_000     # log metrics per interaction step.
 recording_per_interaction_step: -1       # recording is not supported for offline rl yet.
 logging_per_interaction_step: 10_000     # logging frequency per interaction step.
-save_checkpoint_per_interaction_step: ${num_interaction_steps}
+save_checkpoint_per_interaction_step: null
 num_eval_episodes: 100
 num_record_episodes: 1
 
 defaults:
 - _self_
-- agent: simbaV2
+- agent: simbaV2_bc
 - buffer: numpy_uniform
 - env: d4rl

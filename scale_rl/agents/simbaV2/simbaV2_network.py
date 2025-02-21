@@ -45,8 +45,8 @@ class SimbaV2Actor(nn.Module):
         self.predictor = HyperNormalTanhPolicy(
             hidden_dim=self.hidden_dim,
             action_dim=self.action_dim,
-            scaler_init=self.scaler_init,
-            scaler_scale=self.scaler_scale,
+            scaler_init=1.0,
+            scaler_scale=1.0,
         )
 
     def __call__(
@@ -99,8 +99,8 @@ class SimbaV2Critic(nn.Module):
             num_bins=self.num_bins,
             min_v=self.min_v,
             max_v=self.max_v,
-            scaler_init=self.scaler_init,
-            scaler_scale=self.scaler_scale,
+            scaler_init=1.0,
+            scaler_scale=1.0,
         )
 
     def __call__(

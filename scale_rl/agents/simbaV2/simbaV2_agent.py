@@ -34,8 +34,6 @@ allowing it to be treated as a static variable in JAX.
 @dataclass(frozen=True)
 class SimbaV2Config:
     seed: int
-    num_train_envs: int
-    max_episode_steps: int
     normalize_observation: bool
     normalize_reward: bool
     normalized_g_max: float

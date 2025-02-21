@@ -18,7 +18,7 @@ class ObservationNormalizer(AgentWrapper):
         AgentWrapper.__init__(self, agent)
 
         self.obs_rms = RunningMeanStd(
-            shape=self.agent._observation_space.shape,
+            shape=(1,) + self.agent._observation_space.shape[1:],
             dtype=np.float32,
         )
         self.load_rms = load_rms
@@ -144,7 +144,7 @@ class RewardNormalizer(AgentWrapper):
             reward = prev_timestep["reward"]
             terminated = prev_timestep["terminated"]
             truncated = prev_timestep["truncated"]
-            done = truncated | terminated
+            done = np.logical_or(terminated, truncated)
             self.G = self.gamma * (1 - done) * self.G + reward
             self.G_rms.update(self.G)
             self.G_r_max = max(self.G_r_max, max(abs(self.G)))

@@ -2,7 +2,6 @@ dm-control==1.0.20
 dotmap==1.3.30
 Cython==0.29.37
 flax==0.8.4
-gymnasium==1.0.0a2
 hydra-core==1.3.2
 imageio==2.33.1
 jax==0.4.25
@@ -23,3 +22,4 @@ wandb==0.16.6
 moviepy==1.0.3
 gym==0.26.2
 git+https://github.com/takuseno/D4RL
+git+https://github.com/Farama-Foundation/Gymnasium.git@d92e030e9a0b03806deda51122c705169313f158

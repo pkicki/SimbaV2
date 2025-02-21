@@ -1,9 +1,0 @@
-python run_parallel.py \
-    --group_name test \
-    --exp_name test \
-    --config_name online_rl \
-    --agent_config simbaV2 \
-    --env_type dmc_hard \
-    --device_ids 0 \
-    --num_seeds 1 \
-    --num_exp_per_device 1 \
