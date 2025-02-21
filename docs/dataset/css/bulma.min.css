@@ -1,0 +1,13 @@
+.hero{
+    align-items:stretch;
+    display:flex;
+    flex-direction:column;
+    justify-content:space-between
+}
+
+.hero.is-light{
+    color:rgba(0,0,0,.7)
+}
+
+
+    

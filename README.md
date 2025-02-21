@@ -1,7 +1,10 @@
-# SimBa: Simplicity Bias for Scaling Up Parameters in Deep Reinforcement Learning
+# SimbaV2: Hyperspherical Normalization for Scalable
 
-This is a repository of an official implementation of Simba: Simplicity Bias for Scaling Up Parameters in Deep Reinforcement Learning.
+Official implementation of 
 
+SimbaV2: Hyperspherical Normalization for Scalable Deep Reinforcement Learning.
+
+[[Website]](https://www.tdmpc2.com) [[Paper]](https://arxiv.org/abs/2310.16828) [[Dataset]](https://www.tdmpc2.com/dataset)
 
 ## Getting strated
 
@@ -25,7 +28,7 @@ pip install -e .
 conda env create -f deps/environment.yaml
 ```
 
-#### (optional) Jax for GPU
+#### Jax for GPU
 ```
 pip install -U "jax[cuda12]==0.4.25" -f https://storage.googleapis.com/jax-releases/jax_cuda_releases.html
 # If you want to execute multiple runs with a single GPU, we recommend to set this variable.
@@ -41,7 +44,7 @@ export MUJOCO_EGL_DEVICE_ID="0"
 export MKL_SERVICE_FORCE_INTEL="0"
 ```
 
-#### (optional) Humanoid Bench
+#### Humanoid Bench
 
 ```
 git clone https://github.com/joonleesky/humanoid-bench
@@ -49,7 +52,7 @@ cd humanoid-bench
 pip install -e .
 ```
 
-#### (optional) Myosuite
+#### Myosuite
 ```
 git clone --recursive https://github.com/joonleesky/myosuite
 cd myosuite

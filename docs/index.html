@@ -1,10 +1,12 @@
 <head>
-	<title>SimBa</title>
-	<meta property="og:title" content="SimBa:">
-	<meta property="og:description" content="SimBa: Simplicity Bias for Scaling Parameters in Deep Reinforcement Learning">
+	<title>SimbaV2</title>
+	<meta property="og:title" content="SimbaV2:">
+	<meta property="og:description" content="Hyperspherical Normalization for Scalable Deep Reinforcement Learning">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
 	<link rel="stylesheet" href="style.css">
 	<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Google+Sans|Noto+Sans|Castoro">
 	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+	
 	<script type="text/javascript">
 		function toggle(id) {
 			var e = document.getElementById(id);
@@ -14,42 +16,52 @@
 				e.style.display = 'block';
 		}
 	</script>
+	<script type="text/x-mathjax-config">
+		MathJax.Hub.Config({
+			tex2jax: {inlineMath: [['$','$'], ['\\(','\\)']]}
+		});
+    </script>
+    <script src='https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-MML-AM_CHTML' async></script>
 </head>
 <div class="header" id="top">
-	<h1><span class="bold simba">SimBa </span><br/>Simplicity Bias for Scaling Parameters in Deep Reinforcement Learning</h1>
-	<h3><a class="bold default-color">Under review</span><br/></h3>
+	<h1><span class="bold simbav2">SimbaV2 </span><br/>Hyperspherical Normalization for Scalable Deep Reinforcement Learning</h1>
+	<h3><a class="bold default-color">In submission to ICML 2025</span><br/></h3>
 	<table class="authors">
 		<tbody>
 			<tr>
 				<td>
 					<h4>
-						<a href="https://joonleesky.github.io" class="nobreak">Hojoon Lee</a><sup>1, 2</sup>&ast;,&ensp;
-						<a href="https://godnpeter.github.io" class="nobreak">Dongyoon Hwang</a><sup>1</sup>&ast;,&ensp;
-						<a href="https://i-am-proto.github.io" class="nobreak">Donghu Kim</a><sup>1</sup>&ensp;<br/>
-						<a href="https://mynsng.github.io" class="nobreak">Hyunseung Kim</a><sup>1</sup>&ensp;
-						<a href="https://taijunjet.com" class="nobreak">Jun Jet Tai</a><sup>2, 3</sup>&ensp;
-						<a href="https://kausubbu.github.io" class="nobreak">Kaushik Subramanian</a><sup>2</sup>&ensp;
-						<a href="https://www.pwurman.org" class="nobreak">Peter R. Wurman</a><sup>2</sup>&ensp;<br/>
-						<a href="https://sites.google.com/site/jaegulchoo" class="nobreak">Jaegul Choo</a><sup>1</sup>&ensp;
-						<a href="https://www.cs.utexas.edu/~pstone/" class="nobreak">Peter Stone</a><sup>2, 4</sup>&ensp;
+						<a href="https://joonleesky.github.io" class="nobreak">Hojoon Lee</a><sup>1, 2</sup>$\dagger$,&ensp;
+						<a href="https://leeyngdo.github.io/" class="nobreak">Youngdo Lee</a><sup>1</sup>$\dagger$,&ensp;
 						<a href="https://takuseno.github.io/" class="nobreak">Takuma Seno</a><sup>2</sup>&ensp;
+						<a href="https://i-am-proto.github.io" class="nobreak">Donghu Kim</a><sup>1</sup>&ensp;<br/>
+						<a href="https://www.cs.utexas.edu/~pstone/" class="nobreak">Peter Stone</a><sup>2, 3</sup>&ensp;
+						<a href="https://sites.google.com/site/jaegulchoo" class="nobreak">Jaegul Choo</a><sup>1</sup>&ensp;
 						
 						<div class="affiliations">
 							<br/>
 							<sup>1</sup> KAIST&ensp;
 							<sup>2</sup> Sony AI&ensp;
-							<sup>3</sup> Coventry University&ensp;
-							<sup>4</sup> UT Austin&ensp;
+							<sup>3</sup> UT Austin&ensp;
 						</div>
 						<br/>
-						<span class="authors-affiliation" style="font-size: 0.85em;">&ast;Equal contribution</span>
+						<span class="authors-affiliation" style="font-size: 0.85em;">$\dagger$: Equal contribution</span>
 					</h4>
 				</td>
 			</tr>
 		</tbody>
 	</table>
-	<div class="links">
-		<a href="https://arxiv.org" class="btn"><i class="fa">&#xf1c1;</i>&ensp;Paper</a><a href="https://github.com/joonleesky/scale_rl" class="btn"><i class="fa fa-github"></i>&ensp;Code</a>
+	<div class="links" style="margin-top: -20px;">
+		<a href="https://arxiv.org" class="btn"><i class="fa">&#xf1c1;</i>&ensp;Paper</a><a href="https://github.com/joonleesky/scale_rl" class="btn"><i class="fa fa-github"></i>&ensp;Code</a><a href="./dataset" class="btn"><i class="fa fa-database"></i> Dataset</a>
+	</div>
+	<div class="content">
+		<!-- <div class="figure" style="height: 360px; background-image: url(images/overview.png);"></div> -->
+		<img src="images/overview.png" style="max-height: 360px; object-fit: contain;" class="figure">
+		<div style="width: 90%; margin: auto; margin-top: -2em;">
+			<p>
+				<span class="bold simbav2">Overview.</span> <span class="simbav2">SimbaV2</span> outperforms other RL algorithms, where performance scales as compute increases. The numbers below each dot indicate the update-to-data (UTD) ratio. <span class="simbav2">SimbaV2</span>, with UTD=1, achieves a performance of $0.848$, surpassing <span class="tdmpc2">TD-MPC2</span> ($0.749$), the most computationally intensive version of <span class="simba">Simba</span> ($0.818$), and <span class="bro">BRO</span> ($0.807$). The results show normalized returns, averaged over $57$ continuous control tasks from MuJoCo, DMControl, MyoSuite, and HumanoidBench, each trained on $1$ million samples.
+			</p>
+		</div>
 	</div>
 </div>
 <div class="content">
@@ -57,262 +69,218 @@
 	<div class="tldr-container">
 		<h2>TL;DR</h2> 
 		<p class="tldr-content">
-			Stop worrying about algorithms, just <span class="bold">change the network architecture to <span class="bold simba">SimBa</span></span>
-		</p>
-	</div>
-	<div class="hr"></div>
-	<div class="figure" style="height: 480px; background-image: url(images/overview.png);"></div>
-	<div style="margin: auto; margin-top: -24px;">
-		<p>
-			<span class="bold simba">Overview.</span> <span class="bold"></span>SimBa</span> infuses <span class="italic">simplicity bias</span> through architectural changes, without modifying the underlying deep RL algorithm.<br/> <span class="bold">(a) SimBa enhances sample efficiency:</span> Sample efficiency across various RL algorithms, including off-policy model-free (SAC), off-policy model-based (TD-MPC2), on-policy model-free (PPO), and unsupervised (METRA) RL methods. <span class="bold">(b) Off-policy RL Benchmark</span> When applied to SAC, SimBa matches or surpasses state-of-the-art off-policy RL methods with minimal computational overhead across <span class="bold">51</span> continuous control tasks, by only modifying
-			the network architecture and scaling up the number of network parameters.
+			Stop worrying about algorithms, just <span class="bold">change the network architecture to <span class="bold simbav2">SimBa</span></span>
 		</p>
 	</div>
 	<div class="hr"></div>
 	<div>
 		<h2>Abstract</h2>
 		<p class="abstract">
-			We introduce <span class="bold simba">SimBa</span>, an architecture designed to inject simplicity bias for scaling up the parameters in deep RL. Simba consists of three components: (i) standardizing input observations with running statistics, (ii) incorporating residual feedforward blocks to provide a linear pathway from the input to the output, and (iii) applying layer normalization to control feature magnitudes. By scaling up parameters with SimBa, the sample efficiency of various deep RL algorithms—including <span class=bold>off-policy, on-policy, and unsupervised methods</span>—is consistently improved. Moreover, when SimBa is integrated into SAC, it matches or surpasses state-of-the-art deep RL methods with high computational efficiency across 51 tasks from <span class=bold>DMC, MyoSuite, and HumanoidBench</span>, solely by modifying the network architecture. These results demonstrate SimBa's broad applicability and effectiveness across diverse RL algorithms and environments.
+			Scaling up the model size and computation has brought consistent performance improvements in supervised learning.  However, this lesson often fails to apply to reinforcement learning (RL) because training the model on non-stationary data easily leads to overfitting and unstable optimization. In response, we introduce <span class="bold simbav2">SimbaV2</span>, a novel RL architecture designed to stabilize optimization by (i) constraining the growth of weight and feature norm by <span class="italic">hyperspherical normalization;</span> and (ii) using a distributional value estimation with reward scaling to maintain stable gradients under varying reward magnitudes. Using the soft actor-critic as a base algorithm, SimbaV2 scales up effectively with larger models and greater compute, achieving state-of-the-art performance on <span class="bold">$57$ continuous control tasks across $4$ domains</span>.
 		</p>
 	</div>
 	<div class="hr"></div>
-	<div>
-		<h2>SimBa Architecture</h2>
-		<div class="figure" style="height: 140px; background-image: url(images/simba_architecture.png);"></div>
-		<div style="margin: auto;">
-		<p class="architecture">
-			SimBa comprises three components: Running Statistics Normalization, Residual Feedforward Blocks, and Post-Layer Normalization. These components lower the network's functional complexity, enhancing generalization for highly overparameterized configurations.
-		</p>
-	</div>
-	<div class="hr"></div>
-	<div>
-		<h2>SimBa with Off-Policy RL</h2>
-		<div class="figure-caption">
-			<p>
-				We evaluate SAC + SimBa on <span class="bold">51</span> control tasks across 3 task domains: <a href="https://arxiv.org/abs/1801.00690">DMC</a>, <a href="https://sites.google.com/view/myosuite">MyoSuite</a>, and <a href="https://humanoid-bench.github.io/">HumanoidBench</a>. 
-			</p>
+	<div style="overflow: hidden">
+		<h2>SimbaV2 Architecture</h2>
+		<div class="figure-caption" style="margin-bottom: -1em;">
+			We present <span class="bold simbav2">SimbaV2</span>, a novel RL architecture designed to stabilize non-stationary optimization by constraining weight, feature, and gradient norms. Building on the <span class="bold simba">Simba</span> architecture, which uses pre-layernorm residual blocks and weight decay to control the weight and feature norm growth, <span class="bold simbav2">SimbaV2</span> introduces two modifications:
+			<ul>
+				<li><strong>Hyperspherical Normalization.</strong> We replace all layer normalization with hyperspherical normalization (i.e., $\ell_2$-normalization) and project weights onto the unit-norm hypersphere after each gradient update. These changes ensure consistent effective learning rates across layers and eliminate the need for tuning weight regularization.</li><br>
+				<li><strong>Distributional Value Estimation with Reward Scaling.</strong> To address unstable gradient norms from varying reward scales, we integrate a distributional critic and reward scaling to ensure the unit variance of target values for both actor and critic.</li>
+			</ul>
 		</div>
-		<div class="content-video" style="margin-bottom: 32px">
-			<div class="content-video-container">
-				<video playsinline="" autoplay="" loop="" preload="" muted="" width="13%">
-					<source src="videos/simba-myo-key-easy.mp4" type="video/mp4"/>
-				</video>
-				<video playsinline="" autoplay="" loop="" preload="" muted="" width="13%">
-					<source src="videos/simba-reacher-easy.mp4" type="video/mp4"/>
-				</video>
-				<video playsinline="" autoplay="" loop="" preload="" muted="" width="13%">
-					<source src="videos/simba-humanoid-stand.mp4" type="video/mp4"/>
-				</video>
-				
-				<video playsinline="" autoplay="" loop="" preload="" muted="" width="13%">
-					<source src="videos/simba-h1-pole.mp4" type="video/mp4"/>
-				</video>
-				<video playsinline="" autoplay="" loop="" preload="" muted="" width="13%">
-					<source src="videos/simba-acrobot-swingup.mp4" type="video/mp4"/>
-				</video>
-				<video playsinline="" autoplay="" loop="" preload="" muted="" width="13%">
-					<source src="videos/simba-h1-crawl.mp4" type="video/mp4"/>
-				</video>
-				<video playsinline="" autoplay="" loop="" preload="" muted="" width="13%">
-					<source src="videos/simba-myo-pen-easy.mp4" type="video/mp4"/>
-				</video>
-				<video playsinline="" autoplay="" loop="" preload="" muted="" width="13%">
-					<source src="videos/simba-cartpole-balance.mp4" type="video/mp4"/>
-				</video>
-				<video playsinline="" autoplay="" loop="" preload="" muted="" width="13%">
-					<source src="videos/simba-humanoid-walk.mp4" type="video/mp4"/>
-				</video>
-				<video playsinline="" autoplay="" loop="" preload="" muted="" width="13%">
-					<source src="videos/simba-h1-balance-hard.mp4" type="video/mp4"/>
-				</video>
-				<video playsinline="" autoplay="" loop="" preload="" muted="" width="13%">
-					<source src="videos/simba-cartpole-balance-sparse.mp4" type="video/mp4"/>
-				</video>
-				<video playsinline="" autoplay="" loop="" preload="" muted="" width="13%">
-					<source src="videos/simba-pendulum-swingup.mp4" type="video/mp4"/>
-				</video>
-				<video playsinline="" autoplay="" loop="" preload="" muted="" width="13%">
-					<source src="videos/simba-myo-key-hard.mp4" type="video/mp4"/>
-				</video>
-				<video playsinline="" autoplay="" loop="" preload="" muted="" width="13%">
-					<source src="videos/simba-h1-stand.mp4" type="video/mp4"/>
-				</video>
-				<video playsinline="" autoplay="" loop="" preload="" muted="" width="13%">
-					<source src="videos/simba-cheetah-run.mp4" type="video/mp4"/>
-				</video>
-				<video playsinline="" autoplay="" loop="" preload="" muted="" width="13%">
-					<source src="videos/simba-dog-trot.mp4" type="video/mp4"/>
-				</video>
-				<video playsinline="" autoplay="" loop="" preload="" muted="" width="13%">
-					<source src="videos/simba-myo-reach-hard.mp4" type="video/mp4"/>
-				</video>
-				<video playsinline="" autoplay="" loop="" preload="" muted="" width="13%">
-					<source src="videos/simba-walker-stand.mp4" type="video/mp4"/>
-				</video>
-				<video playsinline="" autoplay="" loop="" preload="" muted="" width="13%">
-					<source src="videos/simba-myo-obj-easy.mp4" type="video/mp4"/>
-				</video>
-				<video playsinline="" autoplay="" loop="" preload="" muted="" width="13%">
-					<source src="videos/simba-walker-run.mp4" type="video/mp4"/>
-				</video>
-				<video playsinline="" autoplay="" loop="" preload="" muted="" width="13%">
-					<source src="videos/simba-dog-walk.mp4" type="video/mp4"/>
-				</video>
-				<video playsinline="" autoplay="" loop="" preload="" muted="" width="13%">
-					<source src="videos/simba-h1-slide.mp4" type="video/mp4"/>
-				</video>
-				<video playsinline="" autoplay="" loop="" preload="" muted="" width="13%">
-					<source src="videos/simba-hopper-stand.mp4" type="video/mp4"/>
-				</video>
-				<video playsinline="" autoplay="" loop="" preload="" muted="" width="13%">
-					<source src="videos/simba-myo-reach-easy.mp4" type="video/mp4"/>
-				</video>
-				<video playsinline="" autoplay="" loop="" preload="" muted="" width="13%">
-					<source src="videos/simba-h1-run.mp4" type="video/mp4"/>
-				</video>
-				<video playsinline="" autoplay="" loop="" preload="" muted="" width="13%">
-					<source src="videos/simba-myo-pen-hard.mp4" type="video/mp4"/>
-				</video>
-				<video playsinline="" autoplay="" loop="" preload="" muted="" width="13%">
-					<source src="videos/simba-hopper-hop.mp4" type="video/mp4"/>
-				</video>
-				<video playsinline="" autoplay="" loop="" preload="" muted="" width="13%">
-					<source src="videos/simba-finger-spin.mp4" type="video/mp4"/>
-				</video>
-				<video playsinline="" autoplay="" loop="" preload="" muted="" width="13%">
-					<source src="videos/simba-cartpole-swingup.mp4" type="video/mp4"/>
-				</video>
-				<video playsinline="" autoplay="" loop="" preload="" muted="" width="13%">
-					<source src="videos/simba-h1-maze.mp4" type="video/mp4"/>
-				</video>
-				<video playsinline="" autoplay="" loop="" preload="" muted="" width="13%">
-					<source src="videos/simba-h1-sit-hard.mp4" type="video/mp4"/>
-				</video>
-				<video playsinline="" autoplay="" loop="" preload="" muted="" width="13%">
-					<source src="videos/simba-cartpole-swingup-sparse.mp4" type="video/mp4"/>
-				</video>
-				<video playsinline="" autoplay="" loop="" preload="" muted="" width="13%">
-					<source src="videos/simba-h1-walk.mp4" type="video/mp4"/>
-				</video>
-				<video playsinline="" autoplay="" loop="" preload="" muted="" width="13%">
-					<source src="videos/simba-dog-stand.mp4" type="video/mp4"/>
-				</video>
-				<video playsinline="" autoplay="" loop="" preload="" muted="" width="13%">
-					<source src="videos/simba-finger-turn-hard.mp4" type="video/mp4"/>
-				</video>
-				<video playsinline="" autoplay="" loop="" preload="" muted="" width="13%">
-					<source src="videos/simba-myo-pose-hard.mp4" type="video/mp4"/>
-				</video>
-				<video playsinline="" autoplay="" loop="" preload="" muted="" width="13%">
-					<source src="videos/simba-fish-swim.mp4" type="video/mp4"/>
-				</video>
-				<video playsinline="" autoplay="" loop="" preload="" muted="" width="13%">
-					<source src="videos/simba-walker-walk.mp4" type="video/mp4"/>
-				</video>
-				<video playsinline="" autoplay="" loop="" preload="" muted="" width="13%">
-					<source src="videos/simba-reacher-hard.mp4" type="video/mp4"/>
-				</video>
-				<video playsinline="" autoplay="" loop="" preload="" muted="" width="13%">
-					<source src="videos/simba-quadruped-walk.mp4" type="video/mp4"/>
-				</video>
-				<video playsinline="" autoplay="" loop="" preload="" muted="" width="13%">
-					<source src="videos/simba-h1-stair.mp4" type="video/mp4"/>
-				</video>
-				<video playsinline="" autoplay="" loop="" preload="" muted="" width="13%">
-					<source src="videos/simba-quadruped-run.mp4" type="video/mp4"/>
-				</video>
-				<video playsinline="" autoplay="" loop="" preload="" muted="" width="13%">
-					<source src="videos/simba-h1-hurdle.mp4" type="video/mp4"/>
-				</video>
-				<video playsinline="" autoplay="" loop="" preload="" muted="" width="13%">
-					<source src="videos/simba-dog-run.mp4" type="video/mp4"/>
-				</video>
-				<video playsinline="" autoplay="" loop="" preload="" muted="" width="13%">
-					<source src="videos/simba-humanoid-run.mp4" type="video/mp4"/>
-				</video>
-				<video playsinline="" autoplay="" loop="" preload="" muted="" width="13%">
-					<source src="videos/simba-h1-reach.mp4" type="video/mp4"/>
-				</video>
-				<video playsinline="" autoplay="" loop="" preload="" muted="" width="13%">
-					<source src="videos/simba-myo-pose-easy.mp4" type="video/mp4"/>
-				</video>				
-				<video playsinline="" autoplay="" loop="" preload="" muted="" width="13%">
-					<source src="videos/simba-h1-sit-simple.mp4" type="video/mp4"/>
-				</video>
-				<video playsinline="" autoplay="" loop="" preload="" muted="" width="13%">
-					<source src="videos/simba-myo-obj-hard.mp4" type="video/mp4"/>
-				</video>
-				<!--
-				<video playsinline="" autoplay="" loop="" preload="" muted="" width="13%">
-					<source src="videos/simba-h1-balance-simple.mp4" type="video/mp4"/>
-				</video>
-				<video playsinline="" autoplay="" loop="" preload="" muted="" width="13%">
-					<source src="videos/simba-finger-turn-easy.mp4" type="video/mp4"/>
-				</video>
-				-->
-			</div>
+		<div class="column-left">
+			<!-- <div class="figure" style="height: 48em; background-image: url(images/simbav2_architecture.png);"></div> -->
+			<img src="images/simbav2_architecture.png" style="" class="figure">
 		</div>
-	</div>
+		<div class="column-right">
+			<div class="figure-caption" style="margin-bottom: -1em;">
+				<br>
+				<ul style="font-size: min(1.0em, 3.2vw);">
+					<li><strong>(a) RSNorm: </strong> Given an input observation $\boldsymbol{o}_t \in \mathbb{R}^{| \mathcal{O} |}$ and its running statistics $(\boldsymbol{\mu}_t, \boldsymbol{\sigma}_t^2)$, the observation is normalized as: 
+					$$
+					\boldsymbol{\bar{o}}_t = \text{RSNorm}(\boldsymbol{o}_t) = \frac{\boldsymbol{o}_t - \boldsymbol{\mu}_t}{\sqrt{\boldsymbol{\sigma}_t^2 + \epsilon}}.
+					$$
+					</li>
+					<li><strong>(b) Shift & $\ell_2$-Norm: </strong> To retain magnitude information, we embed $\boldsymbol{\bar{o}}_t$ into an $(\vert \mathcal{O} \vert + 1)$-dimensional vector by concatenating a positive constant $c_\text{shift} > 0$, then apply $\ell_2$-normalization: 
+					$$
+					\widetilde{\boldsymbol{o}}_t =\ell_2\text{-Norm} (\bigl[\bar{\boldsymbol{o}}_t;\,c_{\text{shift}}\bigr]).
+					$$
+					</li>
+					<li><strong>(c) Linear + Scaler: </strong> We then embed $\boldsymbol{\tilde{o}}_t$ using a linear layer $\boldsymbol{W}^0_h \in \mathbb{R}^{(|\mathcal{O}|+1) \times d_h}$ and a scaling vector $\boldsymbol{s}_h^0 \in \mathbb{R}^{d_h}$, and project back to the hypersphere:
+					$$
+					\boldsymbol{h}_t^0 = \ell_2 \text{-Norm} (\boldsymbol{s}_h^0 \odot (\boldsymbol{W}_h^0 \; \mathrm{Norm} (\boldsymbol{\tilde{o}}_t))).
+					$$
+					</li>
+					<li><strong>(d) MLP Block + $\ell_2$-Norm: </strong> Starting from the initial hyperspherical embedding $\boldsymbol{h}_t^0$, we apply $L$ consecutive blocks of non-linear transformations:
+					$$
+					\boldsymbol{\tilde{h}}_t^l = \ell_2\text{-Norm} (\boldsymbol{W}_{h,2}^l \,\mathrm{ReLU}\bigl( (\boldsymbol{W}_{h,1}^l \,\boldsymbol{h}_t^l)  \odot \boldsymbol{s}^l_h \bigr)).
+					$$
+					</li>
+					<li><strong>(e) LERP + $\ell_2$-Norm: </strong> Each $l$-th block transforms $\boldsymbol{h}_t^l$ into $\boldsymbol{h}_t^{l+1}$ by linearly interpolating between the original input $\boldsymbol{h}_t^l$ and its non-linearly transformed output $\boldsymbol{\tilde{h}}_t^l$ with learnable interpolation vector $\boldsymbol{\alpha}^l$:
 
+					$$
+					\boldsymbol{h}_t^{l+1} = \ell_2\text{-Norm}((\boldsymbol{1} - \boldsymbol{\alpha}^l) \odot \boldsymbol{h}_t^l +  \boldsymbol{\alpha}^l \odot\boldsymbol{\tilde{h}}_t^l).
+					$$
+					</li>
+				</ul>
+			</div>
+		</div>
+	</div>
 	<div class="hr"></div>
-	<div>
-		<h2>SimBa with On-Policy RL</h2>
-		<div class="figure-caption">
+	<div style="overflow: hidden">
+		<h2>Scaling Network Size & UTD Ratio</h2>
+		<div class="figure-caption" style="margin-bottom: -1em;">
 			<p>
-				Comparison of PPO with and without SimBa for <a href="https://craftaxenv.github.io//">Craftax</a>.
+				In this work, we compare the scalability of <span class="bold simbav2">SimbaV2</span> compared to <span class="bold simba">Simba</span>. We scale the number of model parameters by increasing the width of the critic network, and scale compute by increasing the update-to-data (UTD) ratio with and without periodic reset. For an empirical analysis, we define two challenging benchmark subsets: DMC-Hard ($7$ tasks involving $\texttt{dog}$ and $\texttt{humanoid}$ embodiments) and HBench-Hard ($5$ tasks: $\texttt{run}$, $\texttt{balance-simple}$, $\texttt{sit-hard}$, $\texttt{stair}$, $\texttt{walk}$). On both benchmarks, <span class="bold simbav2">SimbaV2</span> benefit from both increased model size and UTD ratio, while <span class="bold simba">Simba</span> plateaus at some moment. Notably, <span class="bold simbav2">SimbaV2</span> <strong>scales smoothly alongside UTD ratio even without reset, where using reset slightly degrades its performance</strong>.
 			</p>
 		</div>
-		<div style="display: flex; justify-content: center; max-width: 900px; margin: 0 auto;">
-			<div style="display: flex; flex-direction: column; align-items: center; width: 50%;">
-				<div style="display: flex; justify-content: center; width: 100%;">
-					<div class="figure" style="width: 45%; height: 250px; background-image: url(images/ppo_craftax1.gif); background-size: cover; margin-right: 10px;"></div>
-					<div class="figure" style="width: 45%; height: 250px; background-image: url(images/ppo_craftax2.gif); background-size: cover;"></div>
-				</div>
-				<p style="margin-top: 10px; font-weight: bold;">PPO</p>
+		<div style="justify-content: center; width: 100%;">
+			<div class="scaling-column-left">
+				<!-- <div class="figure" style="height: 240px; background-image: url(images/param_scaling.png);"></div> -->
+				<img src="images/param_scaling.png" style="" class="figure">
 			</div>
-			<div style="display: flex; flex-direction: column; align-items: center; width: 50%;">
-				<div style="display: flex; justify-content: center; width: 100%;">
-					<div class="figure" style="width: 45%; height: 250px; background-image: url(images/simba_craftax1.gif); background-size: cover; margin-right: 10px;"></div>
-					<div class="figure" style="width: 45%; height: 250px; background-image: url(images/simba_craftax2.gif); background-size: cover;"></div>
-				</div>
-				<p style="margin-top: 10px; font-weight: bold;">PPO + <span class="bold simba">SimBa</span></p>
+			<div class="scaling-column-right">
+				<!-- <div class="figure" style="height: 240px; background-image: url(images/utd_scaling.png);"></div> -->
+				<img src="images/utd_scaling.png" style="" class="figure">
 			</div>
 		</div>
 	</div>
 	<div class="hr"></div>
 	<div>
-		<h2>SimBa with Unsupervised RL</h2>
-		<div class="figure-caption">
+		<h2>Empiricial Analysis: Training Stability</h2>
+		<div class="figure-caption" style="margin-bottom: -30px;">
 			<p>
-				Comparison of METRA with and without SimBa for Humanoid in <a href="https://arxiv.org/abs/1801.00690">DMC</a>.
+				We track $4$ metrics during training to understand the learning dynamics of <span class="bold simbav2">SimbaV2</span> and <span class="bold simba">Simba</span>: 
+				<ul>
+					<li><strong>(a)</strong> Average normalized return across tasks</li><br>
+					<li><strong>(b)</strong> Weighted sum of $\ell_2$-norms of all intermediate features in critics</li><br>
+					<li><strong>(c)</strong> Weighted sum of $\ell_2$-norms of all critic parameters</li><br>
+					<li><strong>(d)</strong> Weighted sum of $\ell_2$-norms of all gradients in critics</li><br>
+					<li><strong>(e)</strong> Effective learning rate (ELR) of the critics</li>
+				</ul>
+
+				On both environments, <span class="bold simbav2">SimbaV2</span> maintains stable norms and ELR, while <span class="bold simba">Simba</span> exhibits divergent fluctuations.
 			</p>
 		</div>
-		<div style="display: flex; justify-content: center; max-width: 900px; margin: 0 auto;">
+		<!-- <div class="figure" style="height: 400px; background-image: url(images/analysis.png);"></div> -->
+		<img src="images/analysis.png" style="" class="figure">
+		<div style="margin: auto;">
+	</div>
+	<div class="hr"></div>
+	<div>
+		<h2>Benchmark Summary</h2>
+		<div class="figure-caption">
+			<p>
+				<span class="bold simbav2">SimbaV2</span>, with an update-to-data (UTD) ratio of $2$, outperforms state-of-the-art RL algorithms across diverse continuous control benchmarks using fixed hyperparameters across all domains. <span class="bold simbav2">SimbaV2</span> delivers competitive performance in both online and offline RL while requiring significantly less training computation and offering faster inference times.
+			</p>
+		</div>
+		<!-- <div class="figure" style="height: 36em; background-image: url(images/benchmark.png);"></div> -->
+		<img src="images/benchmark.png" style="margin-top: -0.25em;" class="figure">
+		<div style="margin: auto;">
+	</div>
+	<div class="hr"></div>
+	<div>
+		<h2>SimbaV2 with Online RL</h2>
+		<div class="figure-caption">
+			<p>
+				We evaluate <span class="bold simbav2">SimbaV2</span> (UTD=2) on <span class="bold">$57$</span> control tasks across $4$ task domains: <a href="https://ieeexplore.ieee.org/document/6386109">MuJoCo</a>, <a href="https://arxiv.org/abs/1801.00690">DMControl</a>, <a href="https://sites.google.com/view/myosuite">MyoSuite</a>, and <a href="https://humanoid-bench.github.io/">HumanoidBench</a>. 
+			</p>
+		</div>
+		<div style="display: flex; justify-content: center; max-width: 1200px; margin: 0 auto;">
 			<div style="display: flex; flex-direction: column; align-items: center; width: 50%;">
-				<div style="display: flex; justify-content: center; width: 95%;">
-					<video playsinline="" autoplay="" loop="" preload="" muted="" style="width: 100%;">
-						<source src="videos/metra.mp4" type="video/mp4"/>
-					</video>
+				<div class="content-video" style="margin-bottom: 0.1em">
+					<div class="content-video-container">
+						<video playsinline="" autoplay="" loop="" preload="" muted="" width="45%">
+							<source src="videos/mujoco/simbav2-ant-v4.mp4" type="video/mp4"/>
+						</video>
+						<video playsinline="" autoplay="" loop="" preload="" muted="" width="45%">
+							<source src="videos/mujoco/simbav2-cheetah-v4.mp4" type="video/mp4"/>
+						</video></br>
+						<video playsinline="" autoplay="" loop="" preload="" muted="" width="45%">
+							<source src="videos/mujoco/simbav2-humanoid-v4.mp4" type="video/mp4"/>
+						</video>
+						<video playsinline="" autoplay="" loop="" preload="" muted="" width="45%">
+							<source src="videos/mujoco/simbav2-walker-v4.mp4" type="video/mp4"/>
+						</video>
+					</div>
 				</div>
-				<p style="margin-top: 10px; font-weight: bold;">METRA</p>
+				<p style="margin-top: 10px; font-weight: bold; font-size: min(1.0em, 2.5vw);">MuJoCo</p>
 			</div>
 			<div style="display: flex; flex-direction: column; align-items: center; width: 50%;">
-				<div style="display: flex; justify-content: center; width: 95%;">
-					<video playsinline="" autoplay="" loop="" preload="" muted="" style="width: 100%;">
-						<source src="videos/metra_simba.mp4" type="video/mp4"/>
-					</video>
+				<div class="content-video" style="margin-bottom: 0.1em">
+					<div class="content-video-container">
+						<video playsinline="" autoplay="" loop="" preload="" muted="" width="45%">
+							<source src="videos/dmc/simbav2-humanoid-stand.mp4" type="video/mp4"/>
+						</video>
+						<video playsinline="" autoplay="" loop="" preload="" muted="" width="45%">
+							<source src="videos/dmc/simbav2-humanoid-walk.mp4" type="video/mp4"/>
+						</video>
+						<video playsinline="" autoplay="" loop="" preload="" muted="" width="45%">
+							<source src="videos/dmc/simbav2-dog-trot.mp4" type="video/mp4"/>
+						</video>
+						<video playsinline="" autoplay="" loop="" preload="" muted="" width="45%">
+							<source src="videos/dmc/simbav2-dog-run.mp4" type="video/mp4"/>
+						</video>
+					</div>
 				</div>
-				<p style="margin-top: 10px; font-weight: bold;">METRA + <span class="bold simba">SimBa</span></p>
+				<p style="margin-top: 10px; font-weight: bold; font-size: min(1.0em, 2.5vw);">DMControl</span></p>
+			</div>
+			<div style="display: flex; flex-direction: column; align-items: center; width: 50%;">
+				<div class="content-video" style="margin-bottom: 0.1em">
+					<div class="content-video-container">
+						<video playsinline="" autoplay="" loop="" preload="" muted="" width="45%">
+							<source src="videos/myosuite/simbav2-myo-key-hard.mp4" type="video/mp4"/>
+						</video>
+						<video playsinline="" autoplay="" loop="" preload="" muted="" width="45%">
+							<source src="videos/myosuite/simbav2-myo-reach-hard.mp4" type="video/mp4"/>
+						</video></br>
+						<video playsinline="" autoplay="" loop="" preload="" muted="" width="45%">
+							<source src="videos/myosuite/simbav2-myo-pen-hard.mp4" type="video/mp4"/>
+						</video>
+						<video playsinline="" autoplay="" loop="" preload="" muted="" width="45%">
+							<source src="videos/myosuite/simbav2-myo-obj-hard.mp4" type="video/mp4"/>
+						</video>
+					</div>
+				</div>
+				<p style="margin-top: 10px; font-weight: bold; font-size: min(1.0em, 2.5vw);">MyoSuite</p>
+			</div>
+			<div style="display: flex; flex-direction: column; align-items: center; width: 50%;">
+				<div class="content-video" style="margin-bottom: 0.1em">
+					<div class="content-video-container">
+						<video playsinline="" autoplay="" loop="" preload="" muted="" width="45%">
+							<source src="videos/hbench/simbav2-h1-crawl.mp4" type="video/mp4"/>
+						</video>
+						<video playsinline="" autoplay="" loop="" preload="" muted="" width="45%">
+							<source src="videos/hbench/simbav2-h1-balance-hard.mp4" type="video/mp4"/>
+						</video>
+						<video playsinline="" autoplay="" loop="" preload="" muted="" width="45%">
+							<source src="videos/hbench/simbav2-h1-stand.mp4" type="video/mp4"/>
+						</video>
+						<video playsinline="" autoplay="" loop="" preload="" muted="" width="45%">
+							<source src="videos/hbench/simbav2-h1-sit-hard.mp4" type="video/mp4"/>
+						</video>
+					</div>
+				</div>
+				<p style="margin-top: 10px; font-weight: bold; font-size: min(1.0em, 2.5vw);">HumanoidBench</span></p>
 			</div>
 		</div>
+		<div class="wrap-collabsible">
+			<input id="collapsible-online" class="toggle" type="checkbox">
+			<label for="collapsible-online" class="lbl-toggle">Click to see the score table ($4$ domains)</label>
+			<div class="collapsible-online-content">
+			  <div class="content-inner">
+				<!-- <div class="figure" style="height: 36em; background-image: url(images/online.png);"></div> -->
+				<img src="images/online.png" style="margin-top: 4em;" class="figure">
+			  </div>
+			</div>
+		</div>		
 	</div>
 	<div class="hr"></div>
 	<div style="margin: auto; margin-bottom: 64px; text-align: center;">
 		<h2>Paper</h2>
-		<span class="vbold"><span class="vbold simba">SimBa</span>: Simplicity Bias for Scaling Up Parameters for Deep RL</span><br/>
-		<span class="italic">Hojoon Lee&ast;, Dongyoon Hwang&ast;, Donghu Kim,<br/>
-							Hyunseung Kim, Jun Jet Tai, Kaushik Subramanian, Peter R. Wurman,<br/>
-							Jaegul Choo, Peter Stone, Takuma Seno</span><br/><br/>
+		<span class="vbold"><span class="vbold simbav2">SimbaV2</span>: Hyperspherical Normalization for Scalable Deep Reinforcement Learning</span><br/>
+		<span class="italic">Hojoon Lee&ast;, Youngdo Lee&ast;, Takuma Seno, Donghu Kim, Peter Stone, Jaegul Choo</span><br/><br/>
 		<a href="https://arxiv.org">arXiv preprint</a><br/><br/>
 		<div class="page" style="background-image: url(thumbnails/0.png);"></div>
 		<div class="page" style="background-image: url(thumbnails/1.png);"></div>
@@ -331,12 +299,10 @@
 	<div class="hr"></div>
 	<div style="padding-bottom: 64px; text-align: center;">
 		<h2>Citation</h2>
-		<p>
+		<p class="citation">
 			If you find our work useful, please consider citing the paper as follows:
 		</p>
 		<div id="bibtex-text" class="bibtexsection" onClick="window.getSelection().selectAllChildren(document.getElementById('bibtex-text'));">
-
-</div>
 	</div>
 </div>
 <footer>

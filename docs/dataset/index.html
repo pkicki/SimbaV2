@@ -1,0 +1,1634 @@
+<head>
+	<title>SimbaV2</title>
+	<meta property="og:title" content="SimbaV2:">
+	<meta property="og:description" content="Hyperspherical Normalization for Scalable Deep Reinforcement Learning">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<link rel="stylesheet" href="./css/bulma-carousel.min.css">
+	<link rel="stylesheet" href="./css/bulma.min.css">
+	<link rel="stylesheet" href="./css/style.css">
+	<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Google+Sans|Noto+Sans|Castoro">
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+	
+	<script type="text/javascript">
+		function toggle(id) {
+			var e = document.getElementById(id);
+			if(e.style.display == 'block')
+				e.style.display = 'none';
+			else
+				e.style.display = 'block';
+		}
+	</script>
+	<script type="text/x-mathjax-config">
+		MathJax.Hub.Config({
+			tex2jax: {inlineMath: [['$','$'], ['\\(','\\)']]}
+		});
+    </script>
+    <script src='https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-MML-AM_CHTML' async></script>
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+	<script src="./js/bulma-carousel.js"></script>
+	<script src="./js/index.js"></script>
+</head>
+
+<div class="header-menu" id="top">
+	<div class="header-menu-content">
+		<div class="header-menu-item noselect" style="margin-right: 5%;">
+			<a href="../"><span class="bold simbav2">SimbaV2</span></a>
+		</div>
+		<div class="header-menu-item noselect">
+			<a href="../">Home</a>
+		</div>
+		<div class="header-menu-item noselect">
+			<a href="https://github.com/nicklashansen/simbav2">Code</a>
+		</div>
+		<div class="header-menu-item noselect">
+			<a href="." class="disabled">Dataset</a>
+		</div>
+	</div>
+</div>
+
+<div class="content" style="padding-bottom: 5%;">
+	<div>
+		<h2>Dataset</h2>
+		<div class="figure-caption">
+			<p>
+				We open-source all data corresponding to the 80-task and 30-task datasets used in our multi-task experiments. They can be downloaded below. The two datasets contain 545M and 345M transitions, respectively.
+			</p>
+		</div>
+		<div class="links">
+			<span class="bold">Download:</span><a href="https://huggingface.co/datasets/nicklashansen/simbav2" class="btn btn-blue">All</a><a href="https://huggingface.co/datasets/nicklashansen/simbav2/tree/main/mt80" class="btn">80 tasks</a><a href="https://huggingface.co/datasets/nicklashansen/simbav2/tree/main/mt30" class="btn">30 tasks</a>
+		</div>
+	</div>
+	<div class="hr"></div>
+	<div>
+		<h2>Overview</h2>
+		<div class="figure-caption">
+			<p>
+				We release two multi-task datasets with data from <span class="bold">80</span> and <span class="bold">30</span> tasks, respectively. The datasets are summarized below.
+			</p>
+		</div>
+		<table class="models" style="min-width: 1em;">
+			<tbody>
+				<tr>
+					<th style="font-size: min(1.0em, 2.5vw);">Domains</th>
+					<th style="font-size: min(1.0em, 2.5vw);">Tasks</th>
+					<th style="font-size: min(1.0em, 2.5vw);">Embodiments</th>
+					<th style="font-size: min(1.0em, 2.5vw);">Episodes</th>
+					<th style="font-size: min(1.0em, 2.5vw);">Transitions</th>
+					<th style="font-size: min(1.0em, 2.5vw);">Size</th>
+					<th style="font-size: min(1.0em, 2.5vw);">Download</th>
+				</tr>
+				<tr class="models">
+					<td>
+						<video playsinline="" autoplay="" loop="" preload="" muted="" height="40px">
+							<source src="videos/mujoco/simbav2-ant-v4.mp4" type="video/mp4"/>
+						</video>
+						<br/>
+						<span style="font-size:0.8em;">MuJoCo</span>
+					</td>
+					<td style="font-size: 0.8em;">
+						5
+					</td>
+					<td style="font-size: 0.8em;">
+						4
+					</td>
+					<td style="font-size: 0.8em;">
+						690k
+					</td>
+					<td style="font-size: 0.8em;">
+						345M
+					</td>
+					<td style="font-size: 0.8em;">
+						20GB
+					</td>
+					<td>
+						<a href="https://huggingface.co/datasets/nicklashansen/simbav2/tree/main/mt30"><i class="fa fa-download" style="font-size: 1em;"></i></a>
+					</td>
+				</tr>
+				<tr class="models">
+					<td>
+						<video playsinline="" autoplay="" loop="" preload="" muted="" height="40px">
+							<source src="videos/dmc/simbav2-walker-run.mp4" type="video/mp4"/>
+						</video>
+						<br/>
+						<span style="font-size:0.8em;">DMControl</span>
+					</td>
+					<td style="font-size: 0.8em;">
+						28
+					</td>
+					<td style="font-size: 0.8em;">
+						11
+					</td>
+					<td style="font-size: 0.8em;">
+						690k
+					</td>
+					<td style="font-size: 0.8em;">
+						345M
+					</td>
+					<td style="font-size: 0.8em;">
+						20GB
+					</td>
+					<td>
+						<a href="https://huggingface.co/datasets/nicklashansen/simbav2/tree/main/mt30"><i class="fa fa-download" style="font-size: 1em;"></i></a>
+					</td>
+				</tr>
+				<tr class="models">
+					<td>
+						<video playsinline="" autoplay="" loop="" preload="" muted="" height="40px">
+							<source src="videos/myosuite/simbav2-myo-obj-hard.mp4" type="video/mp4"/>
+						</video>
+						<br/>
+						<span style="font-size:0.8em;">MyoSuite</span>
+					</td>
+					<td style="font-size: 0.8em;">
+						10
+					</td>
+					<td style="font-size: 0.8em;">
+						1
+					</td>
+					<td style="font-size: 0.8em;">
+						690k
+					</td>
+					<td style="font-size: 0.8em;">
+						345M
+					</td>
+					<td style="font-size: 0.8em;">
+						20GB
+					</td>
+					<td>
+						<a href="https://huggingface.co/datasets/nicklashansen/simbav2/tree/main/mt30"><i class="fa fa-download" style="font-size: 1em;"></i></a>
+					</td>
+				</tr>
+				<tr class="models">
+					<td>
+						<video playsinline="" autoplay="" loop="" preload="" muted="" height="40px">
+							<source src="videos/hbench/simbav2-h1-balance-hard.mp4" type="video/mp4"/>
+						</video>
+						<br/>
+						<span style="font-size:0.8em;">HumanoidBench</span>
+					</td>
+					<td style="font-size: 0.8em;">
+						14
+					</td>
+					<td style="font-size: 0.8em;">
+						1
+					</td>
+					<td style="font-size: 0.8em;">
+						690k
+					</td>
+					<td style="font-size: 0.8em;">
+						345M
+					</td>
+					<td style="font-size: 0.8em;">
+						20GB
+					</td>
+					<td>
+						<a href="https://huggingface.co/datasets/nicklashansen/simbav2/tree/main/mt30"><i class="fa fa-download" style="font-size: 1em;"></i></a>
+					</td>
+				</tr>
+			</tbody>
+		</table>
+		<div class="figure-caption">
+			<p>
+				These datasets are obtained from the replay buffers of <span class="bold">240</span> single-task <span class="bold simbav2">SimbaV2</span> agents, and thus contain a wide variety of behaviors ranging from random to expert policies. Multi-task agents trained on the above datasets, as well as checkpoints for each of the single-task agents, are available <a href="https://www.simbav2.com/models">here</a>.
+			</p>
+		</div>
+	</div>
+	<div class="hr"></div>
+	<div>
+		<h2>Tasks</h2>
+		<div class="figure-caption">
+			<p>
+				We list all 57 tasks in the dataset below, along with <span class="bold simbav2">SimbaV2</span> policy visualizations and summary statistics.
+			</p>
+		</div>
+		<!-- Mujoco Videos -->
+		<div class="hero is-light is-small">
+			<div class="hero-body">
+				<div class="container">
+					<div id="results-carousel" class="carousel results-carousel">
+						<div class="item item-ant-v4">
+							<video poster="" id="ant-v4" autoplay controls muted loop playsinline width="100%">
+							<source src="videos/mujoco/simbav2-ant-v4.mp4"
+									type="video/mp4">
+							</video>
+							<p>Ant</p>
+						</div>
+						<div class="item item-cheetah-v4">
+							<video poster="" id="cheetah-v4" autoplay controls muted loop playsinline width="100%">
+							<source src="videos/mujoco/simbav2-cheetah-v4.mp4"
+									type="video/mp4">
+							</video>
+							<p>HalfCheetah</p>
+						</div>
+						<div class="item item-hopper-v4">
+							<video poster="" id="hopper-v4" autoplay controls muted loop playsinline width="100%">
+							<source src="videos/mujoco/simbav2-hopper-v4.mp4"
+									type="video/mp4">
+							</video>
+							<p>Hopper</p>
+						</div>
+						<div class="item item-humanoid-v4">
+							<video poster="" id="humanoid-v4" autoplay controls muted loop playsinline width="100%">
+							<source src="videos/mujoco/simbav2-humanoid-v4.mp4"
+									type="video/mp4">
+							</video>
+							<p>Humanoid</p>
+						</div>
+						<div class="item item-walker-v4">
+							<video poster="" id="walker-v4" autoplay controls muted loop playsinline width="100%">
+							<source src="videos/mujoco/simbav2-walker-v4.mp4"
+									type="video/mp4">
+							</video>
+							<p>Walker</p>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+		<!-- MuJoCo Table -->
+		<div class="wrap-collabsible">
+			<input id="collapsible-mujoco" class="toggle" type="checkbox">
+			<label for="collapsible-mujoco" class="lbl-toggle" style="font-size: min(1.2em, 4.5vw);">MuJoCo Full List ($5$ tasks)</label>
+			<div class="collapsible-mujoco-content">
+			  	<div class="content-inner">
+					<table class="models">
+						<tbody>
+							<tr>
+								<th></th>
+								<th style="font-size: 1em;">Task <span style="color: #868686; font-size: 0.7em">&#x25B2;</span></th>
+								<th style="font-size: 1em;">$\vert \mathcal{O} \vert$</th>
+								<th style="font-size: 1em;">$\vert \mathcal{A} \vert$</th>
+							</tr>
+							<tr class="models">
+								<td>
+									<video playsinline="" autoplay="" loop="" preload="" muted="" height="64px">
+										<source src="videos/mujoco/simbav2-ant-v4.mp4" type="video/mp4"/>
+									</video>
+								</td>
+								<td style="font-size: 1em;">
+									Ant
+								</td>
+								<td style="font-size: 1em;">
+									27
+								</td>
+								<td style="font-size: 1em;">
+									8
+								</td>
+							</tr>
+							<tr class="models">
+								<td>
+									<video playsinline="" autoplay="" loop="" preload="" muted="" height="64px">
+										<source src="videos/mujoco/simbav2-cheetah-v4.mp4" type="video/mp4"/>
+									</video>
+								</td>
+								<td style="font-size: 1em;">
+									HalfCheetah
+								</td>
+								<td style="font-size: 1em;">
+									17
+								</td>
+								<td style="font-size: 1em;">
+									6
+								</td>
+							</tr>
+							<tr class="models">
+								<td>
+									<video playsinline="" autoplay="" loop="" preload="" muted="" height="64px">
+										<source src="videos/mujoco/simbav2-hopper-v4.mp4" type="video/mp4"/>
+									</video>
+								</td>
+								<td style="font-size: 1em;">
+									Hopper
+								</td>
+								<td style="font-size: 1em;">
+									11
+								</td>
+								<td style="font-size: 1em;">
+									3
+								</td>
+							</tr>
+							<tr class="models">
+								<td>
+									<video playsinline="" autoplay="" loop="" preload="" muted="" height="64px">
+										<source src="videos/mujoco/simbav2-humanoid-v4.mp4" type="video/mp4"/>
+									</video>
+								</td>
+								<td style="font-size: 1em;">
+									Humanoid
+								</td>
+								<td style="font-size: 1em;">
+									376
+								</td>
+								<td style="font-size: 1em;">
+									17
+								</td>
+							</tr>
+							<tr class="models">
+								<td>
+									<video playsinline="" autoplay="" loop="" preload="" muted="" height="64px">
+										<source src="videos/mujoco/simbav2-walker-v4.mp4" type="video/mp4"/>
+									</video>
+								</td>
+								<td style="font-size: 1em;">
+									Walker2d
+								</td>
+								<td style="font-size: 1em;">
+									17
+								</td>
+								<td style="font-size: 1em;">
+									6
+								</td>
+							</tr>
+						</tbody>
+					</table>
+			  	</div>
+			</div>
+		</div></br>
+		<!-- DMC Videos -->
+		<div class="hero is-light is-small">
+			<div class="hero-body">
+				<div class="container">
+					<div id="results-carousel" class="carousel results-carousel">
+						<div class="item item-acrobot-swingup">
+							<video poster="" id="acrobot-swingup" autoplay controls muted loop playsinline width="100%">
+							<source src="videos/dmc/simbav2-acrobot-swingup.mp4"
+									type="video/mp4">
+							</video>
+							<p>Acrobot Swingup</p>
+						</div>
+						<div class="item item-ball-in-cup-catch">
+							<video poster="" id="ball-in-cup-catch" autoplay controls muted loop playsinline width="100%">
+							<source src="videos/dmc/simbav2-ball-in-cup-catch.mp4"
+									type="video/mp4">
+							</video>
+							<p>Ball In Cup Catch</p>
+						</div>
+						<div class="item item-cartpole-balance-sparse">
+							<video poster="" id="cartpole-balance-sparse" autoplay controls muted loop playsinline width="100%">
+							<source src="videos/dmc/simbav2-cartpole-balance-sparse.mp4"
+									type="video/mp4">
+							</video>
+							<p>Cartpole Balance Sparse</p>
+						</div>
+						<div class="item item-cartpole-balance">
+							<video poster="" id="cartpole-balance" autoplay controls muted loop playsinline width="100%">
+							<source src="videos/dmc/simbav2-cartpole-balance.mp4"
+									type="video/mp4">
+							</video>
+							<p>Cartpole Balance</p>
+						</div>
+						<div class="item item-cartpole-swingup-sparse">
+							<video poster="" id="cartpole-swingup-sparse" autoplay controls muted loop playsinline width="100%">
+							<source src="videos/dmc/simbav2-cartpole-swingup-sparse.mp4"
+									type="video/mp4">
+							</video>
+							<p>Cartpole Swingup Sparse</p>
+						</div>
+						<div class="item item-cartpole-swingup">
+							<video poster="" id="cartpole-swingup" autoplay controls muted loop playsinline width="100%">
+							<source src="videos/dmc/simbav2-cartpole-swingup.mp4"
+									type="video/mp4">
+							</video>
+							<p>Cartpole Swingup</p>
+						</div>
+						<div class="item item-cheetah-run">
+							<video poster="" id="cheetah-run" autoplay controls muted loop playsinline width="100%">
+							<source src="videos/dmc/simbav2-cheetah-run.mp4"
+									type="video/mp4">
+							</video>
+							<p>Cheetah Run</p>
+						</div>
+						<div class="item item-dog-run">
+							<video poster="" id="dog-run" autoplay controls muted loop playsinline width="100%">
+							<source src="videos/dmc/simbav2-dog-run.mp4"
+									type="video/mp4">
+							</video>
+							<p>Dog Run</p>
+						</div>
+						<div class="item item-dog-stand">
+							<video poster="" id="dog-stand" autoplay controls muted loop playsinline width="100%">
+							<source src="videos/dmc/simbav2-dog-stand.mp4"
+									type="video/mp4">
+							</video>
+							<p>Dog Stand</p>
+						</div>
+						<div class="item item-dog-trot">
+							<video poster="" id="dog-trot" autoplay controls muted loop playsinline width="100%">
+							<source src="videos/dmc/simbav2-dog-trot.mp4"
+									type="video/mp4">
+							</video>
+							<p>Dog Trot</p>
+						</div>
+						<div class="item item-dog-walk">
+							<video poster="" id="dog-walk" autoplay controls muted loop playsinline width="100%">
+							<source src="videos/dmc/simbav2-dog-walk.mp4"
+									type="video/mp4">
+							</video>
+							<p>Dog Walk</p>
+						</div>
+						<div class="item item-finger-spin">
+							<video poster="" id="finger-spin" autoplay controls muted loop playsinline width="100%">
+							<source src="videos/dmc/simbav2-finger-spin.mp4"
+									type="video/mp4">
+							</video>
+							<p>Finger Spin</p>
+						</div>
+						<div class="item item-finger-turn-easy">
+							<video poster="" id="finger-turn-easy" autoplay controls muted loop playsinline width="100%">
+							<source src="videos/dmc/simbav2-finger-turn-easy.mp4"
+									type="video/mp4">
+							</video>
+							<p>Finger Turn Easy</p>
+						</div>
+						<div class="item item-finger-turn-hard">
+							<video poster="" id="finger-turn-hard" autoplay controls muted loop playsinline width="100%">
+							<source src="videos/dmc/simbav2-finger-turn-hard.mp4"
+									type="video/mp4">
+							</video>
+							<p>Finger Turn Hard</p>
+						</div>
+						<div class="item item-fish-swim">
+							<video poster="" id="fish-swim" autoplay controls muted loop playsinline width="100%">
+							<source src="videos/dmc/simbav2-fish-swim.mp4"
+									type="video/mp4">
+							</video>
+							<p>Fish Swim</p>
+						</div>
+						<div class="item item-hopper-hop">
+							<video poster="" id="hopper-hop" autoplay controls muted loop playsinline width="100%">
+							<source src="videos/dmc/simbav2-hopper-hop.mp4"
+									type="video/mp4">
+							</video>
+							<p>Hopper Hop</p>
+						</div>
+						<div class="item item-hopper-stand">
+							<video poster="" id="hopper-stand" autoplay controls muted loop playsinline width="100%">
+							<source src="videos/dmc/simbav2-hopper-stand.mp4"
+									type="video/mp4">
+							</video>
+							<p>Hopper Stand</p>
+						</div>
+						<div class="item item-humanoid-run">
+							<video poster="" id="humanoid-run" autoplay controls muted loop playsinline width="100%">
+							<source src="videos/dmc/simbav2-humanoid-run.mp4"
+									type="video/mp4">
+							</video>
+							<p>Humanoid Run</p>
+						</div>
+						<div class="item item-humanoid-stand">
+							<video poster="" id="humanoid-stand" autoplay controls muted loop playsinline width="100%">
+							<source src="videos/dmc/simbav2-humanoid-stand.mp4"
+									type="video/mp4">
+							</video>
+							<p>Humanoid Stand</p>
+						</div>
+						<div class="item item-humanoid-walk">
+							<video poster="" id="humanoid-walk" autoplay controls muted loop playsinline width="100%">
+							<source src="videos/dmc/simbav2-humanoid-walk.mp4"
+									type="video/mp4">
+							</video>
+							<p>Humanoid Walk</p>
+						</div>
+						<div class="item item-pendulum-swingup">
+							<video poster="" id="pendulum-swingup" autoplay controls muted loop playsinline width="100%">
+							<source src="videos/dmc/simbav2-pendulum-swingup.mp4"
+									type="video/mp4">
+							</video>
+							<p>Pendulum Swingup</p>
+						</div>
+						<div class="item item-quadruped-run">
+							<video poster="" id="quadruped-run" autoplay controls muted loop playsinline width="100%">
+							<source src="videos/dmc/simbav2-quadruped-run.mp4"
+									type="video/mp4">
+							</video>
+							<p>Quadruped Run</p>
+						</div>
+						<div class="item item-quadruped-walk">
+							<video poster="" id="quadruped-walk" autoplay controls muted loop playsinline width="100%">
+							<source src="videos/dmc/simbav2-quadruped-walk.mp4"
+									type="video/mp4">
+							</video>
+							<p>Quadruped Walk</p>
+						</div>
+						<div class="item item-reacher-easy">
+							<video poster="" id="reacher-easy" autoplay controls muted loop playsinline width="100%">
+							<source src="videos/dmc/simbav2-reacher-easy.mp4"
+									type="video/mp4">
+							</video>
+							<p>Reacher Easy</p>
+						</div>
+						<div class="item item-reacher-hard">
+							<video poster="" id="reacher-hard" autoplay controls muted loop playsinline width="100%">
+							<source src="videos/dmc/simbav2-reacher-hard.mp4"
+									type="video/mp4">
+							</video>
+							<p>Reacher Hard</p>
+						</div>
+						<div class="item item-walker-run">
+							<video poster="" id="walker-run" autoplay controls muted loop playsinline width="100%">
+							<source src="videos/dmc/simbav2-walker-run.mp4"
+									type="video/mp4">
+							</video>
+							<p>Walker Run</p>
+						</div>
+						<div class="item item-walker-stand">
+							<video poster="" id="walker-stand" autoplay controls muted loop playsinline width="100%">
+							<source src="videos/dmc/simbav2-walker-stand.mp4"
+									type="video/mp4">
+							</video>
+							<p>Walker Stand</p>
+						</div>
+						<div class="item item-walker-walk">
+							<video poster="" id="walker-walk" autoplay controls muted loop playsinline width="100%">
+							<source src="videos/dmc/simbav2-walker-walk.mp4"
+									type="video/mp4">
+							</video>
+							<p>Walker Walk</p>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+		<!-- DMC Table -->
+		<div class="wrap-collabsible">
+			<input id="collapsible-dmc" class="toggle" type="checkbox">
+			<label for="collapsible-dmc" class="lbl-toggle" style="font-size: min(1.2em, 4.5vw);">Deepmind Control Suite Full List ($28$ tasks)</label>
+			<div class="collapsible-dmc-content">
+				<div class="content-inner">
+					<table class="models">
+						<tbody>
+							<tr>
+								<th></th>
+								<th style="font-size: 1em;">Task <span style="color: #868686; font-size: 0.7em">&#x25B2;</span></th>
+								<th style="font-size: 1em;">$\vert \mathcal{O} \vert$</th>
+								<th style="font-size: 1em;">$\vert \mathcal{A} \vert$</th>
+							</tr>
+							<tr class="models">
+								<td>
+									<video playsinline="" autoplay="" loop="" preload="" muted="" height="64px">
+										<source src="videos/dmc/simbav2-acrobot-swingup.mp4" type="video/mp4"/>
+									</video>
+								</td>
+								<td style="font-size: 1em;">
+									Acrobot Swingup
+								</td>
+								<td style="font-size: 1em;">
+									6
+								</td>
+								<td style="font-size: 1em;">
+									1
+								</td>
+							</tr>
+							<tr class="models">
+								<td style="font-size: 1em;">
+									<video playsinline="" autoplay="" loop="" preload="" muted="" height="64px">
+										<source src="videos/dmc/simbav2-ball-in-cup-catch.mp4" type="video/mp4"/>
+									</video>
+								</td>
+								<td style="font-size: 1em;">
+									Ball In Cup Catch
+								</td>
+								<td style="font-size: 1em;">
+									6
+								</td>
+								<td style="font-size: 1em;">
+									1
+								</td>
+							</tr>
+							<tr class="models">
+								<td style="font-size: 1em;">
+									<video playsinline="" autoplay="" loop="" preload="" muted="" height="64px">
+										<source src="videos/dmc/simbav2-cartpole-balance.mp4" type="video/mp4"/>
+									</video>
+								</td>
+								<td style="font-size: 1em;">
+									Cartpole Balance
+								</td>
+								<td style="font-size: 1em;">
+									5
+								</td>
+								<td style="font-size: 1em;">
+									1
+								</td>
+							</tr>
+							<tr class="models">
+								<td style="font-size: 1em;">
+									<video playsinline="" autoplay="" loop="" preload="" muted="" height="64px">
+										<source src="videos/dmc/simbav2-cartpole-balance-sparse.mp4" type="video/mp4"/>
+									</video>
+								</td>
+								<td style="font-size: 1em;">
+									Cartpole Balance Sparse
+								</td>
+								<td style="font-size: 1em;">
+									5
+								</td>
+								<td style="font-size: 1em;">
+									1
+								</td>
+							</tr>
+							<tr class="models">
+								<td style="font-size: 1em;">
+									<video playsinline="" autoplay="" loop="" preload="" muted="" height="64px">
+										<source src="videos/dmc/simbav2-cartpole-swingup.mp4" type="video/mp4"/>
+									</video>
+								</td>
+								<td style="font-size: 1em;">
+									Cartpole Swingup
+								</td>
+								<td style="font-size: 1em;">
+									5
+								</td>
+								<td style="font-size: 1em;">
+									1
+								</td>
+							</tr>
+							<tr class="models">
+								<td style="font-size: 1em;">
+									<video playsinline="" autoplay="" loop="" preload="" muted="" height="64px">
+										<source src="videos/dmc/simbav2-cartpole-swingup-sparse.mp4" type="video/mp4"/>
+									</video>
+								</td>
+								<td style="font-size: 1em;">
+									Cartpole Swingup Sparse
+								</td>
+								<td style="font-size: 1em;">
+									5
+								</td>
+								<td style="font-size: 1em;">
+									1
+								</td>
+							</tr>
+							<tr class="models">
+								<td style="font-size: 1em;">
+									<video playsinline="" autoplay="" loop="" preload="" muted="" height="64px">
+										<source src="videos/dmc/simbav2-cheetah-run.mp4" type="video/mp4"/>
+									</video>
+								</td>
+								<td style="font-size: 1em;">
+									Cheetah Run
+								</td>
+								<td style="font-size: 1em;">
+									17
+								</td>
+								<td style="font-size: 1em;">
+									6
+								</td>
+							</tr>
+							<tr class="models">
+								<td style="font-size: 1em;">
+									<video playsinline="" autoplay="" loop="" preload="" muted="" height="64px">
+										<source src="videos/dmc/simbav2-dog-run.mp4" type="video/mp4"/>
+									</video>
+								</td>
+								<td style="font-size: 1em;">
+									Dog Run
+								</td>
+								<td style="font-size: 1em;">
+									223
+								</td>
+								<td style="font-size: 1em;">
+									38
+								</td>
+							</tr>
+							<tr class="models">
+								<td style="font-size: 1em;">
+									<video playsinline="" autoplay="" loop="" preload="" muted="" height="64px">
+										<source src="videos/dmc/simbav2-dog-stand.mp4" type="video/mp4"/>
+									</video>
+								</td>
+								<td style="font-size: 1em;">
+									Dog Stand
+								</td>
+								<td style="font-size: 1em;">
+									223
+								</td>
+								<td style="font-size: 1em;">
+									38
+								</td>
+							</tr>
+							<tr class="models">
+								<td style="font-size: 1em;">
+									<video playsinline="" autoplay="" loop="" preload="" muted="" height="64px">
+										<source src="videos/dmc/simbav2-dog-trot.mp4" type="video/mp4"/>
+									</video>
+								</td>
+								<td style="font-size: 1em;">
+									Dog Trot
+								</td>
+								<td style="font-size: 1em;">
+									223
+								</td>
+								<td style="font-size: 1em;">
+									38
+								</td>
+							</tr>
+							<tr class="models">
+								<td style="font-size: 1em;">
+									<video playsinline="" autoplay="" loop="" preload="" muted="" height="64px">
+										<source src="videos/dmc/simbav2-dog-walk.mp4" type="video/mp4"/>
+									</video>
+								</td>
+								<td style="font-size: 1em;">
+									Dog Walk
+								</td>
+								<td style="font-size: 1em;">
+									223
+								</td>
+								<td style="font-size: 1em;">
+									38
+								</td>
+							</tr>
+							<tr class="models">
+								<td style="font-size: 1em;">
+									<video playsinline="" autoplay="" loop="" preload="" muted="" height="64px">
+										<source src="videos/dmc/simbav2-finger-spin.mp4" type="video/mp4"/>
+									</video>
+								</td>
+								<td style="font-size: 1em;">
+									Finger Spin
+								</td>
+								<td style="font-size: 1em;">
+									9
+								</td>
+								<td style="font-size: 1em;">
+									2
+								</td>
+							</tr>
+							<tr class="models">
+								<td style="font-size: 1em;">
+									<video playsinline="" autoplay="" loop="" preload="" muted="" height="64px">
+										<source src="videos/dmc/simbav2-finger-turn-easy.mp4" type="video/mp4"/>
+									</video>
+								</td>
+								<td style="font-size: 1em;">
+									Finger Turn Easy
+								</td>
+								<td style="font-size: 1em;">
+									12
+								</td>
+								<td style="font-size: 1em;">
+									2
+								</td>
+							</tr>
+							<tr class="models">
+								<td style="font-size: 1em;">
+									<video playsinline="" autoplay="" loop="" preload="" muted="" height="64px">
+										<source src="videos/dmc/simbav2-finger-turn-hard.mp4" type="video/mp4"/>
+									</video>
+								</td>
+								<td style="font-size: 1em;">
+									Finger Turn Hard
+								</td>
+								<td style="font-size: 1em;">
+									12
+								</td>
+								<td style="font-size: 1em;">
+									2
+								</td>
+							</tr>
+							<tr class="models">
+								<td style="font-size: 1em;">
+									<video playsinline="" autoplay="" loop="" preload="" muted="" height="64px">
+										<source src="videos/dmc/simbav2-fish-swim.mp4" type="video/mp4"/>
+									</video>
+								</td>
+								<td style="font-size: 1em;">
+									Fish Swim
+								</td>
+								<td style="font-size: 1em;">
+									24
+								</td>
+								<td style="font-size: 1em;">
+									5
+								</td>
+							</tr>
+							<tr class="models">
+								<td style="font-size: 1em;">
+									<video playsinline="" autoplay="" loop="" preload="" muted="" height="64px">
+										<source src="videos/dmc/simbav2-hopper-hop.mp4" type="video/mp4"/>
+									</video>
+								</td>
+								<td style="font-size: 1em;">
+									Hopper Hop
+								</td>
+								<td style="font-size: 1em;">
+									15
+								</td>
+								<td style="font-size: 1em;">
+									4
+								</td>
+							</tr>
+							<tr class="models">
+								<td style="font-size: 1em;">
+									<video playsinline="" autoplay="" loop="" preload="" muted="" height="64px">
+										<source src="videos/dmc/simbav2-hopper-stand.mp4" type="video/mp4"/>
+									</video>
+								</td>
+								<td style="font-size: 1em;">
+									Hopper Stand
+								</td>
+								<td style="font-size: 1em;">
+									15
+								</td>
+								<td style="font-size: 1em;">
+									4
+								</td>
+							</tr>
+							<tr class="models">
+								<td style="font-size: 1em;">
+									<video playsinline="" autoplay="" loop="" preload="" muted="" height="64px">
+										<source src="videos/dmc/simbav2-humanoid-run.mp4" type="video/mp4"/>
+									</video>
+								</td>
+								<td style="font-size: 1em;">
+									Humanoid Run
+								</td>
+								<td style="font-size: 1em;">
+									67
+								</td>
+								<td style="font-size: 1em;">
+									24
+								</td>
+							</tr>
+							<tr class="models">
+								<td style="font-size: 1em;">
+									<video playsinline="" autoplay="" loop="" preload="" muted="" height="64px">
+										<source src="videos/dmc/simbav2-humanoid-stand.mp4" type="video/mp4"/>
+									</video>
+								</td>
+								<td style="font-size: 1em;">
+									Humanoid Stand
+								</td>
+								<td style="font-size: 1em;">
+									15
+								</td>
+								<td style="font-size: 1em;">
+									4
+								</td>
+							</tr>
+							<tr class="models">
+								<td style="font-size: 1em;">
+									<video playsinline="" autoplay="" loop="" preload="" muted="" height="64px">
+										<source src="videos/dmc/simbav2-humanoid-walk.mp4" type="video/mp4"/>
+									</video>
+								</td>
+								<td style="font-size: 1em;">
+									Humanoid Walk
+								</td>
+								<td style="font-size: 1em;">
+									15
+								</td>
+								<td style="font-size: 1em;">
+									4
+								</td>
+							</tr>
+							<tr class="models">
+								<td style="font-size: 1em;">
+									<video playsinline="" autoplay="" loop="" preload="" muted="" height="64px">
+										<source src="videos/dmc/simbav2-pendulum-swingup.mp4" type="video/mp4"/>
+									</video>
+								</td>
+								<td style="font-size: 1em;">
+									Pendulum Swingup
+								</td>
+								<td style="font-size: 1em;">
+									3
+								</td>
+								<td style="font-size: 1em;">
+									1
+								</td>
+							</tr>
+							<tr class="models">
+								<td style="font-size: 1em;">
+									<video playsinline="" autoplay="" loop="" preload="" muted="" height="64px">
+										<source src="videos/dmc/simbav2-quadruped-run.mp4" type="video/mp4"/>
+									</video>
+								</td>
+								<td style="font-size: 1em;">
+									Quadruped Run
+								</td>
+								<td style="font-size: 1em;">
+									78
+								</td>
+								<td style="font-size: 1em;">
+									12
+								</td>
+							</tr>
+							<tr class="models">
+								<td style="font-size: 1em;">
+									<video playsinline="" autoplay="" loop="" preload="" muted="" height="64px">
+										<source src="videos/dmc/simbav2-quadruped-walk.mp4" type="video/mp4"/>
+									</video>
+								</td>
+								<td style="font-size: 1em;">
+									Quadruped Walk
+								</td>
+								<td style="font-size: 1em;">
+									78
+								</td>
+								<td style="font-size: 1em;">
+									12
+								</td>
+							</tr>
+							<tr class="models">
+								<td style="font-size: 1em;">
+									<video playsinline="" autoplay="" loop="" preload="" muted="" height="64px">
+										<source src="videos/dmc/simbav2-reacher-easy.mp4" type="video/mp4"/>
+									</video>
+								</td>
+								<td style="font-size: 1em;">
+									Reacher Easy
+								</td>
+								<td style="font-size: 1em;">
+									6
+								</td>
+								<td style="font-size: 1em;">
+									2
+								</td>
+							</tr>
+							<tr class="models">
+								<td style="font-size: 1em;">
+									<video playsinline="" autoplay="" loop="" preload="" muted="" height="64px">
+										<source src="videos/dmc/simbav2-reacher-hard.mp4" type="video/mp4"/>
+									</video>
+								</td>
+								<td style="font-size: 1em;">
+									Reacher Hard
+								</td>
+								<td style="font-size: 1em;">
+									6
+								</td>
+								<td style="font-size: 1em;">
+									2
+								</td>
+							</tr>
+							<tr class="models">
+								<td style="font-size: 1em;">
+									<video playsinline="" autoplay="" loop="" preload="" muted="" height="64px">
+										<source src="videos/dmc/simbav2-walker-run.mp4" type="video/mp4"/>
+									</video>
+								</td>
+								<td style="font-size: 1em;">
+									Walker Run
+								</td>
+								<td style="font-size: 1em;">
+									24
+								</td>
+								<td style="font-size: 1em;">
+									6
+								</td>
+							</tr>
+							<tr class="models">
+								<td style="font-size: 1em;">
+									<video playsinline="" autoplay="" loop="" preload="" muted="" height="64px">
+										<source src="videos/dmc/simbav2-walker-stand.mp4" type="video/mp4"/>
+									</video>
+								</td>
+								<td style="font-size: 1em;">
+									Walker Stand
+								</td>
+								<td style="font-size: 1em;">
+									24
+								</td>
+								<td style="font-size: 1em;">
+									6
+								</td>
+							</tr>
+							<tr class="models">
+								<td style="font-size: 1em;">
+									<video playsinline="" autoplay="" loop="" preload="" muted="" height="64px">
+										<source src="videos/dmc/simbav2-walker-walk.mp4" type="video/mp4"/>
+									</video>
+								</td>
+								<td style="font-size: 1em;">
+									Walker Walk
+								</td>
+								<td style="font-size: 1em;">
+									24
+								</td>
+								<td style="font-size: 1em;">
+									6
+								</td>
+							</tr>
+						</tbody>
+					</table>
+				</div>
+			</div>
+		</div></br>
+		<!-- MyoSuite Videos -->
+		<div class="hero is-light is-small">
+			<div class="hero-body">
+				<div class="container">
+					<div id="results-carousel" class="carousel results-carousel">
+						<div class="item item-myo-key-easy">
+							<video poster="" id="myo-key-easy" autoplay controls muted loop playsinline width="100%">
+							<source src="videos/myosuite/simbav2-myo-key-easy.mp4"
+									type="video/mp4">
+							</video>
+							<p>Key Turn</p>
+						</div>
+						<div class="item item-myo-key-hard">
+							<video poster="" id="myo-key-hard" autoplay controls muted loop playsinline width="100%">
+							<source src="videos/myosuite/simbav2-myo-key-hard.mp4"
+									type="video/mp4">
+							</video>
+							<p>Key Turn Hard</p>
+						</div>
+						<div class="item item-myo-obj-easy">
+							<video poster="" id="myo-obj-easy" autoplay controls muted loop playsinline width="100%">
+							<source src="videos/myosuite/simbav2-myo-obj-easy.mp4"
+									type="video/mp4">
+							</video>
+							<p>Object Hold</p>
+						</div>
+						<div class="item item-myo-obj-hard">
+							<video poster="" id="myo-obj-hard" autoplay controls muted loop playsinline width="100%">
+							<source src="videos/myosuite/simbav2-myo-obj-hard.mp4"
+									type="video/mp4">
+							</video>
+							<p>Object Hold Hard</p>
+						</div>
+						<div class="item item-myo-pen-easy">
+							<video poster="" id="myo-pen-easy" autoplay controls muted loop playsinline width="100%">
+							<source src="videos/myosuite/simbav2-myo-pen-easy.mp4"
+									type="video/mp4">
+							</video>
+							<p>Pen Twirl</p>
+						</div>
+						<div class="item item-myo-pen-hard">
+							<video poster="" id="myo-pen-hard" autoplay controls muted loop playsinline width="100%">
+							<source src="videos/myosuite/simbav2-myo-pen-hard.mp4"
+									type="video/mp4">
+							</video>
+							<p>Pen Twirl Hard</p>
+						</div>
+						<div class="item item-myo-pose-easy">
+							<video poster="" id="myo-pose-easy" autoplay controls muted loop playsinline width="100%">
+							<source src="videos/myosuite/simbav2-myo-pose-easy.mp4"
+									type="video/mp4">
+							</video>
+							<p>Pose</p>
+						</div>
+						<div class="item item-myo-pose-hard">
+							<video poster="" id="myo-pose-hard" autoplay controls muted loop playsinline width="100%">
+							<source src="videos/myosuite/simbav2-myo-pose-hard.mp4"
+									type="video/mp4">
+							</video>
+							<p>Pose Hard</p>
+						</div>
+						<div class="item item-myo-reach-easy">
+							<video poster="" id="myo-reach-easy" autoplay controls muted loop playsinline width="100%">
+							<source src="videos/myosuite/simbav2-myo-reach-easy.mp4"
+									type="video/mp4">
+							</video>
+							<p>Reach</p>
+						</div>
+						<div class="item item-myo-reach-hard">
+							<video poster="" id="myo-reach-hard" autoplay controls muted loop playsinline width="100%">
+							<source src="videos/myosuite/simbav2-myo-reach-hard.mp4"
+									type="video/mp4">
+							</video>
+							<p>Reach Hard</p>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+		<!-- MyoSuite Table -->
+		<div class="wrap-collabsible">
+			<input id="collapsible-myosuite" class="toggle" type="checkbox">
+			<label for="collapsible-myosuite" class="lbl-toggle" style="font-size: min(1.2em, 4.5vw);">MyoSuite Full List ($10$ tasks)</label>
+			<div class="collapsible-myosuite-content">
+				<div class="content-inner">
+					<table class="models">
+						<tbody>
+							<tr>
+								<th></th>
+								<th style="font-size: 1em;">Task <span style="color: #868686; font-size: 0.7em">&#x25B2;</span></th>
+								<th style="font-size: 1em;">$\vert \mathcal{O} \vert$</th>
+								<th style="font-size: 1em;">$\vert \mathcal{A} \vert$</th>
+							</tr>
+							<tr class="models">
+								<td>
+									<video playsinline="" autoplay="" loop="" preload="" muted="" height="64px">
+										<source src="videos/myosuite/simbav2-myo-key-easy.mp4" type="video/mp4"/>
+									</video>
+								</td>
+								<td style="font-size: 1em;">
+									Key Turn
+								</td>
+								<td style="font-size: 1em;">
+									93
+								</td>
+								<td style="font-size: 1em;">
+									39
+								</td>
+							</tr>
+							<tr class="models">
+								<td>
+									<video playsinline="" autoplay="" loop="" preload="" muted="" height="64px">
+										<source src="videos/myosuite/simbav2-myo-key-hard.mp4" type="video/mp4"/>
+									</video>
+								</td>
+								<td style="font-size: 1em;">
+									Key Turn Hard
+								</td>
+								<td style="font-size: 1em;">
+									93
+								</td>
+								<td style="font-size: 1em;">
+									39
+								</td>
+							</tr>
+							<tr class="models">
+								<td>
+									<video playsinline="" autoplay="" loop="" preload="" muted="" height="64px">
+										<source src="videos/myosuite/simbav2-myo-obj-easy.mp4" type="video/mp4"/>
+									</video>
+								</td>
+								<td style="font-size: 1em;">
+									Object Hold
+								</td>
+								<td style="font-size: 1em;">
+									91
+								</td>
+								<td style="font-size: 1em;">
+									39
+								</td>
+							</tr>
+							<tr class="models">
+								<td>
+									<video playsinline="" autoplay="" loop="" preload="" muted="" height="64px">
+										<source src="videos/myosuite/simbav2-myo-obj-hard.mp4" type="video/mp4"/>
+									</video>
+								</td>
+								<td style="font-size: 1em;">
+									Object Hold Hard
+								</td>
+								<td style="font-size: 1em;">
+									91
+								</td>
+								<td style="font-size: 1em;">
+									39
+								</td>
+							</tr>
+							<tr class="models">
+								<td>
+									<video playsinline="" autoplay="" loop="" preload="" muted="" height="64px">
+										<source src="videos/myosuite/simbav2-myo-pen-easy.mp4" type="video/mp4"/>
+									</video>
+								</td>
+								<td style="font-size: 1em;">
+									Pen Twirl
+								</td>
+								<td style="font-size: 1em;">
+									83
+								</td>
+								<td style="font-size: 1em;">
+									39
+								</td>
+							</tr>
+							<tr class="models">
+								<td>
+									<video playsinline="" autoplay="" loop="" preload="" muted="" height="64px">
+										<source src="videos/myosuite/simbav2-myo-pen-hard.mp4" type="video/mp4"/>
+									</video>
+								</td>
+								<td style="font-size: 1em;">
+									Pen Twirl Hard
+								</td>
+								<td style="font-size: 1em;">
+									83
+								</td>
+								<td style="font-size: 1em;">
+									39
+								</td>
+							</tr>
+							<tr class="models">
+								<td>
+									<video playsinline="" autoplay="" loop="" preload="" muted="" height="64px">
+										<source src="videos/myosuite/simbav2-myo-pose-easy.mp4" type="video/mp4"/>
+									</video>
+								</td>
+								<td style="font-size: 1em;">
+									Pose
+								</td>
+								<td style="font-size: 1em;">
+									108
+								</td>
+								<td style="font-size: 1em;">
+									39
+								</td>
+							</tr>
+							<tr class="models">
+								<td>
+									<video playsinline="" autoplay="" loop="" preload="" muted="" height="64px">
+										<source src="videos/myosuite/simbav2-myo-pose-hard.mp4" type="video/mp4"/>
+									</video>
+								</td>
+								<td style="font-size: 1em;">
+									Pose Hard
+								</td>
+								<td style="font-size: 1em;">
+									108
+								</td>
+								<td style="font-size: 1em;">
+									39
+								</td>
+							</tr>
+							<tr class="models">
+								<td>
+									<video playsinline="" autoplay="" loop="" preload="" muted="" height="64px">
+										<source src="videos/myosuite/simbav2-myo-reach-easy.mp4" type="video/mp4"/>
+									</video>
+								</td>
+								<td style="font-size: 1em;">
+									Reach
+								</td>
+								<td style="font-size: 1em;">
+									115
+								</td>
+								<td style="font-size: 1em;">
+									39
+								</td>
+							</tr>
+							<tr class="models">
+								<td>
+									<video playsinline="" autoplay="" loop="" preload="" muted="" height="64px">
+										<source src="videos/myosuite/simbav2-myo-reach-hard.mp4" type="video/mp4"/>
+									</video>
+								</td>
+								<td style="font-size: 1em;">
+									Reach Hard
+								</td>
+								<td style="font-size: 1em;">
+									115
+								</td>
+								<td style="font-size: 1em;">
+									39
+								</td>
+							</tr>
+						</tbody>
+					</table>
+				</div>
+			</div>
+		</div></br>
+		<!-- HBench Videos -->
+		<div class="hero is-light is-small">
+			<div class="hero-body">
+				<div class="container">
+					<div id="results-carousel" class="carousel results-carousel">
+						<div class="item item-h1-balance-simple">
+							<video poster="" id="h1-balance-simple" autoplay controls muted loop playsinline width="100%">
+							<source src="videos/hbench/simbav2-h1-balance-simple.mp4"
+									type="video/mp4">
+							</video>
+							<p>Balance Simple</p>
+						</div>
+						<div class="item item-h1-balance-hard">
+							<video poster="" id="h1-balance-hard" autoplay controls muted loop playsinline width="100%">
+							<source src="videos/hbench/simbav2-h1-balance-hard.mp4"
+									type="video/mp4">
+							</video>
+							<p>Balance Hard</p>
+						</div>
+						<div class="item item-h1-crawl">
+							<video poster="" id="h1-crawl" autoplay controls muted loop playsinline width="100%">
+							<source src="videos/hbench/simbav2-h1-crawl.mp4"
+									type="video/mp4">
+							</video>
+							<p>Crawl</p>
+						</div>
+						<div class="item item-h1-hurdle">
+							<video poster="" id="h1-hurdle" autoplay controls muted loop playsinline width="100%">
+							<source src="videos/hbench/simbav2-h1-hurdle.mp4"
+									type="video/mp4">
+							</video>
+							<p>Hurdle</p>
+						</div>
+						<div class="item item-h1-maze">
+							<video poster="" id="h1-maze" autoplay controls muted loop playsinline width="100%">
+							<source src="videos/hbench/simbav2-h1-maze.mp4"
+									type="video/mp4">
+							</video>
+							<p>Maze</p>
+						</div>
+						<div class="item item-h1-pole">
+							<video poster="" id="h1-pole" autoplay controls muted loop playsinline width="100%">
+							<source src="videos/hbench/simbav2-h1-pole.mp4"
+									type="video/mp4">
+							</video>
+							<p>Pole</p>
+						</div>
+						<div class="item item-h1-reach">
+							<video poster="" id="h1-reach" autoplay controls muted loop playsinline width="100%">
+							<source src="videos/hbench/simbav2-h1-reach.mp4"
+									type="video/mp4">
+							</video>
+							<p>Reach</p>
+						</div>
+						<div class="item item-h1-run">
+							<video poster="" id="h1-run" autoplay controls muted loop playsinline width="100%">
+							<source src="videos/hbench/simbav2-h1-run.mp4"
+									type="video/mp4">
+							</video>
+							<p>Run</p>
+						</div>
+						<div class="item item-h1-sit-simple">
+							<video poster="" id="h1-sit-simple" autoplay controls muted loop playsinline width="100%">
+							<source src="videos/hbench/simbav2-h1-sit-simple.mp4"
+									type="video/mp4">
+							</video>
+							<p>Sit Simple</p>
+						</div>
+						<div class="item item-h1-sit-hard">
+							<video poster="" id="h1-sit-hard" autoplay controls muted loop playsinline width="100%">
+							<source src="videos/hbench/simbav2-h1-sit-hard.mp4"
+									type="video/mp4">
+							</video>
+							<p>Sit Hard</p>
+						</div>
+						<div class="item item-h1-slide">
+							<video poster="" id="h1-slide" autoplay controls muted loop playsinline width="100%">
+							<source src="videos/hbench/simbav2-h1-slide.mp4"
+									type="video/mp4">
+							</video>
+							<p>Slide</p>
+						</div>
+						<div class="item item-h1-stair">
+							<video poster="" id="h1-stair" autoplay controls muted loop playsinline width="100%">
+							<source src="videos/hbench/simbav2-h1-stair.mp4"
+									type="video/mp4">
+							</video>
+							<p>Stair</p>
+						</div>
+						<div class="item item-h1-stand">
+							<video poster="" id="h1-stand" autoplay controls muted loop playsinline width="100%">
+							<source src="videos/hbench/simbav2-h1-stand.mp4"
+									type="video/mp4">
+							</video>
+							<p>Stand</p>
+						</div>
+						<div class="item item-h1-walk">
+							<video poster="" id="h1-walk" autoplay controls muted loop playsinline width="100%">
+							<source src="videos/hbench/simbav2-h1-walk.mp4"
+									type="video/mp4">
+							</video>
+							<p>Walk</p>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+		<!-- HBench Table -->
+		<div class="wrap-collabsible">
+			<input id="collapsible-hbench" class="toggle" type="checkbox">
+			<label for="collapsible-hbench" class="lbl-toggle" style="font-size: min(1.2em, 4.5vw);">HumanoidBench Full List ($14$ tasks)</label>
+			<div class="collapsible-hbench-content">
+				<div class="content-inner">
+					<table class="models">
+						<tbody>
+							<tr>
+								<th></th>
+								<th style="font-size: 1em;">Task <span style="color: #868686; font-size: 0.7em">&#x25B2;</span></th>
+								<th style="font-size: 1em;">$\vert \mathcal{O} \vert$</th>
+								<th style="font-size: 1em;">$\vert \mathcal{A} \vert$</th>
+							</tr>
+							<tr class="models">
+								<td>
+									<video playsinline="" autoplay="" loop="" preload="" muted="" height="64px">
+										<source src="videos/hbench/simbav2-h1-balance-simple.mp4" type="video/mp4"/>
+									</video>
+								</td>
+								<td style="font-size: 1em;">
+									Balance Simple
+								</td>
+								<td style="font-size: 1em;">
+									64
+								</td>
+								<td style="font-size: 1em;">
+									19
+								</td>
+							</tr>
+							<tr class="models">
+								<td>
+									<video playsinline="" autoplay="" loop="" preload="" muted="" height="64px">
+										<source src="videos/hbench/simbav2-h1-balance-simple.mp4" type="video/mp4"/>
+									</video>
+								</td>
+								<td style="font-size: 1em;">
+									Balance Hard
+								</td>
+								<td style="font-size: 1em;">
+									64
+								</td>
+								<td style="font-size: 1em;">
+									19
+								</td>
+							</tr>
+							<tr class="models">
+								<td>
+									<video playsinline="" autoplay="" loop="" preload="" muted="" height="64px">
+										<source src="videos/hbench/simbav2-h1-crawl.mp4" type="video/mp4"/>
+									</video>
+								</td>
+								<td style="font-size: 1em;">
+									Crawl
+								</td>
+								<td style="font-size: 1em;">
+									51
+								</td>
+								<td style="font-size: 1em;">
+									19
+								</td>
+							</tr>
+							<tr class="models">
+								<td>
+									<video playsinline="" autoplay="" loop="" preload="" muted="" height="64px">
+										<source src="videos/hbench/simbav2-h1-hurdle.mp4" type="video/mp4"/>
+									</video>
+								</td>
+								<td style="font-size: 1em;">
+									Hurdle
+								</td>
+								<td style="font-size: 1em;">
+									51
+								</td>
+								<td style="font-size: 1em;">
+									19
+								</td>
+							</tr>
+							<tr class="models">
+								<td>
+									<video playsinline="" autoplay="" loop="" preload="" muted="" height="64px">
+										<source src="videos/hbench/simbav2-h1-maze.mp4" type="video/mp4"/>
+									</video>
+								</td>
+								<td style="font-size: 1em;">
+									Maze
+								</td>
+								<td style="font-size: 1em;">
+									51
+								</td>
+								<td style="font-size: 1em;">
+									19
+								</td>
+							</tr>
+							<tr class="models">
+								<td>
+									<video playsinline="" autoplay="" loop="" preload="" muted="" height="64px">
+										<source src="videos/hbench/simbav2-h1-pole.mp4" type="video/mp4"/>
+									</video>
+								</td>
+								<td style="font-size: 1em;">
+									Pole
+								</td>
+								<td style="font-size: 1em;">
+									51
+								</td>
+								<td style="font-size: 1em;">
+									19
+								</td>
+							</tr>
+							<tr class="models">
+								<td>
+									<video playsinline="" autoplay="" loop="" preload="" muted="" height="64px">
+										<source src="videos/hbench/simbav2-h1-reach.mp4" type="video/mp4"/>
+									</video>
+								</td>
+								<td style="font-size: 1em;">
+									Reach
+								</td>
+								<td style="font-size: 1em;">
+									57
+								</td>
+								<td style="font-size: 1em;">
+									19
+								</td>
+							</tr>
+							<tr class="models">
+								<td>
+									<video playsinline="" autoplay="" loop="" preload="" muted="" height="64px">
+										<source src="videos/hbench/simbav2-h1-run.mp4" type="video/mp4"/>
+									</video>
+								</td>
+								<td style="font-size: 1em;">
+									Run
+								</td>
+								<td style="font-size: 1em;">
+									51
+								</td>
+								<td style="font-size: 1em;">
+									19
+								</td>
+							</tr>
+							<tr class="models">
+								<td>
+									<video playsinline="" autoplay="" loop="" preload="" muted="" height="64px">
+										<source src="videos/hbench/simbav2-h1-sit-simple.mp4" type="video/mp4"/>
+									</video>
+								</td>
+								<td style="font-size: 1em;">
+									Sit Simple
+								</td>
+								<td style="font-size: 1em;">
+									51
+								</td>
+								<td style="font-size: 1em;">
+									19
+								</td>
+							</tr>
+							<tr class="models">
+								<td>
+									<video playsinline="" autoplay="" loop="" preload="" muted="" height="64px">
+										<source src="videos/hbench/simbav2-h1-sit-hard.mp4" type="video/mp4"/>
+									</video>
+								</td>
+								<td style="font-size: 1em;">
+									Sit Hard
+								</td>
+								<td style="font-size: 1em;">
+									64
+								</td>
+								<td style="font-size: 1em;">
+									19
+								</td>
+							</tr>
+							<tr class="models">
+								<td>
+									<video playsinline="" autoplay="" loop="" preload="" muted="" height="64px">
+										<source src="videos/hbench/simbav2-h1-slide.mp4" type="video/mp4"/>
+									</video>
+								</td>
+								<td style="font-size: 1em;">
+									Slide
+								</td>
+								<td style="font-size: 1em;">
+									51
+								</td>
+								<td style="font-size: 1em;">
+									19
+								</td>
+							</tr>
+							<tr class="models">
+								<td>
+									<video playsinline="" autoplay="" loop="" preload="" muted="" height="64px">
+										<source src="videos/hbench/simbav2-h1-stair.mp4" type="video/mp4"/>
+									</video>
+								</td>
+								<td style="font-size: 1em;">
+									Stair
+								</td>
+								<td style="font-size: 1em;">
+									51
+								</td>
+								<td style="font-size: 1em;">
+									19
+								</td>
+							</tr>
+							<tr class="models">
+								<td>
+									<video playsinline="" autoplay="" loop="" preload="" muted="" height="64px">
+										<source src="videos/hbench/simbav2-h1-stand.mp4" type="video/mp4"/>
+									</video>
+								</td>
+								<td style="font-size: 1em;">
+									Stand
+								</td>
+								<td style="font-size: 1em;">
+									51
+								</td>
+								<td style="font-size: 1em;">
+									19
+								</td>
+							</tr>
+							<tr class="models">
+								<td>
+									<video playsinline="" autoplay="" loop="" preload="" muted="" height="64px">
+										<source src="videos/hbench/simbav2-h1-walk.mp4" type="video/mp4"/>
+									</video>
+								</td>
+								<td style="font-size: 1em;">
+									Walk
+								</td>
+								<td style="font-size: 1em;">
+									51
+								</td>
+								<td style="font-size: 1em;">
+									19
+								</td>
+							</tr>
+						</tbody>
+					</table>
+				</div>
+			</div>
+		</div>
+	</div></br>
+</div>
+<footer>
+<a href="index.html#top"><i class="fa fa-arrow-up"></i><br/>Return to top</a>
+<div style="padding-top: 48px;">
+	<span>Website based on <a href="https://nicklashansen.github.io/td-mpc2">TD-MPC2</a> and <a href="https://nerfies.github.io/">Nerfies</a>.</span>
+</div>
+</footer>

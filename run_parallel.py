@@ -9,30 +9,7 @@ import numpy as np
 
 def run_with_device(server, device_id, config_path, config_name, overrides):
     os.environ["CUDA_VISIBLE_DEVICES"] = str(device_id)
-    if server == "kaist":
-        cuda_id_to_egl_id = {
-            0: 3,
-            1: 2,
-            2: 1,
-            3: 0,
-            4: 7,
-            5: 6,
-            6: 5,
-            7: 4,
-        }
-        os.environ["MUJOCO_EGL_DEVICE_ID"] = str(cuda_id_to_egl_id[int(device_id)])
-
-    elif server == "kaist4":
-        cuda_id_to_egl_id = {
-            0: 1,
-            1: 0,
-            2: 3,
-            3: 2,
-        }
-        os.environ["MUJOCO_EGL_DEVICE_ID"] = str(cuda_id_to_egl_id[int(device_id)])
-    else:
-        os.environ["MUJOCO_EGL_DEVICE_ID"] = str(0)
-
+    os.environ["MUJOCO_EGL_DEVICE_ID"] = str(device_id)
     os.environ["OMP_NUM_THREADS"] = "2"
 
     # Now import the main script
@@ -120,20 +97,6 @@ if __name__ == "__main__":
         envs = HB_LOCOMOTION_NOHAND
         env_configs = [env_type] * len(envs)
 
-    elif env_type == "mujoco_dmc":
-        envs = MUJOCO_ALL + DMC_EASY_MEDIUM + DMC_HARD
-        env_configs = (
-            ["mujoco"] * len(MUJOCO_ALL)
-            + ["dmc"] * len(DMC_EASY_MEDIUM)
-            + ["dmc"] * len(DMC_HARD)
-        )
-
-    elif env_type == "myo_hb":
-        envs = MYOSUITE_TASKS + HB_LOCOMOTION_NOHAND
-        env_configs = ["myosuite"] * len(MYOSUITE_TASKS) + ["hb_locomotion"] * len(
-            HB_LOCOMOTION_NOHAND
-        )
-
     elif env_type == "all":
         envs = (
             MUJOCO_ALL
@@ -148,56 +111,6 @@ if __name__ == "__main__":
             + ["dmc"] * len(DMC_HARD)
             + ["myosuite"] * len(MYOSUITE_TASKS)
             + ["hb_locomotion"] * len(HB_LOCOMOTION_NOHAND)
-        )
-
-    elif env_type == "mujoco_dmc_myosuite":
-        envs = MUJOCO_ALL + DMC_EASY_MEDIUM + DMC_HARD + MYOSUITE_TASKS
-        env_configs = (
-            ["mujoco"] * len(MUJOCO_ALL)
-            + ["dmc"] * len(DMC_EASY_MEDIUM)
-            + ["dmc"] * len(DMC_HARD)
-            + ["myosuite"] * len(MYOSUITE_TASKS)
-        )
-
-    elif env_type == "mini_benchmark":
-        mujoco_envs = [
-            "HalfCheetah-v4",
-            "Humanoid-v4",
-        ]
-
-        dmc_em_envs = [
-            "acrobot-swingup",
-            "cartpole-swingup_sparse",
-            "cheetah-run",
-            "finger-spin",
-        ]
-
-        dmc_hard_envs = [
-            "dog-run",
-            "dog-trot",
-            "humanoid-stand",
-            "humanoid-walk",
-        ]
-
-        myo_envs = [
-            "myo-key-turn-hard",
-            "myo-pen-twirl-hard",
-        ]
-
-        hb_envs = [
-            "h1-balance_simple-v0",
-            "h1-run-v0",
-            "h1-stair-v0",
-            "h1-stand-v0",
-        ]
-
-        envs = mujoco_envs + dmc_em_envs + dmc_hard_envs + myo_envs + hb_envs
-        env_configs = (
-            ["mujoco"] * len(mujoco_envs)
-            + ["dmc"] * len(dmc_em_envs)
-            + ["dmc"] * len(dmc_hard_envs)
-            + ["myosuite"] * len(myo_envs)
-            + ["hb_locomotion"] * len(hb_envs)
         )
 
     else:
