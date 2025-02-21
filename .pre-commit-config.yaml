@@ -7,7 +7,7 @@ repos:
         args: [
           --ignore-words-list=null 
         ]
-        exclude: ^(.*\.ipynb)$
+        exclude: ^(.*\.ipynb|.*\.html)$
   - repo: https://github.com/astral-sh/ruff-pre-commit
     rev: v0.2.1
     hooks:
