@@ -2,10 +2,10 @@
 
 ## Introduction
 
-We introduce SimbaV2, a reinforcement learning architecture that stabilizes training on non-stationary data through hyperspherical normalization and distributional value estimation with reward scaling. By scaling with larger models and compute, SimbaV2 achieves state-of-the-art performance on 57 continuous control tasks across MuJoCo, DMC, MyoSuite, and Humanoid-bench. The Gymnasium 1.0 API implementation ensures seamless integration with diverse RL environments.
+SimbaV2 is a reinforcement learning architecture designed to stabilize training via hyperspherical normalization. By increasing model capacity and compute, SimbaV2 achieves state-of-the-art results on 57 continuous control tasks from MuJoCo, DMControl, MyoSuite, and Humanoid-bench.
 
 <p align="left">
-  <img src="docs/images/overview.png" style="max-height: 200px; object-fit: contain;" class="figure">
+  <img src="docs/images/overview.png" style="width: 50%; max-height: 200px; object-fit: contain;" class="figure">
 </p>
 
 <a href="https://joonleesky.github.io" class="nobreak">Hojoon Lee</a><sup>\*</sup>&ensp;
@@ -19,25 +19,45 @@ We introduce SimbaV2, a reinforcement learning architecture that stabilizes trai
 
 ## Result
 
-<span class="simbav2">SimbaV2</span> outperforms other RL algorithms, where performance scales as compute increases. The numbers below each dot indicate the update-to-data (UTD) ratio. <span class="simbav2">SimbaV2</span>, with UTD=1, achieves a performance of $0.848$, surpassing <span class="tdmpc2">TD-MPC2</span> ($0.749$), the most computationally intensive version of <span class="simba">Simba</span> ($0.818$), and <span class="bro">BRO</span> ($0.807$). The results show normalized returns, averaged over $57$ continuous control tasks from MuJoCo, DMControl, MyoSuite, and HumanoidBench, each trained on $1$ million samples.
+We compare SimbaV2 to the original Simba by tracking:
+- (a) Average normalized return across tasks.
+- (b) Weighted sum of $\ell_2$-norms of all intermediate features in critics.
+- (c) Weighted sum of $\ell_2$-norms of all critic parameters.
+- (d) Weighted sum of $\ell_2$-norms of all gradients in critics.
+- (e) Effective learning rate (ELR) of the critics.
+
+SimbaV2 consistently maintains stable norms and ELR, while Simba shows divergent fluctuations.
 
 
 <p align="center">
-  <img src="docs/images/online.png" style="max-height: 400px; object-fit: contain;" class="figure">
+  <img src="docs/images/analysis.png" style="max-height: 160px; object-fit: contain;" class="figure">
 </p>
 
-We scale the number of model parameters by increasing the width of the critic network, and scale compute by increasing the update-to-data (UTD) ratio with and without periodic reset. For an empirical analysis, we define two challenging benchmark subsets: DMC-Hard ($7$ tasks involving $\texttt{dog}$ and $\texttt{humanoid}$ embodiments) and HBench-Hard ($5$ tasks: $\texttt{run}$, $\texttt{balance-simple}$, $\texttt{sit-hard}$, $\texttt{stair}$, $\texttt{walk}$). On both benchmarks, <span class="bold simbav2">SimbaV2</span> benefit from both increased model size and UTD ratio, while <span class="bold simba">Simba</span> plateaus at some moment. Notably, <span class="bold simbav2">SimbaV2</span> <strong>scales smoothly alongside UTD ratio even without reset, where using reset slightly degrades its performance</strong>.
+We scale model parameters by increasing critic width and scale compute via the update-to-data (UTD) ratio. We also explore resetting vs. non-resetting training:
+- DMC-Hard (7 tasks): $\texttt{dog}$ and $\texttt{humanoid}$ embodiments.
+- HBench-Hard (5 tasks): $\texttt{run}$, $\texttt{balance-simple}$, $\texttt{sit-hard}$, $\texttt{stair}$, $\texttt{walk}$.
+
+On these challenging subsets, SimbaV2 benefits from increasing model size and UTD, while Simba plateaus. Notably, SimbaV2 scales smoothly with UTD even without resets, and resetting can slightly degrade its performance.
 
 <p align="center">
   <img src="docs/images/param_scaling.png" style="max-height: 160px; object-fit: contain;" class="figure">
   <img src="docs/images/utd_scaling.png" style="max-height: 160px; object-fit: contain;" class="figure">
 </p>
 
+SimbaV2 outperforms competing RL algorithms, with performance improving as compute increases. 
+
+<p align="center">
+  <img src="docs/images/online.png" style="max-height: 400px; object-fit: contain;" class="figure">
+</p>
+
+
 ## Getting strated
+
+We use Gymnasium 1.0 API interface which provides seamless integration with diverse RL environments.
 
 ### Docker
 
-We provide a `Dockerfile` for easy installation. You can build the docker image by running
+We provide a `Dockerfile` for easy installation. You can build the docker image by running.
 
 ```
 docker build . -t scale_rl .
