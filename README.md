@@ -30,24 +30,24 @@ SimbaV2 consistently maintains stable norms and ELR, while Simba shows divergent
 
 
 <p align="center">
-  <img src="docs/images/analysis.png" style="max-height: 160px; object-fit: contain;" class="figure">
+  <img src="docs/images/analysis.png" style="width: 95%; object-fit: contain;" class="figure">
 </p>
 
 We scale model parameters by increasing critic width and scale compute via the update-to-data (UTD) ratio. We also explore resetting vs. non-resetting training:
 - DMC-Hard (7 tasks): $\texttt{dog}$ and $\texttt{humanoid}$ embodiments.
 - HBench-Hard (5 tasks): $\texttt{run}$, $\texttt{balance-simple}$, $\texttt{sit-hard}$, $\texttt{stair}$, $\texttt{walk}$.
 
-On these challenging subsets, SimbaV2 benefits from increasing model size and UTD, while Simba plateaus. Notably, SimbaV2 scales smoothly with UTD even without resets, and resetting can slightly degrade its performance.
+On these challenging subsets, SimbaV2 benefits from increasing model size and UTD, while Simba plateaus. Notably, SimbaV2 scales smoothly with UTD even without resets, and resetting can degrade its performance.
 
 <p align="center">
-  <img src="docs/images/param_scaling.png" style="max-height: 160px; object-fit: contain;" class="figure">
-  <img src="docs/images/utd_scaling.png" style="max-height: 160px; object-fit: contain;" class="figure">
+  <img src="docs/images/param_scaling.png" style="width: 46%; margin-right: 3%; display:inline-block;" class="figure">
+  <img src="docs/images/utd_scaling.png" style="width: 46%; display:inline-block;" class="figure">
 </p>
 
 SimbaV2 outperforms competing RL algorithms, with performance improving as compute increases. 
 
 <p align="center">
-  <img src="docs/images/online.png" style="max-height: 400px; object-fit: contain;" class="figure">
+  <img src="docs/images/online.png" style="width: 95%; object-fit: contain;" class="figure">
 </p>
 
 
