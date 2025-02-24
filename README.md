@@ -15,7 +15,7 @@ SimbaV2 is a reinforcement learning architecture designed to stabilize training 
 <a href="https://www.cs.utexas.edu/~pstone/" class="nobreak">Peter Stone</a><sup></sup>&ensp;
 <a href="https://sites.google.com/site/jaegulchoo" class="nobreak">Jaegul Choo</a><sup></sup>&ensp;
 
-[[Website]](https://dojeon-ai.github.io/SimbaV2/) [[Paper]](https://arxiv.org/abs/2310.16828) [[Dataset]](https://www.tdmpc2.com/dataset)
+[[Website]](https://dojeon-ai.github.io/SimbaV2/) [[Paper]](https://arxiv.org/abs/2502.15280) [[Dataset]](https://huggingface.co/datasets/joonleesky/simbaV2)
 
 ## Result
 
