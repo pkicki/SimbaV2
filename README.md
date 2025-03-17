@@ -144,9 +144,10 @@ This project is released under the [Apache 2.0 license](/LICENSE).
 If you find our work useful, please consider citing our paper as follows:
 
 ```
-@article{lee2025simbav2,
-  title={Hyperspherical Normalization for Scalable Deep Reinforcement Learning}, 
-  author={Hojoon Lee and Youngdo Lee and Takuma Seno and Donghu Kim and Peter Stone and Jaegul Choo},
+@article{lee2025hyperspherical,
+  title={Hyperspherical Normalization for Scalable Deep Reinforcement Learning},
+  author={Lee, Hojoon and Lee, Youngdo and Seno, Takuma and Kim, Donghu and Stone, Peter and Choo, Jaegul},
+  journal={arXiv preprint arXiv:2502.15280},
   year={2025}
 }
 ```
