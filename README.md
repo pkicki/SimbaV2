@@ -69,7 +69,7 @@ docker run --gpus all -v .:/home/user/scale_rl -it scale_rl /bin/bash
 If you prefer to install dependencies manually, start by installing dependencies via conda by following the guidelines.
 ```
 # Use pip
-pip install -e .
+pip install -r deps/requirements.txt 
 
 # Or use conda
 conda env create -f deps/environment.yaml
