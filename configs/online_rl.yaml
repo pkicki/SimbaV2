@@ -4,8 +4,9 @@
 
 project_name: 'SimbaV2'
 entity_name: 'kicai'
-group_name: 'test'
-exp_name: 'test'
+exp_name: 'h1_walk_base'
+group_name: 'h1_walk_base'
+run_name: 'h1_walk_base_${seed}'
 seed: 0
 server: 'local'
 save_path: 'models/${group_name}/${exp_name}/${env.env_name}/${seed}'
