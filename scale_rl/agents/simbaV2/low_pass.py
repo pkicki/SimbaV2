@@ -45,6 +45,15 @@ class LowPassNoiseDist(tfd.Distribution):
             name=name,
         )
 
+        # compute rescaler to maintain the base std
+        self.rescaler = 1.
+        samples = jnp.array([self.sample(seed=jax.random.PRNGKey(seed=i)) for i in range(self.seq_len)])[:, 0]
+        self.rescaler = 1. / samples.std(axis=0).mean()
+
+        self.x_hist = jnp.zeros((self.order+1, self._loc.shape[-1]))
+        self.y_hist = jnp.zeros((self.order, self._loc.shape[-1]))
+
+
     @property
     def loc(self):
         return self._loc
@@ -71,7 +80,7 @@ class LowPassNoiseDist(tfd.Distribution):
             y = jnp.dot(self.b_jax, self.x_hist) - jnp.dot(self.a_jax[1:], self.y_hist)
             self.y_hist = jnp.roll(self.y_hist, shift=1, axis=0)
             self.y_hist = self.y_hist.at[0].set(y)
-            eps = y[None, None]
+            eps = y[None, None] * self.rescaler
 
         return self._loc + eps * self._scale_diag
 
@@ -148,8 +157,8 @@ class SimbaV2LPActor(nn.Module):
             order=self.order,
             sampling_freq=self.sampling_freq,
             seq_len=self.seq_len,
-            loc=jnp.zeros((self.action_dim,)),
-            scale_diag=jnp.ones((self.action_dim,)),
+            loc=jnp.zeros((1, self.action_dim)),
+            scale_diag=jnp.ones((1, self.action_dim)),
         )
 
     def __call__(
