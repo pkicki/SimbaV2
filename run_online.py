@@ -62,6 +62,9 @@ def run(args):
     # Since the network architecture is typically tied to the learning algorithm,
     #   we opted not to fully modularize the network for the sake of readability.
     # Therefore, for each algorithm, the network is implemented within its respective directory.
+    with omegaconf.open_dict(cfg):
+        cfg.agent.seq_len = train_env.envs[0].unwrapped.task.max_episode_steps
+        cfg.agent.sampling_freq = 1./ train_env.envs[0].unwrapped.dt
 
     agent = create_agent(
         observation_space=observation_space,
