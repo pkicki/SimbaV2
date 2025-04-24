@@ -198,8 +198,8 @@ class SimbaV2LPAgent(SimbaV2Agent):
             order=self._cfg.actor_order,
             sampling_freq=self._cfg.sampling_freq,
             seq_len=self._cfg.seq_len,
-            loc=jnp.zeros((self._action_dim,)),
-            scale_diag=jnp.ones((self._action_dim,)),
+            loc=jnp.zeros((1, self._action_dim,)),
+            scale_diag=jnp.ones((1, self._action_dim,)),
         )
 
         self.b_jax = lpn.b_jax
@@ -224,7 +224,7 @@ class SimbaV2LPAgent(SimbaV2Agent):
         # current timestep observation is "next" observations from the previous timestep
         observations = jnp.asarray(prev_timestep["next_observation"])
 
-        self._rng, self.x_hist, self.y_hist, actions = _sample_simbav2_actions(
+        self._rng, self.x_hist, self.y_hist, actions, eps, eps_ = _sample_simbav2_actions(
             rng=self._rng, actor=self._actor, observations=observations,
             x_hist=self.x_hist, y_hist=self.y_hist, a_jax=self.a_jax, b_jax=self.b_jax,
             rescaler=self.rescaler, temperature=temperature
@@ -249,7 +249,7 @@ def _sample_simbav2_actions(
     dist, _ = actor(observations=observations, temperature=temperature)
 
     assert dist.distribution.batch_shape[0] == 1
-    eps = jax.random.normal(key, shape=dist.distribution.batch_shape + dist.distribution.event_shape)
+    eps = jax.random.normal(key, shape=dist.distribution.batch_shape + dist.distribution.event_shape) * temperature
             # filter the signal
     x_hist = jnp.roll(x_hist, shift=1, axis=0)
     x_hist = x_hist.at[0].set(eps[0])
@@ -262,4 +262,4 @@ def _sample_simbav2_actions(
     std = dist.distribution.stddev()
     actions = mean + eps_ * std
     actions = dist.bijector.forward(actions)
-    return rng, x_hist, y_hist, actions
+    return rng, x_hist, y_hist, actions, eps, eps_
