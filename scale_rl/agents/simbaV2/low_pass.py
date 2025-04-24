@@ -1,9 +1,14 @@
+from typing import Dict, Tuple
+import gym
 import jax.numpy as jnp
+import numpy as np
 from scipy.signal import butter
 import jax
 import flax.linen as nn
 from tensorflow_probability.substrates import jax as tfp
 
+from scale_rl.agents.jax_utils.network import Network, PRNGKey
+from scale_rl.agents.simbaV2.simbaV2_agent import SimbaV2Agent, SimbaV2Config
 from scale_rl.agents.simbaV2.simbaV2_layer import HyperEmbedder, HyperLERPBlock, HyperNormalTanhPolicy
 tfd = tfp.distributions
 tfb = tfp.bijectors
@@ -126,6 +131,7 @@ class SimbaV2LPActor(nn.Module):
     order: int
     sampling_freq: float
     seq_len: int
+    dist: LowPassNoiseDist
 
     def setup(self):
         self.embedder = HyperEmbedder(
@@ -152,14 +158,8 @@ class SimbaV2LPActor(nn.Module):
             scaler_init=1.0,
             scaler_scale=1.0,
         )
-        self.dist = LowPassNoiseDist(
-            cutoff=self.cutoff,
-            order=self.order,
-            sampling_freq=self.sampling_freq,
-            seq_len=self.seq_len,
-            loc=jnp.zeros((1, self.action_dim)),
-            scale_diag=jnp.ones((1, self.action_dim)),
-        )
+
+
 
     def __call__(
         self,
@@ -174,3 +174,92 @@ class SimbaV2LPActor(nn.Module):
         dist = tfd.TransformedDistribution(distribution=self.dist, bijector=tfb.Tanh())
 
         return dist, info
+
+
+class SimbaV2LPAgent(SimbaV2Agent):
+    def __init__(
+        self,
+        observation_space: gym.spaces.Space,
+        action_space: gym.spaces.Space,
+        cfg: SimbaV2Config,
+    ):
+        """
+        An agent that randomly selects actions without training.
+        Useful for collecting baseline results and for debugging purposes.
+        """
+        super(SimbaV2LPAgent, self).__init__(
+            observation_space,
+            action_space,
+            cfg,
+        )
+
+        lpn = LowPassNoiseDist(
+            cutoff=self._cfg.actor_cutoff,
+            order=self._cfg.actor_order,
+            sampling_freq=self._cfg.sampling_freq,
+            seq_len=self._cfg.seq_len,
+            loc=jnp.zeros((self._action_dim,)),
+            scale_diag=jnp.ones((self._action_dim,)),
+        )
+
+        self.b_jax = lpn.b_jax
+        self.a_jax = lpn.a_jax
+        self.rescaler = lpn.rescaler
+        self.x_hist = lpn.x_hist
+        self.y_hist = lpn.y_hist
+        
+
+
+    def sample_actions(
+        self,
+        interaction_step: int,
+        prev_timestep: Dict[str, np.ndarray],
+        training: bool,
+    ) -> np.ndarray:
+        if training:
+            temperature = 1.0
+        else:
+            temperature = 0.0
+
+        # current timestep observation is "next" observations from the previous timestep
+        observations = jnp.asarray(prev_timestep["next_observation"])
+
+        self._rng, self.x_hist, self.y_hist, actions = _sample_simbav2_actions(
+            rng=self._rng, actor=self._actor, observations=observations,
+            x_hist=self.x_hist, y_hist=self.y_hist, a_jax=self.a_jax, b_jax=self.b_jax,
+            rescaler=self.rescaler, temperature=temperature
+        )
+        actions = np.array(actions)
+
+        return actions
+
+@jax.jit
+def _sample_simbav2_actions(
+    rng: PRNGKey,
+    actor: Network,
+    observations: jnp.ndarray,
+    x_hist: jnp.ndarray,
+    y_hist: jnp.ndarray,
+    a_jax: jnp.ndarray,
+    b_jax: jnp.ndarray,
+    rescaler: float = 1.0,
+    temperature: float = 1.0,
+) -> Tuple[PRNGKey, jnp.ndarray]:
+    rng, key = jax.random.split(rng)
+    dist, _ = actor(observations=observations, temperature=temperature)
+
+    assert dist.distribution.batch_shape[0] == 1
+    eps = jax.random.normal(key, shape=dist.distribution.batch_shape + dist.distribution.event_shape)
+            # filter the signal
+    x_hist = jnp.roll(x_hist, shift=1, axis=0)
+    x_hist = x_hist.at[0].set(eps[0])
+    y = jnp.dot(b_jax, x_hist) - jnp.dot(a_jax[1:], y_hist)
+    y_hist = jnp.roll(y_hist, shift=1, axis=0)
+    y_hist = y_hist.at[0].set(y)
+    eps_ = y[None] * rescaler
+
+    mean = dist.distribution.mean()
+    std = dist.distribution.stddev()
+    actions = mean + eps_ * std
+    actions = dist.bijector.forward(actions)
+    return rng, x_hist, y_hist, actions

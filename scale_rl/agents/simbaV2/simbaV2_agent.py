@@ -10,7 +10,6 @@ import optax
 
 from scale_rl.agents.base_agent import BaseAgent
 from scale_rl.agents.jax_utils.network import Network, PRNGKey
-from scale_rl.agents.simbaV2.low_pass import SimbaV2LPActor
 from scale_rl.agents.simbaV2.simbaV2_network import (
     SimbaV2Actor,
     SimbaV2Critic,
@@ -49,7 +48,6 @@ class SimbaV2Config:
     learning_rate_decay_rate: float
     learning_rate_decay_step: int
 
-    actor_type: str
     actor_num_blocks: int
     actor_hidden_dim: int
     actor_c_shift: float
@@ -106,32 +104,51 @@ def _init_simbav2_networks(
     rng, actor_key, critic_key, temp_key = jax.random.split(rng, 4)
 
     # When initializing the network in the flax.nn.Module class, rng_key should be passed as rngs.
-    if cfg.actor_type == "default":
-        actor_network = SimbaV2Actor(
-                num_blocks=cfg.actor_num_blocks,
-                hidden_dim=cfg.actor_hidden_dim,
-                action_dim=action_dim,
-                c_shift=cfg.actor_c_shift,
-                scaler_init=cfg.actor_scaler_init,
-                scaler_scale=cfg.actor_scaler_scale,
-                alpha_init=cfg.actor_alpha_init,
-                alpha_scale=cfg.actor_alpha_scale,
-        )
-    elif cfg.actor_type == "lowpass":
-        actor_network = SimbaV2LPActor(
-                num_blocks=cfg.actor_num_blocks,
-                hidden_dim=cfg.actor_hidden_dim,
-                action_dim=action_dim,
-                scaler_init=cfg.actor_scaler_init,
-                scaler_scale=cfg.actor_scaler_scale,
-                alpha_init=cfg.actor_alpha_init,
-                alpha_scale=cfg.actor_alpha_scale,
-                c_shift=cfg.actor_c_shift,
-                cutoff=cfg.actor_cutoff,
-                order=cfg.actor_order,
-                sampling_freq=cfg.sampling_freq,
-                seq_len=cfg.seq_len,
-        )
+    actor_network = SimbaV2Actor(
+            num_blocks=cfg.actor_num_blocks,
+            hidden_dim=cfg.actor_hidden_dim,
+            action_dim=action_dim,
+            c_shift=cfg.actor_c_shift,
+            scaler_init=cfg.actor_scaler_init,
+            scaler_scale=cfg.actor_scaler_scale,
+            alpha_init=cfg.actor_alpha_init,
+            alpha_scale=cfg.actor_alpha_scale,
+    )
+    #if cfg.actor_type == "default":
+    #    actor_network = SimbaV2Actor(
+    #            num_blocks=cfg.actor_num_blocks,
+    #            hidden_dim=cfg.actor_hidden_dim,
+    #            action_dim=action_dim,
+    #            c_shift=cfg.actor_c_shift,
+    #            scaler_init=cfg.actor_scaler_init,
+    #            scaler_scale=cfg.actor_scaler_scale,
+    #            alpha_init=cfg.actor_alpha_init,
+    #            alpha_scale=cfg.actor_alpha_scale,
+    #    )
+    #elif cfg.actor_type == "lowpass":
+    #    dist = LowPassNoiseDist(
+    #        cutoff=cfg.actor_cutoff,
+    #        order=cfg.actor_order,
+    #        sampling_freq=cfg.sampling_freq,
+    #        seq_len=cfg.seq_len,
+    #        loc=jnp.zeros((1, action_dim)),
+    #        scale_diag=jnp.ones((1, action_dim)),
+    #    )
+    #    actor_network = SimbaV2LPActor(
+    #            num_blocks=cfg.actor_num_blocks,
+    #            hidden_dim=cfg.actor_hidden_dim,
+    #            action_dim=action_dim,
+    #            scaler_init=cfg.actor_scaler_init,
+    #            scaler_scale=cfg.actor_scaler_scale,
+    #            alpha_init=cfg.actor_alpha_init,
+    #            alpha_scale=cfg.actor_alpha_scale,
+    #            c_shift=cfg.actor_c_shift,
+    #            cutoff=cfg.actor_cutoff,
+    #            order=cfg.actor_order,
+    #            sampling_freq=cfg.sampling_freq,
+    #            seq_len=cfg.seq_len,
+    #            dist=dist,
+    #    )
     actor = Network.create(
         network_def=actor_network,
         network_inputs={"rngs": actor_key, "observations": fake_observations},

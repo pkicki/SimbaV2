@@ -2,7 +2,7 @@
 # SAC with Hyper-Simba architecture
 ##################################################################################
 
-agent_type: 'simbaV2'
+agent_type: 'simbaV2lp'
 
 seed: ${seed}
 normalize_observation: true
